@@ -246,8 +246,15 @@ function App() {
   const [cardanamnese, setcardanamnese] = useState(0);
   // color scheme.
   const [schemecolor, setschemecolor] = useState("purplescheme");
+
   // APT (IVCF/curva de moraes).
   const [ivcf, setivcf] = useState(0);
+
+  // APT plano terapêutico.
+  const [idplanoterapeutico, setidplanoterapeutico] = useState(0);
+  const [dataplanoterapeutico, setdataplanoterapeutico] = useState('');
+  const [statusplanoterapeutico, setstatusplanoterapeutico] = useState(0);
+  const [linhadecuidado, setlinhadecuidado] = useState(0);
 
   var html = 'https://pulsarapp-server.herokuapp.com';
   const loadSettings = () => {
@@ -350,6 +357,11 @@ function App() {
         schemecolor, setschemecolor,
         // APT ivcf / curva de moraes.
         ivcf, setivcf,
+        // APT plano terapêutico.
+        idplanoterapeutico, setidplanoterapeutico,
+        dataplanoterapeutico, setdataplanoterapeutico,
+        statusplanoterapeutico, setstatusplanoterapeutico,
+        linhadecuidado, setlinhadecuidado,
       }}
     >
       <div className={schemecolor}>

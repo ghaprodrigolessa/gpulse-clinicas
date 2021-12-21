@@ -1094,7 +1094,7 @@ function Unidades() {
                     fontSize: 10,
                   }}
                 >
-                  { window.innerWidth < 600 ? 'REAB' : 'REABILITAÇÃO'}
+                  {window.innerWidth < 600 ? 'REAB' : 'REABILITAÇÃO'}
                 </p>
               </div>
 
@@ -1148,152 +1148,6 @@ function Unidades() {
           <div id={"hospitaisstuff" + item.id} className="retractcard"
             style={{ display: 'flex', flexDirection: 'row' }}>
 
-            <div id="gráficoMIF"
-              style={{
-                display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                width: '15vw', height: '15vw', backgroundColor: "#F2F2F2", borderRadius: 5,
-                padding: 10, margin: 10
-              }}>
-              <div className="title2center">MIF</div>
-              <div className="scroll"
-                style={{
-                  overflowY: 'hidden', overflowX: 'scroll',
-                  padding: 5,
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                    width: '40vw',
-                    height: 100,
-                    padding: 5, paddingRight: 12
-                  }}>
-                  <Bar
-                    data={dataChartMif}
-                    // width={'100%'}
-                    // height={100}
-                    plugins={ChartDataLabels}
-                    options={{
-                      scales: {
-                        xAxes: [{
-                          gridLines: {
-                            display: false
-                          },
-                          ticks: {
-                            display: false
-                          }
-                        }],
-                        yAxes: [{
-                          gridLines: {
-                            display: false
-                          },
-                          ticks: {
-                            display: false,
-                            suggestedMin: 0,
-                            suggestedMax: 100,
-                          }
-                        }]
-                      },
-                      plugins: {
-                        datalabels: {
-                          display: false,
-                        },
-                      },
-                      tooltips: {
-                        enabled: false,
-                      },
-                      hover: { mode: null },
-                      animation: {
-                        duration: 500,
-                      },
-                      title: {
-                        display: false,
-                      },
-                      legend: {
-                        display: false,
-                        position: 'bottom',
-                      },
-                      maintainAspectRatio: false,
-                      responsive: true,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div id="gráficoPlanoTerapeutico"
-              style={{
-                display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                width: '15vw', height: '15vw', backgroundColor: "#F2F2F2", borderRadius: 5,
-                padding: 10, margin: 10
-              }}>
-              <div className="title2center">PLANO TERAPÊUTICO</div>
-              <div className="scroll"
-                style={{
-                  overflowY: 'hidden', overflowX: 'scroll',
-                  padding: 5,
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                    width: '40vw',
-                    height: 60,
-                    padding: 5, paddingRight: 12
-                  }}>
-                  <Bar
-                    data={dataChartPlanoTerapeutico}
-                    // width={'100%'}
-                    // height={100}
-                    plugins={ChartDataLabels}
-                    options={{
-                      scales: {
-                        xAxes: [{
-                          gridLines: {
-                            display: false
-                          },
-                          ticks: {
-                            display: false
-                          }
-                        }],
-                        yAxes: [{
-                          gridLines: {
-                            display: false
-                          },
-                          ticks: {
-                            display: false,
-                            suggestedMin: 0,
-                            suggestedMax: 100,
-                          }
-                        }]
-                      },
-                      plugins: {
-                        datalabels: {
-                          display: false,
-                        },
-                      },
-                      tooltips: {
-                        enabled: false,
-                      },
-                      hover: { mode: null },
-                      animation: {
-                        duration: 500,
-                      },
-                      title: {
-                        display: false,
-                      },
-                      legend: {
-                        display: false,
-                        position: 'bottom',
-                      },
-                      maintainAspectRatio: false,
-                      responsive: true,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={(e) => { history.push('/escala'); e.stopPropagation() }}
               className="blue-button"
@@ -1306,8 +1160,19 @@ function Unidades() {
               ESCALA PROFISSIONAL
             </button>
 
+            <button
+              id="cardbunda"
+              className="widget"
+              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', padding: 5, margin: 10 }}
+            >
+              <div className="pulsewidgettittle">LOCALIZAR PACIENTES</div>
+              <div className="pulsewidgetcontent"
+                style={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+              >
+                {radarPacientes(item)}
+              </div>
+            </button>
           </div>
-
         </div>
       )
     } else if (
@@ -1661,6 +1526,188 @@ function Unidades() {
     } else {
       return null
     }
+  }
+
+  /* 
+  LOCALIZAÇÕES (setores):
+  
+  */
+  // radar/localizador de pacientes.
+
+  const radarPacientes = (item) => {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div>{'PACIENTES NO SETOR: ' + listatendimentos.filter(valor => valor.radar == item.unidade).length}</div>
+        <div className="scroll" STYLE={{ height: 200 }}>
+          {listatendimentos.filter(valor => valor.radar == item.unidade).map(item => (
+            <div className="row">
+              <button className="green-button" style={{ padding: 10, width: '100%' }}>{item.nome}</button>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 10 }}>PACIENTES AUSENTES</div>
+        <div className="scroll" STYLE={{ height: 200 }}>
+          {listatendimentos.filter(valor => valor.radar != item.unidade).map(item => (
+            <div className="row">
+              <button className="green-button" style={{ padding: 10 }}>{item.nome}</button>
+              <button className="green-button" style={{ width: 100 }}>{item.radar}</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // gráficos complementares ao expandir o card de unidades (não utilizado no momento).
+  function cardGraphics() {
+    return (
+      <div>
+        <div id="gráficoMIF"
+          style={{
+            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            width: '15vw', height: '15vw', backgroundColor: "#F2F2F2", borderRadius: 5,
+            padding: 10, margin: 10
+          }}>
+          <div className="title2center">MIF</div>
+          <div className="scroll"
+            style={{
+              overflowY: 'hidden', overflowX: 'scroll',
+              padding: 5,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                width: '40vw',
+                height: 100,
+                padding: 5, paddingRight: 12
+              }}>
+              <Bar
+                data={dataChartMif}
+                // width={'100%'}
+                // height={100}
+                plugins={ChartDataLabels}
+                options={{
+                  scales: {
+                    xAxes: [{
+                      gridLines: {
+                        display: false
+                      },
+                      ticks: {
+                        display: false
+                      }
+                    }],
+                    yAxes: [{
+                      gridLines: {
+                        display: false
+                      },
+                      ticks: {
+                        display: false,
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                      }
+                    }]
+                  },
+                  plugins: {
+                    datalabels: {
+                      display: false,
+                    },
+                  },
+                  tooltips: {
+                    enabled: false,
+                  },
+                  hover: { mode: null },
+                  animation: {
+                    duration: 500,
+                  },
+                  title: {
+                    display: false,
+                  },
+                  legend: {
+                    display: false,
+                    position: 'bottom',
+                  },
+                  maintainAspectRatio: false,
+                  responsive: true,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        <div id="gráficoPlanoTerapeutico"
+          style={{
+            display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            width: '15vw', height: '15vw', backgroundColor: "#F2F2F2", borderRadius: 5,
+            padding: 10, margin: 10
+          }}>
+          <div className="title2center">PLANO TERAPÊUTICO</div>
+          <div className="scroll"
+            style={{
+              overflowY: 'hidden', overflowX: 'scroll',
+              padding: 5,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                width: '40vw',
+                height: 60,
+                padding: 5, paddingRight: 12
+              }}>
+              <Bar
+                data={dataChartPlanoTerapeutico}
+                // width={'100%'}
+                // height={100}
+                plugins={ChartDataLabels}
+                options={{
+                  scales: {
+                    xAxes: [{
+                      gridLines: {
+                        display: false
+                      },
+                      ticks: {
+                        display: false
+                      }
+                    }],
+                    yAxes: [{
+                      gridLines: {
+                        display: false
+                      },
+                      ticks: {
+                        display: false,
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                      }
+                    }]
+                  },
+                  plugins: {
+                    datalabels: {
+                      display: false,
+                    },
+                  },
+                  tooltips: {
+                    enabled: false,
+                  },
+                  hover: { mode: null },
+                  animation: {
+                    duration: 500,
+                  },
+                  title: {
+                    display: false,
+                  },
+                  legend: {
+                    display: false,
+                    position: 'bottom',
+                  },
+                  maintainAspectRatio: false,
+                  responsive: true,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   function Escala(item) {

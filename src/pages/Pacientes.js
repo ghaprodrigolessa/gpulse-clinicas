@@ -10,6 +10,9 @@ import Header from '../components/Header';
 import Context from '../Context';
 import { useHistory } from "react-router-dom";
 
+// leitor de qr code.
+import QrReader from 'react-qr-reader';
+
 // componentes do Paulo de Tarso (APT).
 import AptPlanoTerapeutico from '../components/AptPlanoTerapeutico';
 
@@ -24,10 +27,96 @@ function Pacientes() {
     nomehospital,
     nomeunidade,
     tipounidade,
+    idatendimento,
     setidatendimento,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
+
+  // renderização do leitor de qr.
+  const [recebepct, setrecebepct] = useState(0);
+  const [qrscan, setqrscan] = useState('LOUCURA');
+
+  console.log('DATA: ' + qrscan);
+
+  const handleScan = (result) => {
+    console.log('LENDO...')
+    if (result) {
+      setqrscan(result)
+      console.log('FUNFOU')
+      console.log('DATA: ' + qrscan);
+      // lógica para atualizar registro de atendimento com a localização atual.
+      var x = [];
+      x = atendimentos.filter((item) => item.ativo != 0 && item.idpaciente == qrscan).slice(-1);
+      console.log(x);
+      setTimeout(() => {
+        updateAtendimento(x, result);     
+      }, 2000);
+      setrecebepct(0);
+    }
+  }
+  const handleError = err => {
+    console.log('ERRO: ' + err)
+  }
+  
+  // função que atualiza o atendimento do paciente recebido na unidade.
+  const updateAtendimento = (x, result) => {
+    var obj = {
+      idpaciente: x.idpaciente,
+      radar: nomeunidade,
+      hospital: x.hospital,
+      unidade: x.unidade,
+      box: x.box,
+      admissao: x.admissao,
+      nome: x.nome,
+      dn: x.dn,
+      peso: x.peso,
+      altura: x.altura,
+      antecedentes: x.antecedentes,
+      alergias: x.alergias,
+      medicacoes: x.medicacoes,
+      exames: x.exames,
+      historia: x.historia,
+      status: x.status,
+      ativo: x.ativo,
+      classificacao: x.classificacao,
+      descritor: x.descritor,
+      precaucao: x.precaucao,
+      assistente: x.assistente,
+    };
+    axios.post(html + '/updateatendimento/' + result, obj).then(() => {
+    });
+  };
+
+  const QRScanner = () => {
+    return (
+      <div style={{ display: window.innerWidth < 1024 ? 'flex' : 'none' }}>
+        <button style={{
+          display: recebepct == 0 ? 'flex' : 'none',
+          margin: 20,
+          padding: 10,
+          // position: 'absolute', top: 20, left: 20, right: 20, padding: 10
+        }}
+          className="blue-button"
+          onClick={() => setrecebepct(1)}
+        >
+          RECEBER PACIENTE
+        </button>
+        <div style={{ display: recebepct == 1 ? 'flex' : 'none', borderColor: 'red', borderRadius: 5 }}>
+          <QrReader
+            delay={1000}
+            onError={handleError}
+            onScan={handleScan}
+            style={{
+              height: '90vw', width: '90vw', borderRadius: 5, margin: 20,
+              // position: 'absolute', top: 20, left: 20, right: 20
+            }}
+
+          />
+        </div>
+      </div>
+    )
+  }
 
   // carregamento do número de leitos do cti selecionado.
   const [leitos, setLeitos] = useState(10);
@@ -1481,10 +1570,12 @@ function Pacientes() {
         className="main fade-in"
       >
         <Header link={"/unidades"} titulo={nomehospital + ' - ' + nomeunidade}></Header>
+        <QRScanner></QRScanner>
         <div
           id="PRINCIPAL"
           style={{
             display: tipounidade == 2 && window.innerWidth > 400 ? 'flex' : 'none',
+            position: 'relative',
             flexDirection: 'row',
             justifyContent: 'flex-start',
             width: '100%',

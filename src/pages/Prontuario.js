@@ -77,6 +77,10 @@ import AptEscalaMIF from '../components/AptEscalaMIF';
 import AptEscalaIVCF from '../components/AptEscalaIVCF';
 import AptIVCF from '../components/AptIVCF';
 
+// importando gerador de qr code.
+import { useQRCode } from 'react-qrcode';
+import QRcode from 'qrcode.react';
+
 function Prontuario() {
   moment.locale('pt-br');
   var html = 'https://pulsarapp-server.herokuapp.com';
@@ -163,6 +167,26 @@ function Prontuario() {
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
+
+  const [qr, setqr] = useState(idpaciente);
+
+  const [showqr, setshowqr] = useState(0);
+  function ShowQr() {
+    return (
+      <div style={{ position: 'absolute', top: 30, left: 30, borderRadius: 5 }}>
+        <div style={{ display: showqr == 1 ? 'flex' : 'none', position: 'relative' }}>
+          <QRcode
+            id="myqr"
+            value={qr.toString()}
+            size={128}
+            includeMargin={true}
+            style={{ borderRadius: 5 }}
+            onClick={() => setshowqr(0)}
+          />
+        </div>
+      </div>
+    )
+  }
 
   function GetSpeech() {
     if (/Android/i.test(navigator.userAgent)) {
@@ -4409,6 +4433,8 @@ function Prontuario() {
   }
 
   // IDENTIFICAÇÃO DO PACIENTE.
+  // gerando qrcode da idpaciente.
+  var QRCode = require('qrcode.react');
   const [showdetalhes, setshowdetalhes] = useState(0);
   function Paciente() {
     return (
@@ -4423,6 +4449,7 @@ function Prontuario() {
           <img
             alt=""
             src={foto}
+            onClick={() => setshowqr(1)}
             style={{
               height: '90%',
               padding: 0,
@@ -4430,6 +4457,7 @@ function Prontuario() {
               borderRadius: 5,
             }}
           ></img>
+          <ShowQr></ShowQr>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'left', width: '100%' }}>
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', width: '100%' }}>
               <button
@@ -6398,12 +6426,13 @@ function Prontuario() {
   // card lesoes.
   function CardLesoes() {
     return (
-      <div id="cardlesao" style={{ display: cardlesoes == 1 ? 'flex' : 'none' }}
+      <div id="cardlesoes"
+        style={{ display: cardlesoes == 1 ? 'flex' : 'none' }}
         className="pulsewidgetbody"
         title="LESÕES DE PRESSÃO"
-        onClick={() => document.getElementById("cardlesao").classList.toggle("pulsewidgetbodyhover")}
+        onClick={() => document.getElementById("cardlesoes").classList.toggle("pulsewidgetbodyhover")}
         onMouseLeave={() => {
-          document.getElementById("cardlesao").scrollTop = 0
+          document.getElementById("cardlesoes").scrollTop = 0
         }}
       >
         <div className="pulsewidgettitle" style={{ alignItems: 'center' }}>
@@ -6419,7 +6448,7 @@ function Prontuario() {
           ></img>
         </div>
         <div
-          id="invasaocontent"
+          id="lesaocontent"
           className="pulsewidgetcontent"
         >
           <ShowLesoes></ShowLesoes>

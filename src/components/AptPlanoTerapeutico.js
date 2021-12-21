@@ -20,6 +20,10 @@ function AptPlanoTerapeutico() {
     idpaciente,
     idatendimento, ivcf, setivcf,
     listevolucoes,
+    idplanoterapeutico, setidplanoterapeutico,
+    dataplanoterapeutico, setdataplanoterapeutico,
+    statusplanoterapeutico, setstatusplanoterapeutico,
+    linhadecuidado, setlinhadecuidado,
   } = useContext(Context)
 
   var html = 'https://pulsarapp-server.herokuapp.com';
@@ -52,8 +56,8 @@ function AptPlanoTerapeutico() {
     setddfehumor(item.ddfehumor);
     setddfemobilidade(item.ddfemobilidade);
     setddfecomunicacao(item.ddfecomunicacao);
-    setlinhasdecuidados(item.linhasdecuidados);
-    setmetasterapeuticas(item.metasterapeuticas);
+    //setlinhasdecuidados(item.linhasdecuidados);
+    //setmetasterapeuticas(item.metasterapeuticas);
   }
   // salvando um registro de escala IVCF (escala de Moraes).
   const createIVCF = () => {
@@ -511,7 +515,6 @@ function AptPlanoTerapeutico() {
       {
         id: 1,
         idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
         data: '12/10/2020',
         linhadecuidado: 1,
         status: 3, // 1 = ativo, 2 = cancelado, 3 = concluído.
@@ -519,7 +522,6 @@ function AptPlanoTerapeutico() {
       {
         id: 2,
         idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
         data: '21/11/2021',
         linhadecuidado: 1,
         status: 1,
@@ -686,7 +688,6 @@ function AptPlanoTerapeutico() {
   // PLANOS TERAPÊUTICOS.
   // carregamento dos planos terapêuticos e seleção do último correspondente ao paciente atual.
   const [lastplanoterapeutico, setlastplanoterapeutico] = useState([]);
-  const [idplanoterapeutico, setidplanoterapeutico] = useState(0);
   const loadPlanosTerapeuticos = () => {
     axios.get(html + "/planoterapeutico").then((response) => {
       var x = [0, 1];
@@ -696,6 +697,14 @@ function AptPlanoTerapeutico() {
       setidplanoterapeutico(x.slice(-1).map(item => item.id)); // recuperando a id do último plano terapêutico.
     });
   }
+  // selecionando um plano terapêutico da lista de planos terapêuticos.
+  const selectPlanoTerapeutico = (item) => {
+    setidplanoterapeutico(item.id);
+    setdataplanoterapeutico(item.data);
+    setstatusplanoterapeutico(item.status);
+    setlinhadecuidado(item.linhadecuidado);
+  }
+
   // lista de planos terapêuticos relativos ao paciente em atendimento (histórico).
   function ListaDePlanosTerapeuticos() {
     return (
@@ -720,7 +729,7 @@ function AptPlanoTerapeutico() {
         }}
       >
         {planosterapeuticos.map(item => (
-          <div className="card" onClick={() => selectIVCF(item)}>
+          <div className="card" onClick={() => selectPlanoTerapeutico(item)}>
             {item.data}
           </div>
         ))}
@@ -748,23 +757,26 @@ function AptPlanoTerapeutico() {
             backgroundColor: 'grey',
             borderTopLeftRadius: 5, borderTopRightRadius: 5,
             borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+            opacity: 1,
           }}>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
             <div style={{ display: 'flex', flexDirection: window.innerWidth > 400 ? 'row' : 'column', justifyContent: 'center', width: '100%' }}>
               <div className="title5" style={{ width: '100%', textAlign: 'left', justifyContent: 'flex-start' }}>
-                {'PLANO TERAPÊUTICO ' + lastplanoterapeutico.map(item => item.id)}
+                {'PLANO TERAPÊUTICO ' + idplanoterapeutico}
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                 <button title="INÍCIO" className="blue-button" style={{ width: window.innerWidth > 400 ? '10vw' : 100 }}>
-                  {lastplanoterapeutico.map(item => item.data)}
+                  {dataplanoterapeutico}
                 </button>
                 <button title="STATUS" className="green-button" style={{ width: window.innerWidth > 400 ? '10vw' : 100 }}>
-                  {lastplanoterapeutico.map(item => item.status) == 1 ? 'ATIVO' :
-                    lastplanoterapeutico.map(item => item.status) == 2 ? 'INTERRROMPIDO' :
+                  {statusplanoterapeutico == 1 ? 'ATIVO' :
+                    statusplanoterapeutico == 2 ? 'INTERRROMPIDO' :
                       'CONCLUÍDO'
                   }
                 </button>
-                <button title="INTERROMPER PLANO TERAPÊUTICO" className="animated-yellow-button">
+                <button title="INTERROMPER PLANO TERAPÊUTICO"
+                  style={{ display: statusplanoterapeutico == 1 ? 'flex' : 'none' }}
+                  className="animated-yellow-button">
                   !
                 </button>
               </div>
