@@ -35,6 +35,8 @@ import Unidades from './pages/Unidades'
 import UpdateAtendimento from './components/UpdateAtendimento'
 import Settings from './components/Settings'
 
+var htmlleitos = process.env.REACT_APP_API_LEITOS;
+
 // função que encapsula todos os componentes de páginas e coordena o iddle-timeout.
 function IddleTimeOut() {
   /* eslint eqeqeq: 0 */
@@ -171,6 +173,7 @@ function App() {
   const [box, setbox] = useState('')
   // identificação do paciente.
   const [idpaciente, setidpaciente] = useState(0)
+  const [dadospaciente, setdadospaciente] = useState([])
   const [idatendimento, setidatendimento] = useState(0)
   const [nomepaciente, setnomepaciente] = useState('')
   const [dn, setdn] = useState('')
@@ -184,6 +187,10 @@ function App() {
   const [hemoderivados, sethemoderivados] = useState(0);
   const [printhemoderivados, setprinthemoderivados] = useState(0);
   const [printtermohemoderivados, setprinttermohemoderivados] = useState(0);
+  // listas principais.
+  const [todosleitos, settodosleitos] = useState([]);
+  const [todospacientes, settodospacientes] = useState([]);
+  const [todosatendimentos, settodosatendimentos] = useState([]);
   // listas da tela prontuário.
   const [listevolucoes, setlistevolucoes] = useState([]);
   const [arrayevolucao, setarrayevolucao] = useState([]);
@@ -268,8 +275,18 @@ function App() {
     });
   }
 
+  const loadLeitos = () => {
+    axios.get(htmlleitos).then((response) => {
+      var x = [0, 1]
+      x = response.data
+      settodosleitos([0, 1]);
+      settodosleitos(response.data)
+    })
+  }
+
   useEffect(() => {
     loadSettings();
+    loadLeitos();
   }, [])
 
   return (
@@ -291,6 +308,7 @@ function App() {
         box, setbox,
         // identificação do paciente.
         idpaciente, setidpaciente,
+        dadospaciente, setdadospaciente,
         nomepaciente, setnomepaciente,
         dn, setdn,
         peso, setpeso,
@@ -303,6 +321,10 @@ function App() {
         hemoderivados, sethemoderivados,
         printhemoderivados, setprinthemoderivados,
         printtermohemoderivados, setprinttermohemoderivados,
+        // listas principais.
+        todosleitos, settodosleitos,
+        todosatendimentos, settodosatendimentos,
+        todospacientes, settodospacientes,
         // listas do prontuário.
         listevolucoes, setlistevolucoes,
         arrayevolucao, setarrayevolucao,

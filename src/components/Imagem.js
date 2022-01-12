@@ -12,6 +12,7 @@ function Imagem(
   }) {
   //servidor.
   var html = 'https://pulsarapp-server.herokuapp.com';
+  var htmlimagem = process.env.REACT_APP_API_IMAGEM;
 
   // recuperando estados globais (Context.API).
   const {
@@ -71,7 +72,7 @@ function Imagem(
   // carregando lista de opções de exames de imagem.
   const [listimg, setlistimg] = useState([])
   const loadOptionsImagens = () => {
-    axios.get(html + '/imagem_options').then((response) => {
+    axios.get(htmlimagem).then((response) => {
       setlistimg(response.data);
     });
   }
@@ -94,26 +95,22 @@ function Imagem(
         document.getElementById("inputFilterImagem").focus();
       } else {
         setfilterimagem(document.getElementById("inputFilterImagem").value.toUpperCase());
-        setarrayfilterimagem(listimg.filter(item => item.exame.includes(searchimagem) === true));
+        setarrayfilterimagem(listimg.filter(item => item.nome_exame_imagem.includes(searchimagem) === true));
         document.getElementById("inputFilterImagem").value = searchimagem;
         document.getElementById("inputFilterImagem").focus();
       }
     }, 500);
   }
   const addImagem = (item) => {
-    var exame = item.exame;
     var newimagem = {
-      idatendimento: idatendimento,
-      codigo: item.codigo,
-      exame: item.exame,
-      laudo: item.laudo,
-      status: 'PENDENTE',
-      pedido: moment().format('DD/MM/YY HH:mm'),
-      resultado: '',
+      codigo_exame_imagem: item.codigo_exame_imagem,
+      nome_exame_imagem: item.nome_exame_imagem,
     }
-    const x = arrayimg.indexOf((item) => item.exame === exame);
-    if (x !== '') {
-      arrayimg.push(newimagem);
+    var addimagem = {
+      codigo_exame_imagem: item.codigo_exame_imagem,
+    }
+    if (selectedlistimagem.filter(value => value.codigo_exame_imagem == item.codigo_exame_imagem).length < 1) {
+      arrayimg.push(addimagem);
       selectedlistimagem.push(newimagem);
       setarrayfilterimagem([]);
       setfilterimagem('');
@@ -122,11 +119,9 @@ function Imagem(
     }
   }
   const deleteImagem = (item) => {
-    var exame = item.exame;
-    const x = arrayimg.indexOf((item) => item.exame === exame);
-    const y = selectedlistimagem.indexOf((item) => item.exame === exame);
+    const x = arrayimg.filter(value => value.codigo_exame_imagem == item.codigo_exame_imagem);
     arrayimg.splice(x, 1);
-    selectedlistimagem.splice(y, 1);
+    selectedlistimagem.splice(x, 1);
     setarrayfilterimagem([]);
     setfilterimagem('');
     document.getElementById("inputFilterImagem").value = '';
@@ -151,7 +146,7 @@ function Imagem(
           onClick={() => document.getElementById("inputJustificativa").style.display = "none"}
           onFocus={(e) => (e.target.placeholder = '')}
           onBlur={(e) => (e.target.placeholder = 'BUSCAR EXAME...')}
-          onChange={() => { filterImagem(); document.getElementById("inputJustificativa").style.display = "none" }}
+          onChange={() => { filterImagem() }}
           style={{
             width: window.innerWidth > 400 ? '60vw' : '75vw',
             margin: 20,
@@ -179,12 +174,12 @@ function Imagem(
             >
               <button
                 onClick={() => { addImagem(item); document.getElementById("inputJustificativa").style.display = "flex" }}
-                className="hover-button"
+                className="green-button"
                 style={{
                   width: '100%',
                 }}
               >
-                {item.exame}
+                {item.nome_exame_imagem}
               </button>
             </p>
           ))}
@@ -211,7 +206,7 @@ function Imagem(
                   width: '100%',
                 }}
               >
-                {item.exame}
+                {item.nome_exame_imagem}
               </button>
               <button className="animated-red-button"
                 onClick={() => deleteImagem(item)}
@@ -261,44 +256,44 @@ function Imagem(
   if (viewcomponent != 0) {
     return (
       <div className="menucover fade-in" style={{ zIndex: 9, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+
         <div className="menucontainer"
+          style={{ height: '80vh', minHeight: '80vh' }}
           onClick={(e) => { document.getElementById("inputJustificativa").style.display = "flex"; e.stopPropagation() }}
         >
-          <div className="menucontainer">
-            <div id="cabeçalho" className="cabecalho">
-              <div className="title5">{'SOLICITAR EXAME DE IMAGEM'}</div>
-              <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                <button className="red-button" onClick={() => setviewcomponent(0)}>
-                  <img
-                    alt=""
-                    src={deletar}
-                    style={{
-                      margin: 10,
-                      height: 30,
-                      width: 30,
-                    }}
-                  ></img>
-                </button>
-                <button className="green-button"
-                  onClick={() => insertImagem()}
-                >
-                  <img
-                    alt=""
-                    src={salvar}
-                    style={{
-                      margin: 10,
-                      height: 30,
-                      width: 30,
-                    }}
-                  ></img>
-                </button>
-              </div>
+          <div id="cabeçalho" className="cabecalho">
+            <div className="title5">{'SOLICITAR EXAME DE IMAGEM'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setviewcomponent(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+              <button className="green-button"
+                onClick={() => insertImagem()}
+              >
+                <img
+                  alt=""
+                  src={salvar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
             </div>
-            <div
-              className="corpo"
-            >
-              <ShowSearchImagem></ShowSearchImagem>
-            </div>
+          </div>
+          <div
+            className="corpo"
+          >
+            <ShowSearchImagem></ShowSearchImagem>
           </div>
         </div>
       </div>

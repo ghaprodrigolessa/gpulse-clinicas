@@ -18,17 +18,29 @@ import AptPlanoTerapeutico from '../components/AptPlanoTerapeutico';
 
 function Pacientes() {
   var html = 'https://pulsarapp-server.herokuapp.com';
+  var htmlleitos = process.env.REACT_APP_API_LEITOS;
+  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
+  var htmlpacientes = process.env.REACT_APP_API_FILTRAPACIENTES;
   // recuperando estados globais (Context.API).
   const {
     idusuario,
     nomeusuario,
     tipousuario,
     especialidadeusuario,
+    idhospital,
     nomehospital,
+    idunidade,
     nomeunidade,
     tipounidade,
+    setidpaciente,
+    idpaciente,
     idatendimento,
     setidatendimento,
+    setdadospaciente,
+    dadospaciente,
+    todosleitos,
+    settodospacientes, todospacientes,
+    todosatendimentos,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -50,7 +62,7 @@ function Pacientes() {
       x = atendimentos.filter((item) => item.ativo != 0 && item.idpaciente == qrscan).slice(-1);
       console.log(x);
       setTimeout(() => {
-        updateAtendimento(x, result);     
+        updateAtendimento(x, result);
       }, 2000);
       setrecebepct(0);
     }
@@ -58,7 +70,7 @@ function Pacientes() {
   const handleError = err => {
     console.log('ERRO: ' + err)
   }
-  
+
   // função que atualiza o atendimento do paciente recebido na unidade.
   const updateAtendimento = (x, result) => {
     var obj = {
@@ -119,14 +131,14 @@ function Pacientes() {
   }
 
   // carregamento do número de leitos do cti selecionado.
-  const [leitos, setLeitos] = useState(10);
+  const [leitos, setleitos] = useState(10);
   const loadLeitos = () => {
     // ROTA: SELECT * FROM hospitaisxunidades WHERE hospital = hospital AND unidade = unidade.
-    axios.get(html + "/totalleitosunidade/'" + nomehospital + "'/'" + nomeunidade + "'").then((response) => {
+    axios.get(htmlleitos).then((response) => {
       var x = [0, 1];
       x = response.data;
-      const arrayLeitos = x.map((item) => item.leitos);
-      setLeitos(arrayLeitos[0]);
+      const arrayLeitos = x.map((item) => item.descricao);
+      setleitos(arrayLeitos[0]);
     });
   }
 
@@ -143,18 +155,8 @@ function Pacientes() {
   }
 
   // lista de atendimentos (demais unidades de internação como enfermarias, ctis, etc.).
-  const [atendimentos, setatendimentos] = useState([]);
-  const [arrayatendimentos, setarrayatendimentos] = useState([]);
-  const loadAtendimentos = () => {
-    axios.get(html + "/atendimentos").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setatendimentos(x.filter((item) => item.ativo != 0 && item.hospital == nomehospital && item.unidade == nomeunidade));
-      setarrayatendimentos(x.filter((item) => item.ativo != 0 && item.hospital == nomehospital && item.unidade == nomeunidade));
-      setarrayatendimentosclassified(x.filter((item) => item.ativo != 0 && item.hospital == nomehospital && item.unidade == nomeunidade));
-    });
-  }
-
+  const [atendimentos, setatendimentos] = useState(todosatendimentos);
+  const [arrayatendimentos, setarrayatendimentos] = useState(todosatendimentos);
   // lista de chamadas.
   const [listcalls, setlistcalls] = useState([]);
   const loadCalls = () => {
@@ -283,14 +285,14 @@ function Pacientes() {
               setclassificaassistente(0);
               if (classificabox == 0 || classificabox == 2) {
                 setclassificabox(1)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.box > b.box ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.Leito.descricao > b.Leito.descricao ? 1 : -1)));
               } else if (classificabox == 1) {
                 setclassificabox(2)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.box < b.box ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.Leito.descricao < b.Leito.descricao ? 1 : -1)));
               }
             }}
             className="header-button"
-            style={{ backgroundColor: 'transparent', color: classificabox == 0 ? '' : 'red' }}
+            style={{ backgroundColor: 'transparent', color: classificabox == 0 ? '' : 'red', minWidth: 100 }}
             title="BOX"
           >
             {classificabox == 0 ? 'BOX' : classificabox == 1 ? 'BOX ↓' : 'BOX ↑'}
@@ -312,11 +314,11 @@ function Pacientes() {
               setclassificaassistente(0);
               if (classificanome == 0 || classificanome == 2) {
                 setclassificanome(1)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.nome > b.nome ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.nm_paciente > b.nm_paciente ? 1 : -1)));
               } else if (classificanome == 1) {
                 setclassificanome(2)
                 arrayatendimentos.sort(((a, b) => a.nome < b.nome ? 1 : -1))
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.nome < b.nome ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.nm_paciente < b.nm_paciente ? 1 : -1)));
               }
             }}
             className="header-button"
@@ -353,21 +355,6 @@ function Pacientes() {
             {classificamif == 0 ? 'MIF' : classificamif == 1 ? 'MIF ↓' : 'MIF ↑'}
           </button>
           <div
-            onClick={() => {
-              setclassificabox(0);
-              setclassificanome(0);
-              setclassificamif(0);
-              // setclassificaidade(0);
-              setclassificatempointernacao(0);
-              setclassificaassistente(0);
-              if (classificaidade == 0 || classificaidade == 2) {
-                setclassificaidade(1)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.dn > b.dn ? 1 : -1)));
-              } else if (classificaidade == 1) {
-                setclassificaidade(2)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.dn < b.dn ? 1 : -1)));
-              }
-            }}
             className="rowitemheader"
             style={{
               display: window.innerWidth < 400 ? 'none' : 'flex',
@@ -387,10 +374,10 @@ function Pacientes() {
               setclassificaassistente(0);
               if (classificatempointernacao == 0 || classificatempointernacao == 2) {
                 setclassificatempointernacao(1)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.admissao > b.admissao ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => moment().diff(moment(a.dt_hr_atendimento, 'YYYY/MM/DD'), 'days') > moment().diff(moment(b.dt_hr_atendimento, 'YYYY/MM/DD'), 'days') ? 1 : -1)));
               } else if (classificatempointernacao == 1) {
                 setclassificatempointernacao(2)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.admissao < b.admissao ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => moment().diff(moment(a.dt_hr_atendimento, 'YYYY/MM/DD'), 'days') < moment().diff(moment(b.dt_hr_atendimento, 'YYYY/MM/DD'), 'days') ? 1 : -1)));
               }
             }}
             className="rowitemheader"
@@ -412,10 +399,10 @@ function Pacientes() {
               setclassificaassistente(0);
               if (classificaassistente == 0 || classificaassistente == 2) {
                 setclassificaassistente(1)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.assistente > b.assistente ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.nm_prestador > b.nm_prestador ? 1 : -1)));
               } else if (classificaassistente == 1) {
                 setclassificaassistente(2)
-                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.assistente > b.assistente ? 1 : -1)));
+                setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.nm_prestador > b.nm_prestador ? 1 : -1)));
               }
             }}
             className="rowitemheader"
@@ -434,14 +421,14 @@ function Pacientes() {
 
   // renderização da lista de pacientes.
   function ShowPacientes() {
-    if (arrayatendimentosclassified.length > 0) {
+    if (arrayatendimentos.filter(item => item.Leito.unidade.id == idunidade).length > 0) {
       return (
         <div
           id="LISTA DE PACIENTES"
           className="scroll"
           style={{ height: '100%' }}
         >
-          {arrayatendimentosclassified.map((item) => (
+          {arrayatendimentos.filter(item => item.Leito.unidade.id == idunidade).map((item) => (
             <div style={{
               display: 'flex', flexDirection: 'column', justifyContent: 'center',
               width: window.innerWidth > 400 ? '' : '90vw'
@@ -453,16 +440,16 @@ function Pacientes() {
                   width: window.innerWidth > 400 ? '' : '85vw',
                   position: 'relative',
                   justifyContent: 'space-between',
-                  display: arraypacientes.filter((value) => value.id === item.idpaciente).length > 0 ? 'flex' : 'none',
+                  // display: arraypacientes.filter((value) => value.id === item.idpaciente).length > 0 ? 'flex' : 'none',
                 }}
               >
                 <button
                   className="grey-button"
-                  style={{ minWidth: 50, margin: 2.5, color: '#ffffff', backgroundColor: 'grey' }}
+                  style={{ minWidth: 100, margin: 2.5, color: '#ffffff', backgroundColor: 'grey' }}
                   title="BOX"
                   disabled="true"
                 >
-                  {item.box}
+                  {item.Leito.descricao}
                 </button>
                 <button
                   className="grey-button"
@@ -473,7 +460,7 @@ function Pacientes() {
                   title={item.precaucao == 1 ? 'PRECAUÇÃO PADRÃO' : item.precaucao == 2 ? 'PRECAUÇÃO DE CONTATO' : item.precaucao == 3 ? 'PRECAUÇÃO PARA GOTÍCULAS' : 'PRECAUÇÃO PARA AEROSSÓIS'}
                   disabled="true"
                 >
-                  {item.precaucao == 1 ? 'P' : item.precaucao == 2 ? 'C' : item.precaucao == 3 ? 'G' : 'A'}
+                  {'A'}
                 </button>
                 <button
                   onClick={() => selectPaciente(item)}
@@ -490,7 +477,7 @@ function Pacientes() {
                   }}
                 >
                   <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', textAlign: 'left' }}>
-                    {arraypacientes.filter((value) => value.id === item.idpaciente).map((item) => item.nome)}
+                    {item.nm_paciente}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'row' }}>
                     <button
@@ -526,9 +513,9 @@ function Pacientes() {
                     width: '20%',
                   }}
                 >
-                  {moment().diff(moment(arraypacientes.filter((value) => value.id == item.idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years') > 1 ?
-                    moment().diff(moment(arraypacientes.filter((value) => value.id == item.idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years') + ' ANOS.' :
-                    moment().diff(moment(arraypacientes.filter((value) => value.id == item.idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years') + ' ANO.'
+                  {moment().diff(moment(arrayPacientesEmAtendimento.filter((value) => value.codigo_paciente == item.cd_paciente).map((item) => item.data_nascimento_paciente), 'YYYY/MM/DD'), 'years') > 1 ?
+                    moment().diff(moment(arrayPacientesEmAtendimento.filter((value) => value.codigo_paciente == item.cd_paciente).map((item) => item.data_nascimento_paciente), 'YYYY/MM/DD'), 'years') + ' ANOS.' :
+                    moment().diff(moment(arrayPacientesEmAtendimento.filter((value) => value.codigo_paciente == item.cd_paciente).map((item) => item.data_nascimento_paciente), 'YYYY/MM/DD'), 'years') + ' ANO.'
                   }
                 </button>
                 <button
@@ -538,7 +525,7 @@ function Pacientes() {
                     width: '30%',
                   }}
                 >
-                  {moment().diff(moment(item.admissao, 'DD/MM/YYYY'), 'days') + ' DIAS.'}
+                  {moment().diff(moment(item.dt_hr_atendimento, 'YYYY/MM/DD'), 'days') + ' DIAS.'}
                 </button>
                 <button
                   className="rowitem"
@@ -548,7 +535,7 @@ function Pacientes() {
                   }}
                 >
                   <div>
-                    {item.assistente}
+                    {item.nm_prestador}
                   </div>
                 </button>
               </div>
@@ -747,344 +734,124 @@ function Pacientes() {
     return (dias + ' DIAS, ' + horas + 'H E ' + minutos + 'MIN.')
   }
 
-  function CabecalhoPa() {
-    return (
-      <div
-        className="scrollheader"
-        id="CABEÇALHO DA LISTA DE PACIENTES NO PRONTO-ATENDIMENTO"
-      >
-        <div className="rowheader">
-          <button
-            className="rowitem"
-            title="HORA DE ENTRADA."
-            style={{
-              display: window.innerWidth > 400 ? 'flex' : 'none',
-              width: '15%',
-            }}
-            disabled="true"
-          >
-            ENTRADA
-          </button>
-          <button
-            className="rowitem"
-            title="TEMPO DE ESPERA."
-            style={{
-              display: window.innerWidth > 1024 ? 'flex' : 'none',
-              justifyContent: 'center',
-              width: '20%',
-            }}
-            disabled="true"
-          >
-            ESPERA
-          </button>
-          <button
-            className="rowitem"
-            title="BOX/LEITO."
-            style={{ minWidth: 50, width: 50 }}
-          >
-            BOX
-          </button>
-          <button
-            className="header-button"
-            style={{
-              width: '100%',
-            }}
-          >
-            NOME
-          </button>
-          <button
-            title="CLIQUE PARA CHAMAR O PACIENTE."
-            className="header-button"
-            style={{
-              display: window.innerWidth > 400 ? 'flex' : 'none',
-              height: 50,
-              width: 50,
-            }}
-          >
-          </button>
-          <button
-            className="rowitem"
-            style={{
-              minWidth: window.innerWidth > 800 ? '15%' : 50,
-              width: window.innerWidth > 800 ? '15%' : 50,
-            }}
-          >
-            IDADE
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // renderização da lista de pacientes, perfil PRONTO-ATENDIMENTO.
-  function ShowPacientesPa() {
-    if (atendimentos.length > 0) {
-      return (
-        <div
-          className="scroll"
-          id="LISTA DE PACIENTES"
-        >
-          {arrayatendimentos.sort(((a, b) => a.classificacao > b.classificacao ? 1 : -1)).map((item) => (
-            <div
-              key={item.id}
-              className="row"
-              style={{
-                position: 'relative',
-                opacity: item.classificacao === 0 ? 0.5 : 1,
-              }}
-            >
-              <button
-                className="rowitem"
-                title="HORA DE ENTRADA."
-                style={{
-                  display: window.innerWidth > 400 ? 'flex' : 'none',
-                  width: '15%',
-                }}
-                disabled="true"
-              >
-                {item.admissao}
-              </button>
-              <button
-                className="rowitem"
-                title="TEMPO DE ESPERA."
-                style={{
-                  display: window.innerWidth > 1024 ? 'flex' : 'none',
-                  justifyContent: 'center',
-                  width: '20%',
-                }}
-                disabled="true"
-              >
-                {espera(item.admissao)}
-              </button>
-              <button
-                className="rowitem"
-                title="BOX/LEITO."
-                style={{ minWidth: 50, width: 50 }}
-              >
-                {item.box}
-              </button>
-              <button
-                onClick={() => selectPaciente(item)}
-                disabled={item.classificacao === 0 ? true : false}
-                title={item.classificacao === 0 ? 'PACIENTE AGUARDA TRIAGEM, NÃO É POSSÍVEL ATENDER.' : 'DESCRITOR: ' + item.descritor + '. CLIQUE PARA ATENDER.'}
-                className={
-                  item.classificacao === 1 ? "red-button" :
-                    item.classificacao === 2 ? "orange-button" :
-                      item.classificacao === 3 ? "yellow-button" :
-                        item.classificacao === 4 ? "green-button" : "blue-button"
-                }
-                style={{
-                  height: 50,
-                  width: '100%',
-                }}
-              >
-                <div>
-                  {item.nome}
-                </div>
-              </button>
-              <button
-                onClick={() => insertCall(item, consultorio)}
-                title="CLIQUE PARA CHAMAR O PACIENTE."
-                className="blue-button"
-                disabled={item.ativo == 2 ? true : false}
-                style={{
-                  display: window.innerWidth > 400 ? 'flex' : 'none',
-                  opacity: item.ativo == 2 ? 0.5 : 1,
-                  height: 50,
-                  width: 50,
-                }}
-              >
-                <img alt="" src={call} style={{ height: 30, width: 30 }}></img>
-              </button>
-              <button
-                className="rowitem"
-                style={{
-                  minWidth: window.innerWidth > 800 ? '15%' : 50,
-                  width: window.innerWidth > 800 ? '15%' : 50,
-                }}
-              >
-                {moment().diff(moment(listpacientes.filter((value) => value.id == item.idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years') > 1 ?
-                  moment().diff(moment(listpacientes.filter((value) => value.id == item.idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years') + ' ANOS.' :
-                  moment().diff(moment(listpacientes.filter((value) => value.id == item.idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years') + ' ANO.'
-                }
-              </button>
-            </div>
-          ))}
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="scroll"
-          id="LISTA DE PACIENTES"
-          style={{
-            height: '100%',
-            overflowY: 'hidden',
-          }}
-        >
-          <div className="title2"
-            style={{
-              fontSize: 16,
-              opacity: 0.5,
-              alignSelf: 'center',
-              textAlign: 'center',
-            }}>
-            {'NÃO HÁ PACIENTES INTERNADOS NÃO CLASSIFICADOS NESTA UNIDADE.'}
-          </div>
-        </div>
-      )
-    }
-  }
-
   // CHART.
   /* gráfico em torta que exibe o total de pacientes internados na unidade, distribuídos
   por linha de cuidado. */
+  var leitostotais = [0, 1]
+  leitostotais = todosleitos
+  var atendimentostotais = [0, 1]
+  atendimentostotais = todosatendimentos
   const dataChart = {
-    labels: [' PACIENTE CRÔNICO', ' CUIDADOS PALIATIVOS', ' REABILITAÇÃO', ' LEITOS LIVRES'],
+    labels: [' VAGOS', ' OCUPADOS'],
     datasets: [
       {
         data: [
-          atendimentos.filter((item) => item.linhadecuidado === 1).length,
-          atendimentos.filter((item) => item.linhadecuidado === 2).length,
-          atendimentos.filter((item) => item.linhadecuidado === 3).length,
-          leitos - (
-            atendimentos.filter((item) => item.linhadecuidado === 1).length +
-            atendimentos.filter((item) => item.linhadecuidado === 2).length +
-            atendimentos.filter((item) => item.linhadecuidado === 3).length)
+          leitostotais.filter(item => item.unidade.id == idunidade).length - atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length, // vagos.
+          atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length // ocupados.
         ],
-        backgroundColor: ['#52be80', '#5DADE2', '#F4D03F', 'grey'],
+        backgroundColor: ['#52be80', '#F4D03F'],
         borderWidth: 5,
         borderColor: '#f2f2f2',
         hoverBorderColor: ['#f2f2f2', '#f2f2f2'],
       },
     ],
   };
-  const dataChartPa = {
-    labels: [' EMERGÊNCIA', ' MUITO URGENTE', ' URGENTE', ' NÃO URGENTE', 'NÃO CLASSIFICADOS'],
-    datasets: [
-      {
-        data: [
-          atendimentos.filter((item) => item.classificacao == 1).length,
-          atendimentos.filter((item) => item.classificacao == 2).length,
-          atendimentos.filter((item) => item.classificacao == 3).length,
-          atendimentos.filter((item) => item.classificacao == 4).length,
-          atendimentos.filter((item) => item.classificacao == 0).length,
-          leitos - (
-            atendimentos.filter((item) => item.classificacao == 1).length +
-            atendimentos.filter((item) => item.classificacao == 2).length +
-            atendimentos.filter((item) => item.classificacao == 3).length +
-            atendimentos.filter((item) => item.classificacao == 4).length +
-            atendimentos.filter((item) => item.classificacao == 0).length)
-        ],
-        backgroundColor: [
-          '#ec7063', // vermelho.
-          '#eb984e', // laranja.
-          '#f5b041', // amarelo.
-          '#52be80', // verde.
-          '#B5BED8', // não classificados.
-          'grey', // vago.
-        ],
-        borderColor: '#f2f2f2',
-        hoverBorderColor: ['#f2f2f2', '#f2f2f2', '#f2f2f2', '#f2f2f2'],
-      },
-    ],
-  };
+
   function Chart() {
-    if (atendimentos.length > 0) {
-      return (
+
+    return (
+      <div
+        id="GRÁFICO"
+        className="secondary legenda"
+        style={{
+          display: 'flex',
+          flexDirection: window.innerWidth > 800 ? 'column' : window.innerWidth > 600 ? 'row' : 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignSelf: 'center',
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+          borderRadius: 5,
+          padding: 0,
+          margin: window.innerWidth > 400 ? 10 : 5,
+          width: '20vw'
+        }}
+      >
         <div
-          id="GRÁFICO"
-          className="secondary legenda"
-          style={{
-            display: 'flex',
-            flexDirection: window.innerWidth > 800 ? 'column' : window.innerWidth > 600 ? 'row' : 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
-            borderColor: 'transparent',
-            borderRadius: 5,
-            padding: 0,
-            margin: window.innerWidth > 400 ? 10 : 5,
-            width: '20vw'
-          }}
-        >
-          <div id="chart" style={{
+          id="chart" style={{
             display: renderchart == 1 ? 'flex' : 'none',
             flexDirection: 'column', justifyContent: 'center', alignSelf: 'center',
             position: 'relative'
           }}>
-            <Doughnut
-              data={tipounidade == 2 ? dataChart : dataChartPa}
-              width={window.innerWidth < 400 ? 150 : 0.15 * window.innerWidth}
-              height={window.innerWidth < 400 ? 150 : 0.15 * window.innerWidth}
-              plugins={ChartDataLabels}
-              options={{
-                plugins: {
-                  datalabels: {
-                    display: function (context) {
-                      return context.dataset.data[context.dataIndex] !== 0;
-                    },
-                    color: '#FFFFFF',
-                    textShadowColor: 'black',
-                    textShadowBlur: 5,
-                    font: {
-                      weight: 'bold',
-                      size: 16,
-                    },
+          <Doughnut
+            data={dataChart}
+            width={window.innerWidth < 400 ? 150 : 0.15 * window.innerWidth}
+            height={window.innerWidth < 400 ? 150 : 0.15 * window.innerWidth}
+            plugins={ChartDataLabels}
+            options={{
+              plugins: {
+                datalabels: {
+                  display: function (context) {
+                    return context.dataset.data[context.dataIndex] !== 0;
+                  },
+                  color: '#FFFFFF',
+                  textShadowColor: 'black',
+                  textShadowBlur: 5,
+                  font: {
+                    weight: 'bold',
+                    size: 16,
                   },
                 },
-                tooltips: {
-                  enabled: false,
+              },
+              tooltips: {
+                enabled: false,
+              },
+              hover: { mode: null },
+              elements: {
+                arc: {
+                  borderColor: '#f2f2f2',
+                  borderWidth: 5,
                 },
-                hover: { mode: null },
-                elements: {
-                  arc: {
-                    borderColor: '#f2f2f2',
-                    borderWidth: 5,
-                  },
-                },
-                animation: {
-                  duration: 500,
-                },
-                title: {
-                  display: false,
-                  text: 'STATUS DOS PACIENTES:',
-                },
-                legend: {
-                  display: false,
-                  position: 'bottom',
-                },
-                maintainAspectRatio: true,
-                responsive: false,
+              },
+              animation: {
+                duration: 500,
+              },
+              title: {
+                display: false,
+                text: 'STATUS DOS PACIENTES:',
+              },
+              legend: {
+                display: false,
+                position: 'bottom',
+              },
+              maintainAspectRatio: true,
+              responsive: false,
+            }}
+          ></Doughnut>
+          <div>
+            <p
+              className="title2center"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                fontSize: 20,
+                fontWeight: 'bold',
+                margin: 2.5,
+                padding: 0,
+                position: 'absolute',
+                top: 0, bottom: 0, left: 0, right: 0,
               }}
-            ></Doughnut>
-            <div>
-              <p
-                className="title2center"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  fontSize: 20,
-                  fontWeight: 'bold',
-                  margin: 2.5,
-                  padding: 0,
-                  position: 'absolute',
-                  top: 0, bottom: 0, left: 0, right: 0,
-                }}
-              >
-                {Math.ceil(atendimentos.length * 100 / leitos) + '%'}
-              </p>
-            </div>
+            >
+              {Math.ceil(
+                (atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length) * 100 /
+                leitostotais.filter(item => item.unidade.id == idunidade).length) + '%'}
+            </p>
           </div>
-          <Legenda></Legenda>
-          <LegendaPa></LegendaPa>
         </div>
-      );
-    } else {
-      return null;
-    }
+        <Legenda></Legenda>
+      </div>
+    );
   }
 
   // legenda para o gráfico.
@@ -1115,7 +882,7 @@ function Pacientes() {
               width: 20,
               height: 20,
               borderRadius: 5,
-              backgroundColor: 'grey',
+              backgroundColor: '#52be80',
               margin: 2.5,
               padding: 0,
             }}
@@ -1139,13 +906,13 @@ function Pacientes() {
           width: window.innerWidth > 400 ? '' : '30vw'
         }}>
           <div
-            id="PACIENTES CRÔNICOS"
+            id="LEITOS OCUPADOS"
             className="secondary"
             style={{
               width: 20,
               height: 20,
               borderRadius: 5,
-              backgroundColor: '#52be80',
+              backgroundColor: '#f4d03f',
               margin: 2.5,
               padding: 0,
             }}
@@ -1160,183 +927,8 @@ function Pacientes() {
               fontSize: 10,
             }}
           >
-            CRÔNICOS
+            OCUPADOS
           </p>
-        </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center',
-          width: window.innerWidth > 400 ? '' : '30vw'
-        }}>
-          <div
-            id="CUIDADOS PALIATIVOS"
-            className="secondary"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#5DADE2',
-              margin: 2.5,
-              padding: 0,
-            }}
-          ></div>
-          <p
-            className="title2center"
-            style={{
-              width: '8vw',
-              margin: 2.5,
-              marginRight: 5,
-              padding: 0,
-              fontSize: 10,
-            }}
-          >
-            PALIATIVOS
-          </p>
-        </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center',
-          width: window.innerWidth > 400 ? '' : '30vw'
-        }}>
-          <div
-            id="REABILITAÇÃO"
-            className="secondary"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#F4D03F',
-              margin: 2.5,
-              padding: 0,
-            }}
-          ></div>
-          <p
-            className="title2center"
-            style={{
-              width: '8vw',
-              margin: 2.5,
-              marginRight: 5,
-              padding: 0,
-              fontSize: 10,
-            }}
-          >
-            REABILITAÇÃO
-          </p>
-        </div>
-      </div>
-    );
-  }
-  function LegendaPa() {
-    return (
-      <div
-        id="legenda"
-        className="secondary legendinha"
-        style={{ display: tipounidade == 1 ? 'flex' : 'none', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', boxShadow: 'none', width: 240 }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-          <div
-            id="POUCO URGENTE"
-            style={{
-              minWidth: 20,
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#52be80',
-              margin: 2.5,
-              padding: 0,
-            }}
-          >
-          </div>
-          <div
-            className="title2"
-            style={{ display: 'flex', margin: 2.5, fontSize: 10, padding: 0, textAlign: 'left', alignSelf: 'center' }}
-          >
-            {'POUCO URGENTE'}
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-          <div
-            id="URGENTE"
-            style={{
-              minWidth: 20,
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#f39c12',
-              margin: 2.5,
-              padding: 0,
-            }}
-          >
-          </div>
-          <div
-            className="title2"
-            style={{ display: 'flex', margin: 2.5, fontSize: 10, padding: 0, textAlign: 'left', alignSelf: 'center' }}
-          >
-            {'URGENTE'}
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-          <div
-            id="MUITO URGENTE"
-            style={{
-              minWidth: 20,
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#eb984e',
-              margin: 2.5,
-              padding: 0,
-            }}
-          >
-          </div>
-          <div
-            className="title2"
-            style={{ display: 'flex', margin: 2.5, fontSize: 10, padding: 0, textAlign: 'left', alignSelf: 'center' }}
-          >
-            {'MUITO URGENTE'}
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-          <div
-            id="EMERGÊNCIA"
-            style={{
-              minWidth: 20,
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#ec7063',
-              margin: 2.5,
-              padding: 0,
-            }}
-          >
-          </div>
-          <div
-            className="title2"
-            style={{ display: 'flex', margin: 2.5, fontSize: 10, padding: 0, textAlign: 'left', alignSelf: 'center' }}
-          >
-            {'EMERGÊNCIA'}
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-          <div
-            id="NÃO CLASSIFICADOS"
-            style={{
-              minWidth: 20,
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#B5BED8',
-              margin: 2.5,
-              padding: 0,
-            }}
-          >
-          </div>
-          <div
-            className="title2"
-            style={{ display: 'flex', margin: 2.5, fontSize: 10, padding: 0, textAlign: 'left', alignSelf: 'center' }}
-          >
-            {'NÃO CLASSIFICADOS'}
-          </div>
         </div>
       </div>
     );
@@ -1344,7 +936,9 @@ function Pacientes() {
 
   // selecionando um paciente da lista e abrindo a tela corrida.
   const selectPaciente = (item) => {
-    setidatendimento(item.id)
+    setidpaciente(item.cd_paciente)
+    setidatendimento(item.cd_atendimento)
+    setdadospaciente(arrayPacientesEmAtendimento.filter(value => value.codigo_paciente == item.cd_paciente))
     history.push('/prontuario')
   };
 
@@ -1397,9 +991,9 @@ function Pacientes() {
   const [renderchart, setrenderchart] = useState(0);
   useEffect(() => {
     // carregando a lista de pacientes e de atendimentos.
+    MountArrayPacientesEmAtendimento();
     setclassificabox(1);
     loadPacientes();
-    loadAtendimentos();
     loadAmbulatorio();
     setTimeout(() => {
       setrenderchart(1);
@@ -1467,30 +1061,6 @@ function Pacientes() {
     )
   }
 
-  function FilterPacientesPa() {
-    return (
-      <input
-        className="input"
-        autoComplete="off"
-        placeholder="BUSCAR PACIENTE..."
-        onFocus={(e) => (e.target.placeholder = '')}
-        onBlur={(e) => (e.target.placeholder = 'BUSCAR...')}
-        onChange={() => filterPacientePa()}
-        style={{
-          width: '60vw',
-          padding: 20,
-          margin: 20,
-          alignSelf: 'center',
-          textAlign: 'center'
-        }}
-        type="text"
-        id="inputFilterPacientePa"
-        defaultValue={filterpaciente}
-        maxLength={100}
-      ></input>
-    )
-  }
-
   const [filterpaciente, setfilterpaciente] = useState('');
   var searchpaciente = '';
   var searchatendimento = '';
@@ -1502,40 +1072,28 @@ function Pacientes() {
     searchpaciente = document.getElementById("inputFilterPaciente").value.toUpperCase();
     timeout = setTimeout(() => {
       if (searchpaciente == '') {
-        setarraypacientes(listpacientes);
+        setarrayatendimentos(todosatendimentos);
         document.getElementById("inputFilterPaciente").value = '';
         document.getElementById("inputFilterPaciente").focus();
       } else {
-        setfilterpaciente(document.getElementById("inputFilterPaciente").value.toUpperCase());
+        // setarrayatendimentos(document.getElementById("inputFilterPaciente").value.toUpperCase());
+        var varatendimentos = [0, 1]
+        varatendimentos = todosatendimentos
+        var pegapelonome = varatendimentos.filter(item =>
+          item.nm_paciente.includes(searchpaciente)).map(item => item.nm_paciente);
+        var pegaidpelobox = varatendimentos.filter(item =>
+          item.Leito.descricao.includes(searchpaciente)).map(item => item.Leito.descricao);
+        var pegaidpeloassistente = varatendimentos.filter(item =>
+          item.nm_prestador.includes(searchpaciente)).map(item => item.nm_prestador);
 
-        var pegapelonome = listpacientes.filter(item =>
-          item.nome.includes(searchpaciente)).map(item => item.nome);
-        var pegaidpelobox = atendimentos.filter(item =>
-          item.box.includes(searchpaciente)).map(item => item.idpaciente);
-        var pegaidpeloassistente = atendimentos.filter(item =>
-          item.assistente.includes(searchpaciente)).map(item => item.idpaciente);
-
-        //alert('NOME: ' + pegapelonome);
-        //alert('IDBOX: ' + pegaidpelobox);
-        //alert('IDASSISTENTE: ' + pegaidpeloassistente);
-
+        // filtrando pelo nome do paciente.
         if (pegapelonome != '' && pegaidpelobox == '' && pegaidpeloassistente == '') {
-          setarraypacientes(listpacientes.filter(item => item.nome.includes(searchpaciente)));
-
+          setarrayatendimentos(todosatendimentos.filter(item => item.nm_paciente.includes(searchpaciente)));
+          // filtrando pelo box/leito do paciente.
         } else if (pegapelonome == '' && pegaidpelobox != '' && pegaidpeloassistente == '') {
-          setarraypacientes(listpacientes);
-          var newarraypacientes = []
-          newarraypacientes = pegaidpelobox.map(item => JSON.stringify(listpacientes.filter(value => value.id == item)));
-          document.getElementById("inputFilterPaciente").focus();
-          setarraypacientes(JSON.parse(newarraypacientes));
-
+          setarrayatendimentos(todosatendimentos.filter(item => item.Leito.descricao.includes(searchpaciente)));
         } else if (pegapelonome == '' && pegaidpelobox == '' && pegaidpeloassistente != '') {
-          setarraypacientes(listpacientes);
-          var newarraypacientes = []
-          newarraypacientes = pegaidpeloassistente.map(item => JSON.stringify(listpacientes.filter(value => value.id == item)));
-          document.getElementById("inputFilterPaciente").focus();
-          setarraypacientes(JSON.parse(newarraypacientes));
-
+          setarrayatendimentos(todosatendimentos.filter(item => item.nm_prestador.includes(searchpaciente)));
         } else { setarraypacientes([]) }
 
         document.getElementById("inputFilterPaciente").value = searchpaciente;
@@ -1563,18 +1121,34 @@ function Pacientes() {
     }, 500);
   }
 
+  // função para extração dos pacientes em atendimento a partir da lista de atendimentos.
+  const [arrayPacientesEmAtendimento, setarrayPacientesEmAtendimento] = useState([0, 1]);
+  const MountArrayPacientesEmAtendimento = () => {
+    arrayatendimentos.filter(item => item.Leito.unidade.id == idunidade).map(item => GetArrayPacientesEmAtendimento(item))
+  }
+
+  var varPacientesEmAtendimento = [];
+  const GetArrayPacientesEmAtendimento = (valor) => {
+    axios.get(htmlpacientes + valor.cd_paciente).then((response) => {
+      varPacientesEmAtendimento.push(response.data);
+      setarrayPacientesEmAtendimento([]);
+      setarrayPacientesEmAtendimento(varPacientesEmAtendimento);
+      settodospacientes(varPacientesEmAtendimento);
+    });
+  }
+
   // renderização do componente.
   if (viewtoten === 0 && renderchart == 1) {
     return (
       <div
         className="main fade-in"
       >
-        <Header link={"/unidades"} titulo={nomehospital + ' - ' + nomeunidade}></Header>
-        <QRScanner></QRScanner>
+        <Header link={"/unidades"} titulo={JSON.stringify(nomehospital).substring(3, JSON.stringify(nomehospital).length - 1) + ' - ' + nomeunidade}></Header>
+
         <div
           id="PRINCIPAL"
           style={{
-            display: tipounidade == 2 && window.innerWidth > 400 ? 'flex' : 'none',
+            display: 'flex',
             position: 'relative',
             flexDirection: 'row',
             justifyContent: 'flex-start',
@@ -1586,7 +1160,7 @@ function Pacientes() {
           <Chart></Chart>
           <div
             style={{
-              display: tipounidade == 2 ? 'flex' : 'none',
+              display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
@@ -1597,196 +1171,6 @@ function Pacientes() {
             <CabecalhoInternacao></CabecalhoInternacao>
             <ShowPacientes></ShowPacientes>
           </div>
-        </div>
-        <div
-          id="PRINCIPAL"
-          style={{
-            display: tipounidade == 1 && window.innerWidth > 400 ? 'flex' : 'none',
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            width: '100%',
-            height: window.innerWidth < 800 ? 0.785 * window.innerHeight : '100%',
-            marginTop: 5
-          }}>
-          <Chart></Chart>
-          <div
-            className="scroll"
-            style={{
-              display: tipounidade == 1 ? 'flex' : 'none',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              height: '100%',
-              borderRadius: 0,
-              backgroundColor: 'transparent',
-              borderColor: 'transparent',
-            }}>
-            <ShowToten></ShowToten>
-            <FilterPacientesPa></FilterPacientesPa>
-            <CabecalhoPa></CabecalhoPa>
-            <ShowPacientesPa></ShowPacientesPa>
-            <ConsultorioSelector></ConsultorioSelector>
-          </div>
-        </div>
-        <div
-          id="PRINCIPAL"
-          className="scroll"
-          style={{
-            display: tipounidade == 2 && window.innerWidth < 400 ? 'flex' : 'none',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            width: '100%',
-            height: '100%',
-          }}>
-          <Chart></Chart>
-          <div
-            className="scrollgroup"
-            style={{
-              display: tipounidade == 2 ? 'flex' : 'none',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              height: '100%',
-            }}>
-            <FilterPacientes></FilterPacientes>
-            <CabecalhoInternacao></CabecalhoInternacao>
-            <ShowPacientes></ShowPacientes>
-          </div>
-        </div>
-        <div
-          id="PRINCIPAL"
-          className="scroll"
-          style={{
-            display: tipounidade == 1 && window.innerWidth < 400 ? 'flex' : 'none',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            width: '100%',
-            height: window.innerWidth < 400 ? 0.785 * window.innerHeight : '100%',
-            marginTop: 5
-          }}>
-          <Chart></Chart>
-          <div
-            style={{
-              display: tipounidade == 1 ? 'flex' : 'none',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              height: '100%',
-            }}>
-            <ShowToten></ShowToten>
-            <FilterPacientes></FilterPacientes>
-            <CabecalhoInternacao></CabecalhoInternacao>
-            <ShowPacientes></ShowPacientes>
-            <ConsultorioSelector></ConsultorioSelector>
-          </div>
-        </div>
-      </div >
-    );
-  } else if (viewtoten === 1 && renderchart == 1) {
-    return (
-      <div
-        className="main fade-in"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          overflowY: window.innerWidth > 800 ? 'hidden' : 'scroll',
-          overflowX: 'hidden',
-          width: '100vw',
-          height: '95vh',
-          margin: 0,
-          padding: 20,
-        }}
-      >
-        <label className="title2" style={{ fontSize: 30, margin: 10 }}>
-          {'ÚLTIMA CHAMADA - ' + nomeunidade}
-        </label>
-        <div
-          className="row"
-          style={{ marginTop: 0, margin: 5, justifyContent: 'center', flexDirection: 'row' }}
-        >
-          <div
-            className="green-button" style={{ fontSize: 30, padding: 10, width: 0.2 * window.innerWidth }}
-          >
-            {listcalls.filter(item =>
-              moment(JSON.stringify(item.data).substring(1, 15), "DD/MM/YY HH:mm") > moment().subtract(30, 'minutes') &&
-              item.hospital == nomehospital && item.unidade == nomeunidade).map(item => item.data).pop()
-            }
-          </div>
-          <div className="green-button" style={{ fontSize: 30, padding: 10, width: '100%' }}>
-            {listcalls.filter(item =>
-              moment(JSON.stringify(item.data).substring(1, 15), "DD/MM/YY HH:mm") > moment().subtract(30, 'minutes') &&
-              item.hospital == nomehospital && item.unidade == nomeunidade).map(item => item.paciente).pop()
-            }
-          </div>
-          <div className="green-button" style={{ fontSize: 30, padding: 10, width: 0.3 * window.innerWidth, flexDirection: 'column' }}>
-            <div style={{ fontSize: 20 }}>
-              {'CONSULTÓRIO:'}
-            </div>
-            <div style={{ fontSize: 40 }}>
-              {listcalls.filter(item =>
-                moment(JSON.stringify(item.data).substring(1, 15), "DD/MM/YY HH:mm") > moment().subtract(30, 'minutes') &&
-                item.hospital == nomehospital && item.unidade == nomeunidade).map(item => item.consultorio).pop()
-              }
-            </div>
-            <div style={{ fontSize: 20, marginTop: 10 }}>
-              {'PROFISSIONAL:'}
-            </div>
-            <div>
-              {listcalls.filter(item =>
-                moment(JSON.stringify(item.data).substring(1, 15), "DD/MM/YY HH:mm") > moment().subtract(30, 'minutes') &&
-                item.hospital == nomehospital && item.unidade == nomeunidade).map(item => item.usuario).pop()
-              }
-            </div>
-          </div>
-        </div>
-        <label
-          className="title2"
-          style={{ margin: 0, fontSize: 24, padding: 0 }}
-        >
-          {'CHAMADAS RECENTES'}
-        </label>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '100%', alignItems: 'center', margin: 5, padding: 5, paddingRight: 10, paddingBottom: 0, marginBottom: 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: 0.15 * window.innerWidth, textAlign: 'center', margin: 2.5 }}>
-            <div className="title2" style={{ width: '60%', textAlign: 'center', margin: 2.5, paddingLeft: 20 }}>HORA DA CHAMADA:</div>
-          </div>
-          <div className="title2" style={{ width: '100%', textAlign: 'center', margin: 2.5 }}>NOME DO CLIENTE:</div>
-          <div className="title2" style={{ width: 0.15 * window.innerWidth, textAlign: 'center', margin: 2.5, alignSelf: 'center' }}>CONSULTÓRIO:</div>
-        </div>
-        <div
-          id="ÚLTIMAS CHAMADAS"
-          style={{
-            justifyContent: 'flex-start',
-            margin: 5,
-            padding: 0,
-            width: '100%',
-          }}
-        >
-          {listcalls.filter((item) => moment(JSON.stringify(item.data).substring(1, 15), "DD/MM/YY HH:mm") > moment().subtract(30, 'minutes') && item.hospital == nomehospital && item.unidade == nomeunidade).slice(-4, -1).map(item => (
-            <div className="rowitem" key={item.id} style={{ marginBottom: 2.5 }}>
-              <div
-                className="blue-button"
-                style={{ minHeight: 65, height: 65, width: 0.15 * window.innerWidth, margin: 2.5, fontSize: 20, padding: 10 }}
-              >
-                {JSON.stringify(item.data).substring(1, 15)}
-              </div>
-              <div
-                className="blue-button"
-                style={{ minHeight: 65, height: 65, width: '100%', margin: 2.5, fontSize: 20, padding: 10 }}
-              >
-                {item.paciente}
-              </div>
-              <div
-                className="blue-button"
-                style={{ minHeight: 65, height: 65, width: 0.15 * window.innerWidth, margin: 2.5, fontSize: 20, padding: 10 }}
-              >
-                {item.consultorio}
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     );

@@ -78,14 +78,16 @@ import AptEscalaIVCF from '../components/AptEscalaIVCF';
 import AptIVCF from '../components/AptIVCF';
 
 // importando gerador de qr code.
-import { useQRCode } from 'react-qrcode';
+// import { useQRCode } from 'react-qrcode';
 import QRcode from 'qrcode.react';
 
 function Prontuario() {
   moment.locale('pt-br');
   var html = 'https://pulsarapp-server.herokuapp.com';
+  var htmldadosvitais = process.env.REACT_APP_API_FILTRADADOSVITAIS;
   // recuperando estados globais (Context.API).
   const {
+    idunidade,
     idusuario,
     nomeusuario,
     tipousuario,
@@ -94,6 +96,12 @@ function Prontuario() {
     nomehospital,
     nomeunidade,
     tipounidade,
+    // atendimento e paciente.
+    setdadospaciente, dadospaciente,
+    // todos os leitos e atendimentos.
+    todosleitos,
+    todospacientes,
+    todosatendimentos,
     setidatendimento,
     idatendimento,
     setidpaciente,
@@ -334,75 +342,35 @@ function Prontuario() {
   const [nomemae, setnomemae] = useState('');
   const [contato, setcontato] = useState('');
   const [endereço, setendereço] = useState('');
-  const loadPaciente = (idpcte) => {
-    axios.get(html + "/pacientes").then((response) => {
-      setlistpacientes(response.data);
-      var x = [0, 1];
-      x = response.data;
-      setnomepaciente(x.filter((item) => item.id == idpcte).map((item) => item.nome));
-      setnomemae(x.filter((item) => item.id == idpcte).map((item) => item.mae));
-      setcontato(
-        x.filter((item) => item.id == idpcte).map((item) => item.telefone) + ' - ' +
-        x.filter((item) => item.id == idpcte).map((item) => item.email)
-      );
-      setendereço(
-        x.filter((item) => item.id == idpcte).map((item) => item.rua) + ', Nº ' +
-        x.filter((item) => item.id == idpcte).map((item) => item.numero) + ', BAIRRO ' +
-        x.filter((item) => item.id == idpcte).map((item) => item.bairro) + ', ' +
-        x.filter((item) => item.id == idpcte).map((item) => item.cidade) + ' - ' +
-        x.filter((item) => item.id == idpcte).map((item) => item.estado) + '.'
-      );
-      setdn(x.filter((item) => item.id == idpcte).map((item) => item.dn));
-      setTimeout(() => {
-        setidade(moment().diff(moment(x.filter((item) => item.id == idpaciente).map((item) => item.dn), 'DD/MM/YYYY'), 'years'));
-      }, 1000);
-    });
+
+  const loadPaciente = (valor) => {
+    var paciente = [0, 1]
+    paciente = todospacientes.filter(value => value.codigo_paciente == valor)
+    setnomepaciente(todospacientes.filter(value => value.codigo_paciente == valor).map(item => item.nome_paciente))
+    setnomemae(paciente.map(item => item.nome_mae_paciente))
+    setcontato("INDISPONÍVEL NA API");
+    setendereço("INDISPONÍVEL NA API");
+    setdn(moment(paciente.map(item => item.data_nascimento_paciente)).format('DD/MM/YYYY'));
+    setidade(moment().diff(moment(dn), 'DD/MM/YYYY'), 'years');
   }
 
   // carregando o atendimento do paciente selecionado.
   const [listatendimentos, setlistatendimentos] = useState([]);
-  const loadAtendimento = () => {
-    axios.get(html + "/atendimentos").then((response) => {
-      setlistatendimentos(response.data);
-      var y = [0, 1];
-      y = response.data;
-      var x = [0, 1];
-      x = y.filter((value) => value.id == idatendimento);
-      setidpaciente(x.map((item) => item.idpaciente));
-      setbox(x.map((item) => item.box));
-      setdiasinternado(moment().diff(moment(admissao, 'DD/MM/YYYY'), 'days'));
-      setadmissao(x.map((item) => item.admissao));
-      setpeso(x.map((item) => item.peso));
-      setaltura(x.map((item) => item.altura));
-      setantecedentes(x.map((item) => item.antecedentes));
-      setalergias(x.map((item) => item.alergias));
-      setmedicacoes(x.map((item) => item.medicacoes));
-      setexames(x.map((item) => item.exames));
-      sethistoria(x.map((item) => item.historia));
-      setstatus(x.map((item) => item.status));
-      setprecaucao(x.map((item) => item.precaucao));
-      setativo(x.map((item) => item.ativo));
-      setclassificacao(x.map((item) => item.classificacao))
-      statusatendimento = x.map((item) => item.ativo);
-      // recuperando informações de identificação do paciente.
-      loadPaciente(x.map((item) => item.idpaciente));
-      // carregando a última evolução.
-      loadLastevolucao(idatendimento, x.map((item) => item.idpaciente));
-      // atualizando informações do painel principal.
-      updatePrincipal(x.map((item) => item.idpaciente));
-      // importando informações de anamnese do último atendimento, caso exista.
-      getLastAtendimento(
-        /* os parâmetros a seguir pertencem ao atendimento atual. Sem conservar esses dados,
-        podemos importar erroneamente dados de um atendimento anterior pertencente a outro
-        paciente. Não mudem isso!
-        */
-        x.map((item) => item.id),
-        x.map((item) => item.box),
-        x.map((item) => item.admissao),
-        x.map((item) => item.nome),
-        x.map((item) => item.dn),
-      );
-    });
+  const loadAtendimento = (valor) => {
+    var atendimento = [0, 1]
+    atendimento = todosatendimentos.filter(value => value.cd_paciente == valor)
+    setbox(atendimento.map(item => item.Leito.descricao));
+    setdiasinternado(moment().diff(moment(atendimento.map(item => item.dt_hr_atendimento), 'YYYY/MM/DD'), 'days'));
+    setadmissao(moment(atendimento.map(item => item.dt_hr_atendimento)).format('DD/MM/YYYY'));
+    setantecedentes('INDISPONÍVEL NA API');
+    setalergias('INDISPONÍVEL NA API');
+    setmedicacoes('INDISPONÍVEL NA API');
+    setexames('INDISPONÍVEL NA API');
+    sethistoria('INDISPONÍVEL NA API');
+    setstatus('INDISPONÍVEL NA API');
+    setprecaucao('INDISPONÍVEL NA API');
+    setativo('INDISPONÍVEL NA API');
+    setclassificacao('INDISPONÍVEL NA API')
   }
 
   // calculando idade em anos e dias de internação.
@@ -500,7 +468,7 @@ function Prontuario() {
   }
   // atualizando as invasões.
   const updateInvasoes = () => {
-    setloadprincipal(1);
+    setloadprincipal(0);
     console.log('ATUALIZANDO INVASÕES.');
     var obj = {
       idatendimento: idatendimento,
@@ -3754,8 +3722,6 @@ function Prontuario() {
     axios.get(html + "/balancos/" + idatendimento).then((response) => {
       x = response.data;
       setlistbalancos(x.sort((a, b) => a.id > b.id ? 1 : -1));
-      // preparando gráfico de dados clínicos.
-      prepareGraphDadosClinicos();
     });
   }
   // deletando um balanço.
@@ -4206,19 +4172,30 @@ function Prontuario() {
   const [viewprintevolucao, setviewprintevolucao] = useState(0);
   const [viewformulario, setviewformulario] = useState(0);
 
+  const [atendimento, setatendimento] = useState([]);
   useEffect(() => {
+    // carregando dados do paciente e de seu atendimento.
+    loadPaciente(idpaciente);
+    loadAtendimento(idpaciente);
+
+    // carregando dados vitais.
+    getDadosVitais(idatendimento);
+    mountDataChartDinamometro();
+    mountDataChartCircunferenciaAbdominal();
+    mountDataChartCircunferenciaDoBraco();
+    // updatePrincipal();
+
     // APT - carregando IVCF:
     setivcf(7);
+
     // carregando configurações de visualização dos componentes.
     loadSettings();
-    setloadprincipal(1);
+    setloadprincipal(0);
     setTimeout(() => {
       setloadprincipal(0);
     }, 3000);
     // abrindo o prontuário sempre na tela principal.
     setstateprontuario(1);
-    // carregando dados do paciente e do atendimento.
-    loadAtendimento();
     // prevenindo a exibição do boneco caso um médico acesse a corrida pela tela/state prescrição.
     setshowinvasoes(0);
     // scroll to top on render (importante para as versões mobile).
@@ -4244,12 +4221,8 @@ function Prontuario() {
     setshowinvasoes(1);
     // resetando estado das scrolls.
     setscrollmenu(0);
-    // desabilitando a wheel do mouse (causava glitches nas scrolls).
-    // document.getElementById("PRINCIPAL").onwheel = function (e) {
-    // e.preventDefault()
-    //}
     // eslint-disable-next-line
-  }, [idatendimento])
+  }, [idpaciente])
 
   // carregando configurações do banco de dados.
   var x = [0, 1];
@@ -4465,8 +4438,8 @@ function Prontuario() {
                 style={{
                   display: tipounidade != 4 ? 'flex' : 'none',
                   textTransform: 'uppercase',
-                  width: window.innerWidth > 400 ? 65 : 50,
-                  minWidth: window.innerWidth > 400 ? 65 : 50,
+                  width: window.innerWidth > 400 ? 80 : 50,
+                  minWidth: window.innerWidth > 400 ? 80 : 50,
                   height: window.innerWidth > 400 ? 65 : 50,
                   minHeight: window.innerWidth > 400 ? 65 : 50,
                   marginRight: 5, marginLeft: 10,
@@ -4554,7 +4527,7 @@ function Prontuario() {
                     }}
                     id="inputNome"
                   >
-                    {JSON.stringify(nomepaciente).length < 20 ? nomepaciente : JSON.stringify(nomepaciente).substring(2, JSON.stringify(nomepaciente).length - 1).replace(']', '').replace('"', '') + '...'}
+                    {nomepaciente}
                   </button>
                   <div style={{ position: 'relative' }}>
                     <img
@@ -4579,30 +4552,34 @@ function Prontuario() {
                     <DetalhesPaciente></DetalhesPaciente>
                   </div>
                 </div>
-                <button
-                  className="rowitem"
-                  style={{
-                    color: '#ffffff',
-                    alignSelf: 'flex-start',
-                  }}
-                >
-                  {moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') < 2 ? + moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANO' : moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANOS'}
-                </button>
-                <button
-                  className="rowitem"
-                  style={{
-                    display: window.innerWidth > 400 ? 'flex' : 'none',
-                    borderStyle: 'solid',
-                    borderWidth: 2.5,
-                    borderColor: '#ffffff',
-                    borderRadius: 5,
-                    backgroundColor: '#ec7063',
-                    color: '#ffffff',
-                    alignSelf: 'flex-start',
-                  }}
-                >
-                  {'CUIDADOS PALIATIVOS'}
-                </button>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                  <button
+                    className="rowitem"
+                    style={{
+                      marginTop: 2,
+                      color: '#ffffff',
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    {moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') < 2 ? + moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANO' : moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANOS'}
+                  </button>
+                  <button
+                    className="rowitem"
+                    style={{
+                      marginLeft: 5,
+                      display: window.innerWidth > 400 ? 'flex' : 'none',
+                      borderStyle: 'solid',
+                      borderWidth: 2.5,
+                      borderColor: '#ffffff',
+                      borderRadius: 5,
+                      backgroundColor: '#ec7063',
+                      color: '#ffffff',
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    {'CUIDADOS PALIATIVOS'}
+                  </button>
+                </div>
                 <div
                   style={{
                     display: window.innerWidth > 400 ? 'none' : 'flex',
@@ -5415,157 +5392,428 @@ function Prontuario() {
   }
 
   // CARD DADOS VITAIS (GRÁFICO).
-  const [dataControles, setdataControles] = useState([]);
-  const [dataPAM, setdataPAM] = useState([]);
-  const [dataFC, setdataFC] = useState([]);
-
-  const prepareGraphDadosClinicos = () => {
-    setdataControles(listbalancos.filter(item => item.idatendimento == idatendimento).map(item => JSON.stringify(item.data).substring(1, 11)))
-
-    setdataPAM({
-      lineTension: 0,
-      label: 'PAM',
-      data: listbalancos.filter(item => item.idatendimento == idatendimento).map(item => item.pas),
-      // pointBackgroundColor: 'purple',
-      fill: false,
-      borderColor: '#ec7063',
-      backgroundColor: '#ec7063',
-      hoverBorderColor: 'white',
-      // yAxisID: 'y',
-      shadowOffsetX: 0,
-      shadowOffsetY: 2,
-      shadowBlur: 10,
-      shadowColor: effectColors.shadow
+  // função para captura dos dados vitais do atendimento atual.
+  const [dadosvitais, setdadosvitais] = useState([]);
+  const getDadosVitais = (valor) => {
+    axios.get(htmldadosvitais + valor).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setdadosvitais(response.data);
     })
-
-    setdataFC({
-      lineTension: 0,
-      label: 'FC',
-      data: listbalancos.filter(item => item.idatendimento == idatendimento).map(item => item.fc),
-      fill: false,
-      borderColor: '#2e86c1',
-      backgroundColor: '#2e86c1',
-      hoverBorderColor: 'white',
-      shadowOffsetX: 0,
-      shadowOffsetY: 2,
-      shadowBlur: 10,
-      shadowColor: effectColors.shadow
-    });
   }
 
-  const dataChartDadosClinicos = (canvas) => {
-    const ctx = canvas.getContext("2d");
-    var gradient = ctx.createLinearGradient(0, 0, 0, 75);
-    gradient.addColorStop(0, 'rgba(82, 190, 128, 0.3');
-    gradient.addColorStop(1, 'transparent');
-
+  // montando os dados vitais.
+  // DINAMÔMETRO (código 51).
+  const [dataDinamometro, setdataDinamometro] = useState([]);
+  const [valorDinamometro, setvalorDinamometro] = useState([]);
+  const mountDataChartDinamometro = (codigo) => {
+    setdataDinamometro(dadosvitais.filter(item => item.cd_sinal_vital == 51 && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
+    setvalorDinamometro(dadosvitais.filter(item => item.cd_sinal_vital == 51 && item.valor > 0).map(item => ' ' + item.valor));
+  }
+  const dataChartDinamometro = () => {
     return {
-      labels: dataControles,
-      datasets: [dataPAM, dataFC],
+      labels: dataDinamometro,
+      datasets: [{
+        data: valorDinamometro,
+        borderColor: "#3e95cd",
+        pointBackgroundColor: "#3e95cd",
+        fill: false
+      }]
     }
   }
+  function ChartDinamometro() {
+    return (
+      <Line
+        data={dataChartDinamometro}
+        padding={10}
+        width={window.innerWidth > 400 ? 0.1 * window.innerWidth * valorDinamometro.length : 200}
+        // height={0.13 * window.innerWidth}
+        plugins={ChartDataLabels}
+        options={{
+          scales: {
+            xAxes: [
+              {
+                display: true,
+                ticks: {
+                  fontColor: '#61636e',
+                  fontWeight: 'bold',
+                },
+                gridLines: {
+                  zeroLineColor: 'transparent',
+                  lineWidth: 0,
+                  drawOnChartArea: true,
+                },
+              },
+            ],
+            yAxes: [
+              {
+                display: false,
+                ticks: {
+                  suggestedMin: 0,
+                  suggestedMax: 200,
+                  fontColor: '#61636e',
+                  fontWeight: 'bold',
+                },
+                gridLines: {
+                  zeroLineColor: 'transparent',
+                  lineWidth: 0,
+                  drawOnChartArea: true,
+                },
+              },
+            ],
+          },
+          plugins: {
+            datalabels: {
+              display: false,
+              color: '#ffffff',
+              font: {
+                weight: 'bold',
+                size: 16,
+              },
+            },
+          },
+          tooltips: {
+            enabled: true,
+            displayColors: false,
+          },
+          hover: { mode: null },
+          elements: {},
+          animation: {
+            duration: 500,
+          },
+          title: {
+            display: false,
+            text: 'PPS',
+          },
+          legend: {
+            display: false,
+            position: 'bottom',
+          },
+          maintainAspectRatio: true,
+          responsive: false,
+        }}
+      />
+    );
+  }
+
+  // CIRCUNFERÊNCIA ABDOMINAL (código 48).
+  const [dataCircunferenciaAbdominal, setdataCircunferenciaAbdominal] = useState([]);
+  const [valorCircunferenciaAbdominal, setvalorCircunferenciaAbdominal] = useState([]);
+  const mountDataChartCircunferenciaAbdominal = () => {
+    setdataCircunferenciaAbdominal(dadosvitais.filter(item => item.cd_sinal_vital == 48 && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
+    setvalorCircunferenciaAbdominal(dadosvitais.filter(item => item.cd_sinal_vital == 48 && item.valor > 0).map(item => ' ' + item.valor));
+  }
+  const dataChartCircunferenciaAbdominal = () => {
+    return {
+      labels: dataCircunferenciaAbdominal,
+      datasets: [{
+        data: valorCircunferenciaAbdominal,
+        borderColor: "#3e95cd",
+        pointBackgroundColor: "#3e95cd",
+        fill: false
+      }]
+    }
+  }
+  function ChartCircunfenciaAbdominal() {
+    return (
+      <Line
+        data={dataChartCircunferenciaAbdominal}
+        padding={10}
+        width={window.innerWidth > 400 ? 0.1 * window.innerWidth * valorDinamometro.length : 200}
+        // height={0.13 * window.innerWidth}
+        plugins={ChartDataLabels}
+        options={{
+          scales: {
+            xAxes: [
+              {
+                display: true,
+                ticks: {
+                  fontColor: '#61636e',
+                  fontWeight: 'bold',
+                },
+                gridLines: {
+                  zeroLineColor: 'transparent',
+                  lineWidth: 0,
+                  drawOnChartArea: true,
+                },
+              },
+            ],
+            yAxes: [
+              {
+                display: false,
+                ticks: {
+                  suggestedMin: 0,
+                  suggestedMax: 200,
+                  fontColor: '#61636e',
+                  fontWeight: 'bold',
+                },
+                gridLines: {
+                  zeroLineColor: 'transparent',
+                  lineWidth: 0,
+                  drawOnChartArea: true,
+                },
+              },
+            ],
+          },
+          plugins: {
+            datalabels: {
+              display: false,
+              color: '#ffffff',
+              font: {
+                weight: 'bold',
+                size: 16,
+              },
+            },
+          },
+          tooltips: {
+            enabled: true,
+            displayColors: false,
+          },
+          hover: { mode: null },
+          elements: {},
+          animation: {
+            duration: 500,
+          },
+          title: {
+            display: false,
+            text: 'PPS',
+          },
+          legend: {
+            display: false,
+            position: 'bottom',
+          },
+          maintainAspectRatio: true,
+          responsive: false,
+        }}
+      />
+    );
+  }
+
+  // CIRCUNFERÊNCIA DO BRAÇO (código 50).
+  const [dataCircunferenciaDoBraco, setdataCircunferenciaDoBraco] = useState([]);
+  const [valorCircunferenciaDoBraco, setvalorCircunferenciaDoBraco] = useState([]);
+  const mountDataChartCircunferenciaDoBraco = () => {
+    setdataCircunferenciaDoBraco(dadosvitais.filter(item => item.cd_sinal_vital == 50 && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
+    setvalorCircunferenciaDoBraco(dadosvitais.filter(item => item.cd_sinal_vital == 50 && item.valor > 0).map(item => ' ' + item.valor));
+  }
+  const dataChartCircunferenciaDoBraco = () => {
+    return {
+      labels: dataCircunferenciaDoBraco,
+      datasets: [{
+        data: valorCircunferenciaDoBraco,
+        borderColor: "#3e95cd",
+        pointBackgroundColor: "#3e95cd",
+        fill: false
+      }]
+    }
+  }
+  function ChartCircunfenciaDoBraco() {
+    return (
+      <Line
+        data={dataChartCircunferenciaDoBraco}
+        padding={10}
+        width={window.innerWidth > 400 ? 0.1 * window.innerWidth * valorDinamometro.length : 200}
+        // height={0.13 * window.innerWidth}
+        plugins={ChartDataLabels}
+        options={{
+          scales: {
+            xAxes: [
+              {
+                display: true,
+                ticks: {
+                  fontColor: '#61636e',
+                  fontWeight: 'bold',
+                },
+                gridLines: {
+                  zeroLineColor: 'transparent',
+                  lineWidth: 0,
+                  drawOnChartArea: true,
+                },
+              },
+            ],
+            yAxes: [
+              {
+                display: false,
+                ticks: {
+                  suggestedMin: 0,
+                  suggestedMax: 200,
+                  fontColor: '#61636e',
+                  fontWeight: 'bold',
+                },
+                gridLines: {
+                  zeroLineColor: 'transparent',
+                  lineWidth: 0,
+                  drawOnChartArea: true,
+                },
+              },
+            ],
+          },
+          plugins: {
+            datalabels: {
+              display: false,
+              color: '#ffffff',
+              font: {
+                weight: 'bold',
+                size: 16,
+              },
+            },
+          },
+          tooltips: {
+            enabled: true,
+            displayColors: false,
+          },
+          hover: { mode: null },
+          elements: {},
+          animation: {
+            duration: 500,
+          },
+          title: {
+            display: false,
+            text: 'PPS',
+          },
+          legend: {
+            display: false,
+            position: 'bottom',
+          },
+          maintainAspectRatio: true,
+          responsive: false,
+        }}
+      />
+    );
+  }
+
+  // ... montagem dos demais dados de sinais vitais ... //
 
   // card dados vitais / controles.
   function CardControles() {
     return (
-      <div id="cardcontroles" style={{ position: 'relative' }}
+      <div id="cardcontroles"
         className="pulsewidgetcontroles"
         // style={{ display: cardinvasoes == 1 ? 'flex' : 'none' }}
-        onClick={() => document.getElementById("cardcontroles").className = "pulsewidgetcontroleshover"}
+        onClick={(e) => {
+          document.getElementById("cardcontroles").className = "pulsewidgetcontroleshover";
+          e.stopPropagation()
+        }}
       >
         <div className="pulsewidgettitle" style={{ alignItems: 'center' }}>
           <div className="title4">{'CONTROLES'}</div>
         </div>
-        <div
-          id="gráfico de controles"
-          className="pulsewidgetcontent"
-        >
-          <button className="blue-button"
-            onClick={(e) => {
-              document.getElementById("cardcontroles").className = "pulsewidgetcontroles";
-              e.stopPropagation();
-            }}
+
+        <div className="pulsewidgetcontent" style={{ flexDirection: 'column' }}>
+
+          <div id="seletores dos gráficos"
             style={{
-              position: 'absolute', top: 10, right: 10,
-              width: 30, minWidth: 30, height: 30, minHeight: 30,
+              display: 'flex', flexDirection: 'row', justifyContent: 'center'
+            }}>
+            <button id="DINAMOMETRO"
+              className="blue-button"
+              onClick={(e) => {
+                document.getElementById("DINAMOMETRO").className = "red-button";
+                document.getElementById("CIRCUNFERÊNCIA ABDOMINAL").className = "blue-button";
+                document.getElementById("CIRCUNFERÊNCIA DO BRAÇO").className = "blue-button";
+                document.getElementById("ChartDinamometria").style.display = "flex";
+                document.getElementById("ChartCircunferenciaAbdominal").style.display = "none";
+                document.getElementById("ChartCircunferenciaDoBraco").style.display = "none";
+                e.stopPropagation();
+              }}
+              style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                width: 150, minWidth: 150, height: 150, minHeight: 150, padding: 10,
+              }}
+            >
+              <div>
+                {'DINAMOMETRIA'}
+              </div>
+              <div style={{ fontSize: 20 }}>
+                {valorDinamometro.slice(-1)}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {dataDinamometro.slice(-1).toString().substring(0, 10)}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {dataDinamometro.slice(-1).toString().substring(12, 18)}
+              </div>
+            </button>
+            <button id="CIRCUNFERÊNCIA ABDOMINAL"
+              className="blue-button"
+              onClick={(e) => {
+                document.getElementById("DINAMOMETRO").className = "blue-button";
+                document.getElementById("CIRCUNFERÊNCIA ABDOMINAL").className = "red-button";
+                document.getElementById("CIRCUNFERÊNCIA DO BRAÇO").className = "blue-button";
+                document.getElementById("ChartDinamometria").style.display = "none";
+                document.getElementById("ChartCircunferenciaAbdominal").style.display = "flex";
+                document.getElementById("ChartCircunferenciaDoBraco").style.display = "none";
+                e.stopPropagation();
+              }}
+              style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                width: 150, minWidth: 150, height: 150, minHeight: 150, padding: 10,
+              }}
+            >
+              <div>
+                {'CIRCUNFERÊNCIA ABDOMINAL'}
+              </div>
+              <div style={{ fontSize: 20 }}>
+                {valorCircunferenciaAbdominal.slice(-1)}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {dataCircunferenciaAbdominal.slice(-1).toString().substring(0, 10)}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {dataCircunferenciaAbdominal.slice(-1).toString().substring(12, 18)}
+              </div>
+            </button>
+            <button id="CIRCUNFERÊNCIA DO BRAÇO"
+              className="blue-button"
+              onClick={(e) => {
+                document.getElementById("DINAMOMETRO").className = "blue-button";
+                document.getElementById("CIRCUNFERÊNCIA ABDOMINAL").className = "blue-button";
+                document.getElementById("CIRCUNFERÊNCIA DO BRAÇO").className = "red-button";
+                document.getElementById("ChartDinamometria").style.display = "none";
+                document.getElementById("ChartCircunferenciaAbdominal").style.display = "none";
+                document.getElementById("ChartCircunferenciaDoBraco").style.display = "flex";
+                e.stopPropagation();
+              }}
+              style={{
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                width: 150, minWidth: 150, height: 150, minHeight: 150, padding: 10,
+              }}
+            >
+              <div>
+                {'CIRCUNFERÊNCIA DO BRAÇO'}
+              </div>
+              <div style={{ fontSize: 20 }}>
+                {valorCircunferenciaDoBraco.slice(-1)}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {dataCircunferenciaDoBraco.slice(-1).toString().substring(0, 10)}
+              </div>
+              <div style={{ fontSize: 12 }}>
+                {dataCircunferenciaDoBraco.slice(-1).toString().substring(12, 18)}
+              </div>
+            </button>
+          </div>
+
+          <div id="gráfico de controles"
+            className="pulsewidgetcontroleshover"
+            style={{
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              overflowX: 'scroll', backgroundColor: '#ffffff', borderColor: '#ffffff',
+              width: '75vw', alignSelf: 'center', margin: 5, padding: 5,
             }}
           >
-            -
-          </button>
-          <div style={{ width: '75vw' }} onClick={(e) => e.stopPropagation()}>
-            <Line
-              data={dataChartDadosClinicos}
-              padding={10}
-              width={window.innerWidth > 400 ? 0.1 * window.innerWidth * listbalancos.filter(item => item.idatendimento == idatendimento).lenght : 200}
-              // height={0.13 * window.innerWidth}
-              plugins={ChartDataLabels}
-              options={{
-                scales: {
-                  xAxes: [
-                    {
-                      display: true,
-                      ticks: {
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                  yAxes: [
-                    {
-                      display: false,
-                      ticks: {
-                        suggestedMin: 0,
-                        suggestedMax: 200,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                },
-                plugins: {
-                  datalabels: {
-                    display: false,
-                    color: '#ffffff',
-                    font: {
-                      weight: 'bold',
-                      size: 16,
-                    },
-                  },
-                },
-                tooltips: {
-                  enabled: true,
-                  displayColors: false,
-                },
-                hover: { mode: null },
-                elements: {},
-                animation: {
-                  duration: 500,
-                },
-                title: {
-                  display: false,
-                  text: 'PPS',
-                },
-                legend: {
-                  display: true,
-                  position: 'bottom',
-                },
-                maintainAspectRatio: true,
-                responsive: false,
-              }}
-            />
+            <div id="ChartDinamometria" style={{ display: 'none' }}>
+              <ChartDinamometro></ChartDinamometro>
+            </div>
+            <div id="ChartCircunferenciaAbdominal" style={{ display: 'none' }}>
+              <ChartCircunfenciaAbdominal></ChartCircunfenciaAbdominal>
+            </div>
+            <div id="ChartCircunferenciaDoBraco" style={{ display: 'none' }}>
+              <ChartCircunfenciaDoBraco></ChartCircunfenciaDoBraco>
+            </div>
           </div>
         </div>
-      </div>
+      </div >
     );
   };
 
@@ -6327,7 +6575,7 @@ function Prontuario() {
 
   // função que atualiza o paciente.
   const updateAtendimento = () => {
-    setloadprincipal(1);
+    setloadprincipal(0);
     var obj = {
       idpaciente: idpaciente,
       hospital: nomehospital,
@@ -6545,7 +6793,7 @@ function Prontuario() {
   // MENU LATERAL.
   // selecionando o menu principal.
   const clickPrincipal = () => {
-    setloadprincipal(1);
+    setloadprincipal(0);
     setTimeout(() => {
       setloadprincipal(0);
     }, 3000);
@@ -11508,9 +11756,11 @@ function Prontuario() {
     }
   }
   // selecionando um paciente da lista e atualizando a tela corrida.
+  const [cd_atendimento, setcd_atendimento] = useState();
   const selectPaciente = (item) => {
-    setidatendimento(item.id);
-    // history.push('/prontuario')
+    setidpaciente(item.cd_paciente);
+    setidatendimento(item.cd_atendimento);
+    // alert(item.cd_paciente);
   };
   // SIDEBAR ANIMADA COM LISTA DE PACIENTES.
   function SideBar() {
@@ -11541,17 +11791,18 @@ function Prontuario() {
         >
           <div className="title2" style={{ color: "#ffffff" }}>{'LISTA DE PACIENTES:  ' + nomeunidade}</div>
           <div className="scroll" style={{ height: '80vh', width: '100%', justifyContent: 'flex-start', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: 7.5 }}>
-            {listatendimentos.filter(item => item.hospital == nomehospital && item.unidade == nomeunidade && item.ativo > 0).map((item) => (
+            {todosatendimentos.filter(item => item.Leito.unidade.id == idunidade).map(item => (
               <div
                 key={item.id}
                 style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
               >
-                <button className="grey-button" style={{ backgroundColor: 'grey', marginRight: 10, display: item.box !== '' ? 'flex' : 'none' }}>
-                  {item.box}
+                <button className="grey-button"
+                  style={{ backgroundColor: 'grey', minWidth: 80, width: 80, marginRight: 10, display: item.box !== '' ? 'flex' : 'none' }}>
+                  {item.Leito.descricao}
                 </button>
                 <button
                   onClick={() => selectPaciente(item)}
-                  className={item.status == 3 ? 'green-button' : item.status == 2 ? 'yellow-button' : item.status == 1 ? 'red-button' : item.status == 0 ? 'grey-button' : 'pool-button'}
+                  className='blue-button'
                   title={
                     'STATUS: ' +
                     item.status +
@@ -11564,7 +11815,7 @@ function Prontuario() {
                     height: 50,
                   }}
                 >
-                  {listpacientes.filter((value) => value.id === item.idpaciente).map((item) => item.nome)}
+                  {item.nm_paciente}
                 </button>
               </div>
             ))}

@@ -12,6 +12,7 @@ import Context from '../Context';
 function Laboratorio({ viewlaboratorio }) {
   //servidor.
   var html = 'https://pulsarapp-server.herokuapp.com';
+  var htmllaboratorio = process.env.REACT_APP_API_LABORATORIO;
 
   // recuperando estados globais (Context.API).
   const {
@@ -53,16 +54,11 @@ function Laboratorio({ viewlaboratorio }) {
 
   // inserindo registro.
   const insertData = (item) => {
+    var exame = listlab.filter(valor => valor.codigo_exame_laboratorio == item)
     var obj = {
-      idatendimento: item.idatendimento,
-      codigo: item.codigo,
-      exame: item.exame,
-      material: item.material,
-      resultado: item.resultado,
-      referencia: item.referencia,
-      status: 1, // 1 = aguardando coleta.
-      datapedido: dataPedido,
-      dataresultado: item.dataresultado,
+      codigo_exame_laboratorio: item.codigo_exame_laboratorio,
+      nome_exame_laboratorio: exame.nome_exame_laboratorio,
+      // ... como inserir no MV, Felipe?
     };
     axios.post(html + '/insertlab', obj);
   };
@@ -76,22 +72,14 @@ function Laboratorio({ viewlaboratorio }) {
       setureiabtn(1);
       var ureia =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'URÉIA',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'ATÉ 40 MG/DL',
-        status: 1,
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 642,
       }
       arraylab.push(ureia);
       console.log(arraylab.length);
     } else {
       setureiabtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'URÉIA');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 642);
       arraylab.splice(x, 1);
     }
   }
@@ -101,21 +89,13 @@ function Laboratorio({ viewlaboratorio }) {
       setcreatininabtn(1);
       var creatinina =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'CREATININA',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '0.6 A 1.3 MG/DL',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1385,
       }
       arraylab.push(creatinina);
     } else {
       setcreatininabtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'CREATININA');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1385);
       arraylab.splice(x, 1);
     }
   }
@@ -126,21 +106,13 @@ function Laboratorio({ viewlaboratorio }) {
       setsodiobtn(1);
       var sodio =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'SÓDIO',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '135 A 145 MMOL/L',
-        status: 1,
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 451,
       }
       arraylab.push(sodio);
     } else {
       setsodiobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'SODIO');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 451);
       arraylab.splice(x, 1);
     }
   }
@@ -150,21 +122,13 @@ function Laboratorio({ viewlaboratorio }) {
       setpotassiobtn(1);
       var potassio =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'POTÁSSIO',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '3.5 A 5.5 MMOL/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1025,
       }
       arraylab.push(potassio);
     } else {
       setpotassiobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'POTÁSSIO');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1025);
       arraylab.splice(x, 1);
     }
   }
@@ -174,21 +138,13 @@ function Laboratorio({ viewlaboratorio }) {
       setmagnesiobtn(1);
       var magnesio =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'MAGNÉSIO',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '1.7 A 2.6 MMOL/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1565,
       }
       arraylab.push(magnesio);
     } else {
       setmagnesiobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'MAGNÉSIO');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1565);
       arraylab.splice(x, 1);
     }
   }
@@ -198,21 +154,13 @@ function Laboratorio({ viewlaboratorio }) {
       setfosforobtn(1);
       var fosforo =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'FÓSFORO',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '2.5 A 4.5 MG/DL',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 471,
       }
       arraylab.push(fosforo);
     } else {
       setfosforobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'FÓSFORO');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 471);
       arraylab.splice(x, 1);
     }
   }
@@ -223,21 +171,13 @@ function Laboratorio({ viewlaboratorio }) {
       setgasoartbtn(1);
       var gasoart =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'GASOMETRIA ARTERIAL',
-        material: 'SANGUE ARTERIAL',
-        resultado: '',
-        referencia: 'PH 7.35-7.45, BIC: 22-26MEQ/L, PCO2: 35-45MMHG.',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1609,
       }
       arraylab.push(gasoart);
     } else {
       setgasoartbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'GASOMETRIA ARTERIAL');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1609);
       arraylab.splice(x, 1);
     }
   }
@@ -247,21 +187,13 @@ function Laboratorio({ viewlaboratorio }) {
       setgasovenbtn(1);
       var gasoven =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'GASOMETRIA VENOSA',
-        material: 'SANGUE VENOSO',
-        resultado: '',
-        referencia: 'PH 7.32-7.42, BIC: 24-25 MEQ/L, PO2 25-40 MMHG, PCO2: 41-51 MMHG.',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1617,
       }
       arraylab.push(gasoven);
     } else {
       setgasovenbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'GASOMETRIA VENOSA');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1617);
       arraylab.splice(x, 1);
     }
   }
@@ -271,21 +203,13 @@ function Laboratorio({ viewlaboratorio }) {
       setlactatobtn(1);
       var lactato =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'LACTATO ARTERIAL',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '0.5-1.6 MMOL/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 57,
       }
       arraylab.push(lactato);
     } else {
       setlactatobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'LACTATO ARTERIAL');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 57);
       arraylab.splice(x, 1);
     }
   }
@@ -295,21 +219,13 @@ function Laboratorio({ viewlaboratorio }) {
       setcloretobtn(1);
       var cloreto =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'CLORETO',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '98-107 MMOL/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1560,
       }
       arraylab.push(cloreto);
     } else {
       setcloretobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'CLORETO');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1560);
       arraylab.splice(x, 1);
     }
   }
@@ -320,21 +236,13 @@ function Laboratorio({ viewlaboratorio }) {
       sethemogramabtn(1);
       var hemograma =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'HEMOGRAMA',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'HGB: 12-16 G/DL, HTO: 36-48%, LT: 4.000-10.000, PLAQ: 150-400.000',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1547,
       }
       arraylab.push(hemograma);
     } else {
       sethemogramabtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'HEMOGRAMA');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1547);
       arraylab.splice(x, 1);
     }
   }
@@ -344,21 +252,13 @@ function Laboratorio({ viewlaboratorio }) {
       setpcrbtn(1);
       var pcr =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'PCR',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '< 5 MG/DL',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1042,
       }
       arraylab.push(pcr);
     } else {
       setpcrbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'PCR');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1042);
       arraylab.splice(x, 1);
     }
   }
@@ -369,21 +269,13 @@ function Laboratorio({ viewlaboratorio }) {
       settapbtn(1);
       var tap =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'TAP + RNI',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'TAP: 10-14 SEGUNDOS, RNI: 0.8-1.0',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 497,
       }
       arraylab.push(tap);
     } else {
       settapbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'TAP + RNI');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 497);
       arraylab.splice(x, 1);
     }
   }
@@ -393,21 +285,13 @@ function Laboratorio({ viewlaboratorio }) {
       setpttbtn(1);
       var ptt =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'PTT',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '24-40 SEGUNDOS',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1587,
       }
       arraylab.push(ptt);
     } else {
       setpttbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'PTT');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1587);
       arraylab.splice(x, 1);
     }
   }
@@ -418,33 +302,17 @@ function Laboratorio({ viewlaboratorio }) {
       settgobtn(1);
       var tgo =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'TGO',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '5-40 U/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 581,
       }
       var tgp =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'TGP',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '7-56 U/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 585,
       }
       arraylab.push(tgo, tgp);
     } else {
       settgobtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'TGO');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 585);
       arraylab.splice(x, 1);
     }
   }
@@ -454,21 +322,13 @@ function Laboratorio({ viewlaboratorio }) {
       setfalbtn(1);
       var fal =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'FOSFATASE ALCALINA',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '46-120 U/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 348,
       }
       arraylab.push(fal);
     } else {
       setfalbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'FOSFATASE ALCALINA');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 348);
       arraylab.splice(x, 1);
     }
   }
@@ -478,21 +338,13 @@ function Laboratorio({ viewlaboratorio }) {
       setggtbtn(1);
       var ggt =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'GAMA-GT',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '7-50 U/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 518,
       }
       arraylab.push(ggt);
     } else {
       setggtbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'GAMA-GT');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 518);
       arraylab.splice(x, 1);
     }
   }
@@ -502,21 +354,13 @@ function Laboratorio({ viewlaboratorio }) {
       setbtfbtn(1);
       var btf =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'BILIRRUBINA TOTAL E FRAÇÕES',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'BT: 0.2-1.1 MG/DL, BI: 0.1-0.7 MG/DL, BD: 0.1-0.4 MG/DL',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 154,
       }
       arraylab.push(btf);
     } else {
       setbtfbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'BILIRRUBINA TOTAL E FRAÇÕES');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 154);
       arraylab.splice(x, 1);
     }
   }
@@ -526,21 +370,13 @@ function Laboratorio({ viewlaboratorio }) {
       setamilasebtn(1);
       var amilase =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'AMILASE',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '20-160 U/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 104,
       }
       arraylab.push(amilase);
     } else {
       setamilasebtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'AMILASE');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 104);
       arraylab.splice(x, 1);
     }
   }
@@ -550,21 +386,13 @@ function Laboratorio({ viewlaboratorio }) {
       setlipasebtn(1);
       var lipase =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'LIPASE',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: '2-18 U/L',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 814,
       }
       arraylab.push(lipase);
     } else {
       setlipasebtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'LIPASE');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 814);
       arraylab.splice(x, 1);
     }
   }
@@ -576,21 +404,13 @@ function Laboratorio({ viewlaboratorio }) {
       sethemoc1btn(1);
       var hemoc =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'HEMOCULTURA (1a AMOSTRA)',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'NHCB',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1563,
       }
       arraylab.push(hemoc);
     } else {
       sethemoc1btn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'HEMOCULTURA (1a AMOSTRA)');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1563);
       arraylab.splice(x, 1);
     }
   }
@@ -601,21 +421,13 @@ function Laboratorio({ viewlaboratorio }) {
       sethemoc2btn(1);
       var hemoc =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'HEMOCULTURA (2a AMOSTRA)',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'NHCB',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1577,
       }
       arraylab.push(hemoc);
     } else {
       sethemoc2btn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'HEMOCULTURA (2a AMOSTRA)');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1577);
       arraylab.splice(x, 1);
     }
   }
@@ -626,21 +438,13 @@ function Laboratorio({ viewlaboratorio }) {
       sethemoc3btn(1);
       var hemoc =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'HEMOCULTURA (3a AMOSTRA)',
-        material: 'SANGUE',
-        resultado: '',
-        referencia: 'NHCB',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1587,
       }
       arraylab.push(hemoc);
     } else {
       sethemoc3btn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'HEMOCULTURA (3a AMOSTRA)');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1587);
       arraylab.splice(x, 1);
     }
   }
@@ -651,21 +455,13 @@ function Laboratorio({ viewlaboratorio }) {
       seturocbtn(1);
       var uroc =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'UROCULTURA',
-        material: 'URINA',
-        resultado: '',
-        referencia: 'NHCB',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1579,
       }
       arraylab.push(uroc);
     } else {
       seturocbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'UROCULTURA');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1579);
       arraylab.splice(x, 1);
     }
   }
@@ -676,21 +472,13 @@ function Laboratorio({ viewlaboratorio }) {
       setminibalbtn(1);
       var minibal =
       {
-        idatendimento: idatendimento,
-        codigo: 11,
-        exame: 'CULTURA DE ASPIRADO TRAQUEAL',
-        material: 'ASPIRADO TRAQUEAL',
-        resultado: '',
-        referencia: 'NHCB',
-        status: 'AGUARDANDO COLETA',
-        datapedido: '',
-        dataresultado: '',
+        codigo_exame_laboratorio: 1310,
       }
       arraylab.push(minibal);
     } else {
       setminibalbtn(0);
       // encontrar o item na array e fazer o delete.
-      const x = arraylab.indexOf((item) => item.exame === 'ASPIRADO TRAQUEAL');
+      const x = arraylab.indexOf((item) => item.codigo_exame_laboratorio == 1310);
       arraylab.splice(x, 1);
     }
   }
@@ -734,7 +522,7 @@ function Laboratorio({ viewlaboratorio }) {
   // carregando lista de opções de exames laboratoriais.
   const [listlab, setlistlab] = useState([])
   const loadOptionsLaboratorio = () => {
-    axios.get(html + '/laboratorio_options').then((response) => {
+    axios.get(htmllaboratorio).then((response) => {
       setlistlab(response.data);
     });
   }
@@ -745,42 +533,35 @@ function Laboratorio({ viewlaboratorio }) {
   const [filterlab, setfilterlab] = useState('');
   var searchlab = '';
   var timeout = null;
-  const [arrayfilterlab, setarrayfilterlab] = useState([listlab]);
+  const [arrayfilterlab, setarrayfilterlab] = useState(listlab);
   const filterLab = () => {
     clearTimeout(timeout);
     document.getElementById("inputFilterLab").focus();
     searchlab = document.getElementById("inputFilterLab").value.toUpperCase();
     timeout = setTimeout(() => {
-      if (searchlab === '') {
+      if (searchlab == '') {
         setarrayfilterlab([]);
         document.getElementById("inputFilterLab").value = '';
         document.getElementById("inputFilterLab").focus();
       } else {
         setfilterlab(document.getElementById("inputFilterLab").value.toUpperCase());
-        setarrayfilterlab(listlab.filter(item => item.exame.includes(searchlab) === true));
+        setarrayfilterlab(listlab.filter(item => item.nome_exame_laboratorio.includes(searchlab) == true));
         document.getElementById("inputFilterLab").value = searchlab;
         document.getElementById("inputFilterLab").focus();
       }
     }, 500);
   }
   const addLab = (item) => {
-    var exame = item.exame;
     var newlab = {
-      idatendimento: idatendimento,
-      codigo: item.codigo,
-      exame: item.exame,
-      material: item.material,
-      resultado: '',
-      referencia: item.referencia,
-      status: 'AGUARDANDO COLETA',
-      datapedido: dataPedido,
-      dataresultado: '',
+      codigo_exame_laboratorio: item.codigo_exame_laboratorio,
+      nome_exame_laboratorio: item.nome_exame_laboratorio,
     }
-    const x = arraylab.indexOf((item) => item.exame === exame);
-    console.log(x);
-    if (x !== '') {
-      arraylab.push(newlab);
+    var addlab = {
+      codigo_exame_laboratorio: item.codigo_exame_laboratorio,
+    }
+    if (selectedlistlab.filter(value => value.codigo_exame_laboratorio == item.codigo_exame_laboratorio).length < 1) {
       selectedlistlab.push(newlab);
+      arraylab.push(addlab);
       setarrayfilterlab([]);
       setfilterlab('');
       document.getElementById("inputFilterLab").value = '';
@@ -788,11 +569,9 @@ function Laboratorio({ viewlaboratorio }) {
     }
   }
   const deleteLab = (item) => {
-    var exame = item.exame;
-    const x = arraylab.indexOf((item) => item.exame === exame);
-    const y = selectedlistlab.indexOf((item) => item.exame === exame);
+    const x = arraylab.filter(value => value.codigo_exame_laboratorio == item.codigo_exame_laboratorio);
     arraylab.splice(x, 1);
-    selectedlistlab.splice(y, 1);
+    selectedlistlab.splice(x, 1);
     setarrayfilterlab([]);
     setfilterlab('');
     document.getElementById("inputFilterLab").value = '';
@@ -839,10 +618,10 @@ function Laboratorio({ viewlaboratorio }) {
             >
               <button
                 onClick={() => addLab(item)}
-                className="hover-button"
+                className="green-button"
                 style={{ width: '100%' }}
               >
-                {item.exame}
+                {item.nome_exame_laboratorio}
               </button>
             </div>
           ))}
@@ -867,7 +646,7 @@ function Laboratorio({ viewlaboratorio }) {
                 className="hover-button"
                 style={{ width: '100%' }}
               >
-                {item.exame}
+                {item.nome_exame_laboratorio}
               </button>
               <button className="animated-red-button"
                 onClick={() => deleteLab(item)}
