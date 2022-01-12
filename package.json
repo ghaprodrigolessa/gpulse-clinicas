@@ -1,5 +1,4 @@
 {
-  "homepage": "http://volbok.github.io/gpulse-apt",
   "name": "gpulse",
   "version": "0.1.0",
   "private": true,
@@ -30,7 +29,7 @@
   },
   "scripts": {
     "start": "env-cmd -f ./.env react-scripts start",
-    "build": "env-cmd -f ./.env.production react-scripts build",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",

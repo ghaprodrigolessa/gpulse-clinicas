@@ -115,7 +115,7 @@ function IddleTimeOut() {
       <Switch>
         <div id="páginas">
           <Route exact path="/gpulse-apt">
-            <Login></Login>
+            <Login />
           </Route>
           <Route path="/atendimentos">
             <Atendimentos></Atendimentos>
