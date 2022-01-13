@@ -5431,11 +5431,11 @@ function Prontuario() {
       x = response.data;
       setdadosvitais(response.data);
       arrayCodigosDadosVitais.map(item => getLastDadosClinicos(x, item));
-      arrayCodigosDadosVitais.map(item => getDataToDataChart(item));
+      arrayCodigosDadosVitais.map(item => getDataToDataChart(x, item));
       setTimeout(() => {
         setarrayLastDadosClinicos(fdp1);
         setarrayDadosDataChart(fdp2);
-        alert(JSON.stringify(arrayDadosDataChart));
+        // alert(JSON.stringify(arrayDadosDataChart));
       }, 3000);
     })
   }
@@ -5472,11 +5472,11 @@ function Prontuario() {
 
   // função para captura dos valores para os gráficos de dados vitais.
   var fdp2 = [];
-  const getDataToDataChart = (codigo) => {
+  const getDataToDataChart = (data, codigo) => {
     var valor = [];
-    valor = dadosvitais.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor);
-    setdataDadosVitais(dadosvitais.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
-    setvalorDadosVitais(dadosvitais.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor));
+    valor = data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor);
+    setdataDadosVitais(data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
+    setvalorDadosVitais(data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor));
 
     // randomizando cores dos gráficos.
     var dynamicColors = function () {
