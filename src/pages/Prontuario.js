@@ -4721,7 +4721,7 @@ function Prontuario() {
             </Link>
             <BtnSettings></BtnSettings>
             <Link
-              to="/gpulse-apt"
+              to="/"
               className="grey-button"
               title="FAZER LOGOFF."
               style={{
