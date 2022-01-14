@@ -119,7 +119,7 @@ function Header({ link, titulo }) {
             ></img>
           </Link>
           <Link
-            to="/gpulse-apt"
+            to="/"
             className="blue-button"
             title="FAZER LOGOFF."
             style={{

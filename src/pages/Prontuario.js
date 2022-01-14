@@ -350,8 +350,9 @@ function Prontuario() {
     setnomemae(paciente.map(item => item.nome_mae_paciente))
     setcontato("INDISPONÍVEL NA API");
     setendereço("INDISPONÍVEL NA API");
-    setdn(moment(paciente.map(item => item.data_nascimento_paciente)).format('DD/MM/YYYY'));
+    setdn(moment(paciente.map(item => item.data_nascimento_paciente), 'YYYY-MM-DD').format('DD/MM/YYYY'));
     setidade(moment().diff(moment(dn), 'DD/MM/YYYY'), 'years');
+    // alert(dn);
   }
 
   // carregando o atendimento do paciente selecionado.
@@ -4177,6 +4178,7 @@ function Prontuario() {
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
     loadAtendimento(idpaciente);
+    // alert(idpaciente);
 
     // carregando dados vitais.
     getDadosVitais(idatendimento);
@@ -4500,7 +4502,7 @@ function Prontuario() {
                       },
                     },
                     animation: {
-                      duration: 500,
+                      duration: 0,
                     },
                     title: {
                       display: false,
@@ -4645,7 +4647,7 @@ function Prontuario() {
                     ></img>
                   </Link>
                   <Link
-                    to="/gpulse-apt"
+                    to="/"
                     className="grey-button"
                     title="FAZER LOGOFF."
                     style={{
@@ -4957,6 +4959,7 @@ function Prontuario() {
         <div id="painel principal"
           className="scroll"
           style={{
+            scrollBehavior: 'smooth',
             alignItems: 'center', flexDirection: 'row', backgroundColor: 'transparent',
             borderColor: 'transparent',
             flexWrap: 'wrap', justifyContent: 'space-evenly'
@@ -5445,7 +5448,7 @@ function Prontuario() {
   dados clínicos do  atendimento (arrayLastDadosClinicos), a partir de uma array 
   contendo os códigos de cada dado clínico (arrayCodigoDadosVitais).
   */
-  const arrayCodigosDadosVitais = [1, 2, 3];
+  const arrayCodigosDadosVitais = [1, 2, 3, 4, 5, 6];
   const [arrayLastDadosClinicos, setarrayLastDadosClinicos] = useState([]);
   const [arrayDadosDataChart, setarrayDadosDataChart] = useState([]);
 
@@ -5497,7 +5500,37 @@ function Prontuario() {
     );
   }
 
-  const mountGraficos = (dataDadosVitais, valorDadosVitais) => {
+  const filterDataToDataChart = (codigo) => {
+    // alert(codigo);
+    setdataDadosVitais([]);
+    setvalorDadosVitais([]);
+    setdataDadosVitais(dadosvitais.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
+    setvalorDadosVitais(dadosvitais.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor));
+
+    // randomizando cores dos gráficos.
+    var dynamicColors = function () {
+      var r = Math.floor(Math.random() * 255);
+      var g = Math.floor(Math.random() * 255);
+      var b = Math.floor(Math.random() * 255);
+      return "rgb(" + r + "," + g + "," + b + ")";
+    };
+
+    fdp2.push(
+      {
+        label: dadosvitais.filter(item => item.cd_sinal_vital == codigo).slice(-1).map(item => item.ds_sinal_vital),
+        data: valorDadosVitais,
+        borderColor: "8f9bbc",
+        pointBackgroundColor: "8f9bbc",
+        fill: false
+      }
+    );
+
+    setarrayDadosDataChart(fdp2);
+    var position = document.getElementById("cardcontroles").offsetTop;
+    setTimeout(() => {
+      // alert(position);
+      document.getElementById("painel principal").scrollTo(0, position - 230);
+    }, 1000);
   }
 
   // gráfico dos dados vitais.
@@ -5611,15 +5644,26 @@ function Prontuario() {
             className="pulsewidgetcontroleshover"
           >
             {arrayLastDadosClinicos.map(item => (
-              <button className="blue-button"
-                // onClick={() => {mountDataDadosVitais(item.codigo)}}
+              <button id={"btngrafico" + item.codigo}
+                className="blue-button"
+                onClick={(e) => {
+                  filterDataToDataChart(item.codigo);
+                  setTimeout(() => {
+                    var botoes = document.getElementById("seletores dos gráficos").getElementsByClassName("red-button");
+                    for (var i = 0; i < botoes.length; i++) {
+                      botoes.item(i).className = "blue-button";
+                    }
+                    document.getElementById("btngrafico" + item.codigo).className = "red-button";
+                  }, 1000);
+                  e.stopPropagation();
+                }}
                 style={{
                   display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                  height: 120, width: 120,
+                  height: 150, width: 120,
                   minHeight: 120, minWidth: 120,
                   margin: 10, padding: 10,
                 }}>
-                <div style={{ height: 50, display: 'flex', flexDirection: 'column', justifyContent: 'center', verticalAlign: 'center' }}>
+                <div style={{ height: 75, display: 'flex', flexDirection: 'column', justifyContent: 'center', verticalAlign: 'center' }}>
                   <div>{item.descricao}</div>
                 </div>
                 <div style={{ fontSize: 18 }}>{item.valor}</div>

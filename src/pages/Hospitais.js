@@ -133,7 +133,8 @@ function Hospitais() {
             backgroundColor: '#ffffff', margin: 10,
             borderRadius: 5,
             boxShadow: '0px 2px 20px 5px rgba(0, 0, 0, 0.1)',
-            height: 450, width: window.innerWidth < 400 ? '90vw' : '',
+            height: '60vh',
+            width: window.innerWidth < 600 ? '90vw' : '',
           }}>
           <div
             id={"hospital" + item.id}
@@ -144,12 +145,12 @@ function Hospitais() {
               display: renderchart == 1 ? 'flex' : 'none',
               flexDirection: 'column',
               alignItems: 'center',
-              alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
+              alignSelf: window.innerWidth > 600 ? 'flex-start' : 'center',
               borderRadius: 5,
               padding: 10,
-              width: window.innerWidth < 400 ? '100%' : '21vw',
-              minWidth: window.innerWidth < 400 ? '90%' : '21vw',
-              height: 420
+              height: 'calc(60vh - 30px)',
+              width: window.innerWidth < 600 ? '100%' : '21vw',
+              minWidth: window.innerWidth < 600 ? '90%' : '21vw',
             }}
           >
             <div
@@ -166,7 +167,10 @@ function Hospitais() {
             >
               {JSON.stringify(item.nome).substring(3, JSON.stringify(item.nome).length - 1)}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
+            <div style={{
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              position: 'relative'
+            }}>
               <Doughnut
                 data={dataChart}
                 width={window.innerWidth > 400 ? 0.13 * window.innerWidth : 200}
@@ -355,9 +359,14 @@ function Hospitais() {
               -
             </div>
           </div>
-          <div id={"hospitaisstuff" + item.id} className="retractcard" style={{ display: 'flex', flexDirection: 'row' }}>
+          <div id={"hospitaisstuff" + item.id} className="retractcard"
+            style={{ display: 'flex', flexDirection: 'row', height: '55vh' }}>
             {convenios.map(valor => (
-              <div className="card" style={{ flexDirection: 'column', width: '9.5vw', height: '13vw', justifyContent: 'space-between' }}>
+              <div className="card"
+                style={{
+                  flexDirection: 'column', width: '9.5vw', height: '25vh',
+                  justifyContent: 'space-between'
+                }}>
                 <div className="title2center">{valor.convenio == 1 ? 'UNIMED' : valor.convenio == 2 ? 'BRADESCO' : valor.convenio == 3 ? 'HAPVIDA' : valor.convenio == 4 ? 'FUSEX' : valor.convenio == 5 ? 'CASSI' : valor.convenio == 6 ? 'YOKO' : 'PARTICULAR'}</div>
                 <div style={{ margin: 10 }}>
                   <Doughnut
@@ -430,7 +439,7 @@ function Hospitais() {
               </div>
             ))}
             <button className="green-button"
-              style={{ flexDirection: 'column', width: '9.5vw', height: '13vw', margin: 15, padding: 5 }}
+              style={{ flexDirection: 'column', width: '9.5vw', height: '25vh', margin: 15, padding: 5 }}
               onClick={() => {
                 settransition(0);
                 setTimeout(() => {
@@ -458,7 +467,8 @@ function Hospitais() {
             backgroundColor: '#ffffff', margin: 10,
             borderRadius: 5,
             boxShadow: '0px 2px 20px 5px rgba(0, 0, 0, 0.1)',
-            height: 450, width: window.innerWidth < 400 ? '90vw' : '',
+            height: '60vh',
+            width: window.innerWidth < 400 ? '90vw' : '',
           }}>
           <div
             id={"hospital" + item.id}
@@ -472,9 +482,9 @@ function Hospitais() {
               alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
               borderRadius: 5,
               padding: 10,
+              height: 'calc(60vh - 30px)',
               width: window.innerWidth < 400 ? '100%' : '21vw',
               minWidth: window.innerWidth < 400 ? '90%' : '21vw',
-              height: 420
             }}
           >
             <div
@@ -491,7 +501,7 @@ function Hospitais() {
             >
               {JSON.stringify(item.nome).substring(3, JSON.stringify(item.nome).length - 1)}
             </div>
-            <div className="title2center" style={{color: '#ec7063'}}>SEM REGISTROS DE OCUPAÇÃO DISPONÍVEIS</div>
+            <div className="title2center" style={{ color: '#ec7063' }}>SEM REGISTROS DE OCUPAÇÃO DISPONÍVEIS</div>
           </div>
         </div>
       )
@@ -509,7 +519,7 @@ function Hospitais() {
         display: renderchart == 1 ? 'flex' : 'none',
       }}
     >
-      <Header link={'/gpulse-apt'} titulo={'SERVIÇOS'}></Header>
+      <Header link={'/'} titulo={'SERVIÇOS'}></Header>
       <ShowHospitais></ShowHospitais>
       <AptTransicaoDeServicos transition={transition}></AptTransicaoDeServicos>
     </div>

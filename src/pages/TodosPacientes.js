@@ -10,13 +10,7 @@ import Header from '../components/Header';
 import Context from '../Context';
 import { useHistory } from "react-router-dom";
 
-// leitor de qr code.
-import QrReader from 'react-qr-reader';
-
-// componentes do Paulo de Tarso (APT).
-import AptPlanoTerapeutico from '../components/AptPlanoTerapeutico';
-
-function Pacientes() {
+function TodosPacientes() {
   var html = 'https://pulsarapp-server.herokuapp.com';
   var htmlleitos = process.env.REACT_APP_API_LEITOS;
   var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
@@ -44,32 +38,6 @@ function Pacientes() {
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
-
-  // renderização do leitor de qr.
-  const [recebepct, setrecebepct] = useState(0);
-  // const [qrscan, setqrscan] = useState('LOUCURA');
-
-  // console.log('DATA: ' + qrscan);
-
-  const handleScan = (result) => {
-    console.log('LENDO...')
-    if (result) {
-      // setqrscan(result)
-      // console.log('FUNFOU')
-      // console.log('DATA: ' + qrscan);
-      // lógica para atualizar registro de atendimento com a localização atual.
-      var x = [];
-      // x = atendimentos.filter((item) => item.ativo != 0 && item.idpaciente == qrscan).slice(-1);
-      // console.log(x);
-      setTimeout(() => {
-        updateAtendimento(x, result);
-      }, 2000);
-      setrecebepct(0);
-    }
-  }
-  const handleError = err => {
-    console.log('ERRO: ' + err)
-  }
 
   // função que atualiza o atendimento do paciente recebido na unidade.
   const updateAtendimento = (x, result) => {
@@ -100,45 +68,12 @@ function Pacientes() {
     });
   };
 
-  const QRScanner = () => {
-    return (
-      <div style={{ display: window.innerWidth < 1024 ? 'flex' : 'none' }}>
-        <button style={{
-          display: recebepct == 0 ? 'flex' : 'none',
-          margin: 20,
-          padding: 10,
-          // position: 'absolute', top: 20, left: 20, right: 20, padding: 10
-        }}
-          className="blue-button"
-          onClick={() => setrecebepct(1)}
-        >
-          RECEBER PACIENTE
-        </button>
-        <div style={{ display: recebepct == 1 ? 'flex' : 'none', borderColor: 'red', borderRadius: 5 }}>
-          <QrReader
-            // delay={1000}
-            // onError={handleError}
-            // onScan={handleScan}
-            style={{
-              height: '90vw', width: '90vw', borderRadius: 5, margin: 20,
-              // position: 'absolute', top: 20, left: 20, right: 20
-            }}
-
-          />
-        </div>
-      </div>
-    )
-  }
-
   // carregamento do número de leitos do cti selecionado.
   const [leitos, setleitos] = useState(10);
   const loadLeitos = () => {
     // ROTA: SELECT * FROM hospitaisxunidades WHERE hospital = hospital AND unidade = unidade.
     axios.get(htmlleitos).then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      const arrayLeitos = x.map((item) => item.descricao);
-      setleitos(arrayLeitos[0]);
+      setleitos(response.data);
     });
   }
 
@@ -157,107 +92,6 @@ function Pacientes() {
   // lista de atendimentos (demais unidades de internação como enfermarias, ctis, etc.).
   const [atendimentos, setatendimentos] = useState(todosatendimentos);
   const [arrayatendimentos, setarrayatendimentos] = useState(todosatendimentos);
-  // lista de chamadas.
-  const [listcalls, setlistcalls] = useState([]);
-  const loadCalls = () => {
-    axios.get(html + "/calls").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setlistcalls(response.data);
-      // executando a chamada de voz quando temos mais de 4 registros de chamadas.
-      if (x.filter(item => item.hospital == nomehospital && item.unidade == nomeunidade).length > 4) {
-        makeVoice(x.map(item => item.paciente).pop());
-        setTimeout(() => {
-          /* excluindo a primeira call da lista de chamadas (necessário para manter a lista
-          limpa e impedir o disparo da voz anunciando o nome do paciente). */
-          deleteCall(x);
-        }, 3000);
-      }
-    });
-  }
-
-  // chamada por voz do paciente.
-  const makeVoice = (nome) => {
-    var msg = new SpeechSynthesisUtterance();
-    msg.volume = 1; // From 0 to 1
-    msg.rate = 0.7; // From 0.1 to 10
-    msg.pitch = 0.7; // From 0 to 2
-    msg.text = nome;
-    msg.lang = 'pt-br';
-    window.speechSynthesis.speak(msg);
-  }
-
-  // cabeçalho da lista de pacientes (unidades de internação).
-  function CabecalhoInternacao() {
-    return (
-      <div
-        className="scrollheader"
-        id="CABEÇALHO DA LISTA DE PACIENTES INTERNADOS"
-      >
-        <div className="rowheader">
-          <button
-            className="header-button"
-            style={{ backgroundColor: 'transparent' }}
-            title="BOX"
-            disabled="true"
-          >
-            BOX
-          </button>
-          <button
-            className="header-button"
-            style={{ backgroundColor: 'transparent' }}
-            title="BOX"
-            disabled="true"
-          >
-
-          </button>
-          <button
-            className="header-button"
-            style={{
-              width: '100%',
-            }}
-          >
-            NOME
-          </button>
-          <button
-            className="header-button"
-            style={{ backgroundColor: 'transparent', width: 150 }}
-            title="BOX"
-            disabled="true"
-          >
-            MIF
-          </button>
-          <div
-            className="rowitemheader"
-            style={{
-              display: window.innerWidth < 400 ? 'none' : 'flex',
-              width: '20%',
-            }}
-          >
-            IDADE
-          </div>
-          <div
-            className="rowitemheader"
-            style={{
-              display: window.innerWidth < 400 ? 'none' : 'flex',
-              width: '30%',
-            }}
-          >
-            TEMPO DE INTERNAÇÃO
-          </div>
-          <div
-            className="rowitemheader"
-            style={{
-              display: window.innerWidth < 400 ? 'none' : 'flex',
-              width: '30%',
-            }}
-          >
-            MÉDICO ASSISTENTE
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // cabeçalho da lista de pacientes (unidades de internação).
   const [arrayatendimentosclassified, setarrayatendimentosclassified] = useState([]);
@@ -275,6 +109,14 @@ function Pacientes() {
         id="CABEÇALHO DA LISTA DE PACIENTES INTERNADOS"
       >
         <div className="rowheader">
+          <button
+            className="header-button"
+            style={{ backgroundColor: 'transparent', width: 200 }}
+            title="BOX"
+            disabled="true"
+          >
+            UNIDADE
+          </button>
           <button
             onClick={() => {
               // setclassificabox(0);
@@ -421,14 +263,14 @@ function Pacientes() {
 
   // renderização da lista de pacientes.
   function ShowPacientes() {
-    if (arrayatendimentos.filter(item => item.Leito.unidade.id == idunidade).length > 0) {
+    if (arrayatendimentos.length > 0) {
       return (
         <div
           id="LISTA DE PACIENTES"
           className="scroll"
           style={{ height: '100%' }}
         >
-          {arrayatendimentos.filter(item => item.Leito.unidade.id == idunidade).map((item) => (
+          {arrayatendimentos.map((item) => (
             <div style={{
               display: 'flex', flexDirection: 'column', justifyContent: 'center',
               width: window.innerWidth > 400 ? '' : '90vw'
@@ -440,9 +282,16 @@ function Pacientes() {
                   width: window.innerWidth > 400 ? '' : '85vw',
                   position: 'relative',
                   justifyContent: 'space-between',
-                  // display: arraypacientes.filter((value) => value.id === item.idpaciente).length > 0 ? 'flex' : 'none',
                 }}
               >
+                <button
+                  className="grey-button"
+                  style={{ width: 200, margin: 2.5, color: '#ffffff', backgroundColor: 'grey' }}
+                  title="BOX"
+                  disabled="true"
+                >
+                  {item.Leito.unidade.descricao}
+                </button>
                 <button
                   className="grey-button"
                   style={{ minWidth: 100, margin: 2.5, color: '#ffffff', backgroundColor: 'grey' }}
@@ -635,311 +484,11 @@ function Pacientes() {
     }
   }
 
-  // carregamento da lista de pacientes para a unidade selecionada, perfil AMBULATÓRIO.
-  const [ambulatorio, setambulatorio] = useState([]);
-  const loadAmbulatorio = () => {
-    // todos os pacientes agendados para o médico logado.
-    axios.get(html + '/consultas').then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      var y = x.filter((item) => item.idassistente === idusuario && item.unidade === nomeunidade && item.ativo !== 0);
-      setambulatorio(y);
-    });
-  }
-
-  // seleção do consultório para atendimento (pronto-socorro):
-  const [consultorio, setconsultorio] = useState(0);
-  var arrayconsultorios = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const [viewconsultorioselector, setviewconsultorioselector] = useState(0);
-  function ConsultorioSelector() {
-    if (viewconsultorioselector === 1) {
-      return (
-        <div className="menucover"
-          style={{ zIndex: 9, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-          onClick={() => setviewconsultorioselector(0)}
-        >
-          <div className="menucontainer">
-            <label
-              className="title2"
-              style={{ marginTop: 20, marginBottom: 15, width: 200, textAlign: 'center', justifyContent: 'center' }}
-            >
-              SELECIONAR CONSULTÓRIO PARA ATENDIMENTO
-            </label>
-            <div
-              className="scroll"
-              id="LISTA DE CONSULTÓRIOS"
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-                height: 250,
-                width: 250,
-              }}
-            >
-              {arrayconsultorios.map(item => (
-                <div
-                  key={item.id}
-                  className="blue-button"
-                  style={{ width: 50, height: 50 }}
-                  onClick={(e) => { defineConsultorio(item); e.stopPropagation() }}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-
-  // inserindo registro de chamada para o paciente no pronto-socorro.
-  const insertCall = (item) => {
-    var obj = {
-      data: moment().format('DD/MM/YY HH:mm'),
-      idatendimento: item.id,
-      paciente: item.nome,
-      usuario: nomeusuario,
-      especialidade: especialidadeusuario,
-      consultorio: consultorio !== 0 ? consultorio : item.consultorio, // emergencia ? ambulatorio.
-      hospital: nomehospital,
-      unidade: nomeunidade,
-    }
-    axios.post(html + '/insertcall', obj);
-  }
-
-  // excluindo registro de chamada para o paciente no pronto-socorro.
-  const deleteCall = (x) => {
-    // identificando a id da primeira call.
-    axios.get(html + '/deletecall/' +
-      x.filter(item => item.hospital == nomehospital && item.unidade == nomeunidade).map(item => item.id)[0]
-    );
-  }
-
-  // definindo consultório para atendimento.
-  const defineConsultorio = (item) => {
-    setconsultorio(item);
-    setviewconsultorioselector(0);
-  }
-
-  // calculando tempo de espera para atendimento.
-  const espera = (valor) => {
-    var stringadmissao = JSON.stringify(valor).substring(1, 17);
-    var minutes = moment().diff(moment(stringadmissao, 'DD/MM/YYYY hh:mm'), 'minutes');
-    var dias = Math.floor(minutes / 1440) // total de dias completos esperando.
-    var horas = Math.floor(minutes / 60) - (dias * 24) // total horas completas descontando-se as horas dos dias completos.
-    var minutos = minutes - (horas * 60) - (dias * 1440) // total de minutos completos descontando-se os dias e horas completos.
-    return (dias + ' DIAS, ' + horas + 'H E ' + minutos + 'MIN.')
-  }
-
-  // CHART.
-  /* gráfico em torta que exibe o total de pacientes internados na unidade, distribuídos
-  por linha de cuidado. */
-  var leitostotais = [0, 1]
-  leitostotais = todosleitos
-  var atendimentostotais = [0, 1]
-  atendimentostotais = todosatendimentos
-  const dataChart = {
-    labels: [' VAGOS', ' OCUPADOS'],
-    datasets: [
-      {
-        data: [
-          leitostotais.filter(item => item.unidade.id == idunidade).length - atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length, // vagos.
-          atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length // ocupados.
-        ],
-        backgroundColor: ['#52be80', '#F4D03F'],
-        borderWidth: 5,
-        borderColor: '#f2f2f2',
-        hoverBorderColor: ['#f2f2f2', '#f2f2f2'],
-      },
-    ],
-  };
-
-  function Chart() {
-
-    return (
-      <div
-        id="GRÁFICO"
-        className="secondary legenda"
-        style={{
-          display: 'flex',
-          flexDirection: window.innerWidth > 800 ? 'column' : window.innerWidth > 600 ? 'row' : 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          alignSelf: 'center',
-          backgroundColor: 'transparent',
-          borderColor: 'transparent',
-          borderRadius: 5,
-          padding: 0,
-          margin: window.innerWidth > 400 ? 10 : 5,
-          width: '20vw'
-        }}
-      >
-        <div
-          id="chart" style={{
-            display: renderchart == 1 ? 'flex' : 'none',
-            flexDirection: 'column', justifyContent: 'center', alignSelf: 'center',
-            position: 'relative'
-          }}>
-          <Doughnut
-            data={dataChart}
-            width={window.innerWidth < 400 ? 150 : 0.15 * window.innerWidth}
-            height={window.innerWidth < 400 ? 150 : 0.15 * window.innerWidth}
-            plugins={ChartDataLabels}
-            options={{
-              plugins: {
-                datalabels: {
-                  display: function (context) {
-                    return context.dataset.data[context.dataIndex] !== 0;
-                  },
-                  color: '#FFFFFF',
-                  textShadowColor: 'black',
-                  textShadowBlur: 5,
-                  font: {
-                    weight: 'bold',
-                    size: 16,
-                  },
-                },
-              },
-              tooltips: {
-                enabled: false,
-              },
-              hover: { mode: null },
-              elements: {
-                arc: {
-                  borderColor: '#f2f2f2',
-                  borderWidth: 5,
-                },
-              },
-              animation: {
-                duration: 0,
-              },
-              title: {
-                display: false,
-                text: 'STATUS DOS PACIENTES:',
-              },
-              legend: {
-                display: false,
-                position: 'bottom',
-              },
-              maintainAspectRatio: true,
-              responsive: false,
-            }}
-          ></Doughnut>
-          <div>
-            <p
-              className="title2center"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                fontSize: 20,
-                fontWeight: 'bold',
-                margin: 2.5,
-                padding: 0,
-                position: 'absolute',
-                top: 0, bottom: 0, left: 0, right: 0,
-              }}
-            >
-              {Math.ceil(
-                (atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length) * 100 /
-                leitostotais.filter(item => item.unidade.id == idunidade).length) + '%'}
-            </p>
-          </div>
-        </div>
-        <Legenda></Legenda>
-      </div>
-    );
-  }
-
-  // legenda para o gráfico.
-  function Legenda() {
-    return (
-      <div id="LEGENDA"
-
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          marginTop: 5,
-          marginBottom: 5,
-          boxShadow: 'none',
-          width: window.innerWidth < 400 ? '60vw' : '100%',
-        }}
-      >
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center', alignSelf: 'center',
-          width: window.innerWidth > 400 ? '' : '30vw'
-        }}>
-          <div
-            id="LEITOS VAGOS"
-            className="secondary"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#52be80',
-              margin: 2.5,
-              padding: 0,
-            }}
-          ></div>
-          <p
-            className="title2center"
-            style={{
-              width: '8vw',
-              margin: 2.5,
-              marginRight: 5,
-              padding: 0,
-              fontSize: 10,
-            }}
-          >
-            {window.innerWidth > 400 ? 'LEITOS VAGOS' : 'VAGOS'}
-          </p>
-        </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center',
-          width: window.innerWidth > 400 ? '' : '30vw'
-        }}>
-          <div
-            id="LEITOS OCUPADOS"
-            className="secondary"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#f4d03f',
-              margin: 2.5,
-              padding: 0,
-            }}
-          ></div>
-          <p
-            className="title2center"
-            style={{
-              width: '8vw',
-              margin: 2.5,
-              marginRight: 5,
-              padding: 0,
-              fontSize: 10,
-            }}
-          >
-            OCUPADOS
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // selecionando um paciente da lista e abrindo a tela corrida.
   const selectPaciente = (item) => {
     setidpaciente(item.cd_paciente)
     setidatendimento(item.cd_atendimento)
     setdadospaciente(arrayPacientesEmAtendimento.filter(value => value.codigo_paciente == item.cd_paciente))
-    updatelist = 0;
     history.push('/prontuario')
   };
 
@@ -990,64 +539,13 @@ function Pacientes() {
   // estado para visualização do totem de chamadas.
   const [viewtoten, setviewtoten] = useState(0);
   const [renderchart, setrenderchart] = useState(0);
-  var updatelist = 0;
   useEffect(() => {
-    updatelist = 1;
     // carregando a lista de pacientes e de atendimentos.
     MountArrayPacientesEmAtendimento();
-    setclassificabox(1);
-    loadPacientes();
-    loadAmbulatorio();
-    setTimeout(() => {
-      setrenderchart(1);
-    }, 1000);
-    if (viewtoten === 1) {
-      setInterval(() => {
-        loadCalls();
-      }, 10000);
-    }
-    // definindo o modo de exibição da lista de pacientes (INTERNAÇÃO X PRONTO-ATENDIMENTO).
-    if (tipounidade === 1) {
-      setviewconsultorioselector(1);
-    }
+    console.log('MERDA');
     // carregando o total de leitos da unidade.
-    loadLeitos();
+    // loadLeitos();
   }, []);
-
-  const loadAtendimentos = () => {
-    axios.get(htmlatendimentos).then((response) => {
-      var x = [0, 1]
-      x = response.data
-      settodosatendimentos(x);
-      setarrayatendimentos(x);
-      console.log('atualizando lista de atendimentos');
-    })
-  }
-
-  function ShowToten() {
-    return (
-      <div style={{ display: 'flex', width: '100%', flexDirection: 'row', justifyContent: 'flex-end', margin: 10 }}>
-        <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end', marginTop: 5, marginRight: 5, alignSelf: 'flex-end' }}>
-          <button
-            className="blue-button"
-            style={{ display: tipounidade == 1 ? 'flex' : 'none', height: 50, padding: 10, margin: 5, marginBottom: 0 }}
-            onClick={() => { setviewconsultorioselector(1) }}
-            title="SELECIONAR CONSULTÓRIO"
-          >
-            {'CONSULTÓRIO: ' + consultorio}
-          </button>
-          <button
-            className="blue-button"
-            style={{ display: tipousuario == 2 ? 'flex' : 'none', height: 50, width: 50, padding: 10, margin: 5, marginLeft: 0, marginBottom: 0 }}
-            onClick={() => { setviewtoten(1) }}
-            title="SELECIONAR CONSULTÓRIO"
-          >
-            <img alt="" src={call} style={{ height: 30, width: 30 }}></img>
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // filtro de pacientes...
   function FilterPacientes() {
@@ -1137,58 +635,53 @@ function Pacientes() {
   // função para extração dos pacientes em atendimento a partir da lista de atendimentos.
   const [arrayPacientesEmAtendimento, setarrayPacientesEmAtendimento] = useState([0, 1]);
   const MountArrayPacientesEmAtendimento = () => {
-    arrayatendimentos.filter(item => item.Leito.unidade.id == idunidade).map(item => GetArrayPacientesEmAtendimento(item))
+    arrayatendimentos.map(item => GetArrayPacientesEmAtendimento(item));
+    setTimeout(() => {
+      setarrayPacientesEmAtendimento(varPacientesEmAtendimento);
+      settodospacientes(varPacientesEmAtendimento);
+    }, 3000);
   }
 
   var varPacientesEmAtendimento = [];
   const GetArrayPacientesEmAtendimento = (valor) => {
     axios.get(htmlpacientes + valor.cd_paciente).then((response) => {
       varPacientesEmAtendimento.push(response.data);
-      setarrayPacientesEmAtendimento([]);
-      setarrayPacientesEmAtendimento(varPacientesEmAtendimento);
-      settodospacientes(varPacientesEmAtendimento);
+      // setarrayPacientesEmAtendimento([]);
     });
   }
 
   // renderização do componente.
-  if (viewtoten === 0 && renderchart == 1) {
-    return (
+  return (
+    <div
+      className="main fade-in"
+    >
+      <Header link={"/unidades"} titulo={JSON.stringify(nomehospital).substring(3, JSON.stringify(nomehospital).length - 1) + ' - TODOS OS PACIENTES'}></Header>
       <div
-        className="main fade-in"
-      >
-        <Header link={"/unidades"} titulo={JSON.stringify(nomehospital).substring(3, JSON.stringify(nomehospital).length - 1) + ' - ' + nomeunidade}></Header>
-
+        id="PRINCIPAL"
+        style={{
+          display: 'flex',
+          position: 'relative',
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          width: '100%',
+          height: '80vh',
+          marginTop: 5,
+        }}>
         <div
-          id="PRINCIPAL"
           style={{
             display: 'flex',
-            position: 'relative',
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            width: '100%',
-            height: '80vh',
-            marginTop: 5,
-
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100vw',
+            padding: 5,
           }}>
-          <Chart></Chart>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '85vw',
-              padding: 5,
-            }}>
-            <FilterPacientes></FilterPacientes>
-            <CabecalhoInternacao></CabecalhoInternacao>
-            <ShowPacientes></ShowPacientes>
-          </div>
+          <FilterPacientes></FilterPacientes>
+          <CabecalhoInternacao></CabecalhoInternacao>
+          <ShowPacientes></ShowPacientes>
         </div>
       </div>
-    );
-  } else {
-    return null;
-  }
+    </div>
+  );
 }
-export default Pacientes;
+export default TodosPacientes;

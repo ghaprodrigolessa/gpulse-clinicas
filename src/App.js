@@ -25,6 +25,7 @@ import Farmacia from './pages/Farmacia'
 import Login from './pages/Login'
 import Hospitais from './pages/Hospitais'
 import Pacientes from './pages/Pacientes'
+import TodosPacientes from './pages/TodosPacientes'
 import Ambulatorio from './pages/Ambulatorio'
 import Prontuario from './pages/Prontuario'
 //import Secretaria from './pages/Secretaria'
@@ -114,7 +115,7 @@ function IddleTimeOut() {
       <DatePicker></DatePicker>
       <Switch>
         <div id="páginas">
-          <Route exact path="/gpulse-apt">
+          <Route exact path="/">
             <Login />
           </Route>
           <Route path="/atendimentos">
@@ -131,6 +132,9 @@ function IddleTimeOut() {
           </Route>
           <Route path="/pacientes">
             <Pacientes></Pacientes>
+          </Route>
+          <Route path="/todospacientes">
+            <TodosPacientes></TodosPacientes>
           </Route>
           <Route path="/ambulatorio">
             <Ambulatorio></Ambulatorio>
@@ -287,7 +291,23 @@ function App() {
   useEffect(() => {
     loadSettings();
     loadLeitos();
+    loadAtendimentos();
+    // atualizando a lista de atendimentos.
+    setInterval(() => {
+      console.log('ATUALIZANDO ATENDIMENTOS')
+      loadAtendimentos();
+    }, 60000);
   }, [])
+
+  // lista de atendimentos.
+  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
+  const loadAtendimentos = () => {
+    axios.get(htmlatendimentos).then((response) => {
+      var x = [0, 1]
+      x = response.data
+      settodosatendimentos(x);
+    })
+  }
 
   return (
     <Context.Provider

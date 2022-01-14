@@ -97,6 +97,7 @@ function Unidades() {
           backgroundColor: 'transparent', borderColor: 'transparent'
         }}
       >
+        <TodosPacientes></TodosPacientes>
         {arrayunidades.filter(item => item.setor.empresa.id == idhospital).map((item) => GetData(item))}
       </div>
     )
@@ -135,8 +136,6 @@ function Unidades() {
     loadUnidades()
     // carregando a lista de cirurgias.
     loadAgendaBloco()
-    // carregando atendmentos (para alimentar os gráficos de consultas).
-    loadAtendimentos()
     // carregando a lista de consultas ambulatoriais.
     loadAmbulatorio()
     // carregando as interconsultas.
@@ -157,7 +156,6 @@ function Unidades() {
   // abrindo a lista de interconsultas.
   function showInterconsultas(e) {
     loadPacientes()
-    loadAtendimentos()
     loadInterconsultas()
     setviewinterconsultas(1)
     e.stopPropagation()
@@ -232,16 +230,7 @@ function Unidades() {
       setlistpacientes(x)
     })
   }
-  // lista de atendimentos.
-  const [listatendimentos, setlistatendimentos] = useState([])
-  const loadAtendimentos = () => {
-    axios.get(htmlatendimentos).then((response) => {
-      var x = [0, 1]
-      x = response.data
-      setlistatendimentos(x);
-      settodosatendimentos(x);
-    })
-  }
+
   // lista de consultas ambulatoriais.
   const [ambulatorio, setambulatorio] = useState([])
   const loadAmbulatorio = () => {
@@ -415,7 +404,7 @@ function Unidades() {
                         >
                           {item.unidade +
                             ' BOX ' +
-                            listatendimentos
+                            todosatendimentos
                               .filter(
                                 (value) => value.id === item.idatendimento,
                               )
@@ -763,12 +752,58 @@ function Unidades() {
   var dataChartPlanoTerapeutico = []
   const [renderchart, setrenderchart] = useState(0);
 
+  // card para acesso à lista de todos os pacientes.
+  function TodosPacientes() {
+    return (
+      <div id="invólucro"
+        style={{
+          display: 'flex', flexDirection: 'row',
+          backgroundColor: '#ffffff', margin: 10,
+          borderRadius: 5,
+          boxShadow: '0px 2px 20px 5px rgba(0, 0, 0, 0.1)',
+          maxHeight: '60vh',
+          width: window.innerWidth < 600 ? '90vw' : '',
+        }}>
+        <div
+          className="card"
+          onClick={() => history.push('/todospacientes')}
+          style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            // alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
+            borderRadius: 5,
+            padding: 10,
+            width: window.innerWidth < 600 ? '100%' : '20vw',
+            minWidth: window.innerWidth < 600 ? '90%' : '20vw',
+          }}
+        >
+          <div
+            className="title2"
+            style={{
+              fontSize: 22,
+              fontWeight: 'bold',
+              margin: 10,
+              padding: 0,
+              height: 75,
+              width: '100%',
+              textAlign: 'center',
+            }}
+          >
+            {'BUSCAR EM TODAS AS UNIDADES'}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   function GetData(item) {
     // gerando os dados dos gráficos.
     var leitos = [0, 1]
     leitos = todosleitos
     var atendimentos = [0, 1]
-    atendimentos = listatendimentos
+    atendimentos = todosatendimentos
     dataChart = {
       labels: [' LIVRES', ' OCUPADOS'],
       datasets: [
@@ -784,21 +819,21 @@ function Unidades() {
       ],
     }
 
-    var valor1 = listatendimentos.filter(
+    var valor1 = todosatendimentos.filter(
       (value) =>
         value.unidade_id == item.id &&
         value.assistente == nomeusuario &&
         JSON.stringify(value.admissao).substring(4, 11) ==
         moment().subtract(2, 'months').format('MM/yyyy'),
     ).length
-    var valor2 = listatendimentos.filter(
+    var valor2 = todosatendimentos.filter(
       (value) =>
         value.unidade == item.unidade &&
         value.assistente == nomeusuario &&
         JSON.stringify(value.admissao).substring(4, 11) ==
         moment().subtract(1, 'months').format('MM/yyyy'),
     ).length
-    var valor3 = listatendimentos.filter(
+    var valor3 = todosatendimentos.filter(
       (value) =>
         value.unidade == item.unidade &&
         value.assistente == nomeusuario &&
@@ -865,7 +900,8 @@ function Unidades() {
           backgroundColor: '#ffffff', margin: 10,
           borderRadius: 5,
           boxShadow: '0px 2px 20px 5px rgba(0, 0, 0, 0.1)',
-          height: 420, width: window.innerWidth < 400 ? '90vw' : '',
+          maxHeight: '60vh',
+          width: window.innerWidth < 600 ? '90vw' : '',
         }}>
         <div id={"hospital" + item.id}
           className="card"
@@ -878,8 +914,8 @@ function Unidades() {
             // alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
             borderRadius: 5,
             padding: 10,
-            width: window.innerWidth < 400 ? '100%' : '20vw',
-            minWidth: window.innerWidth < 400 ? '90%' : '20vw',
+            width: window.innerWidth < 600 ? '100%' : '20vw',
+            minWidth: window.innerWidth < 600 ? '90%' : '20vw',
           }}
         >
           <div
@@ -1121,9 +1157,9 @@ function Unidades() {
   const radarPacientes = (item) => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <div>{'PACIENTES NO SETOR: ' + listatendimentos.filter(valor => valor.radar == item.unidade).length}</div>
+        <div>{'PACIENTES NO SETOR: ' + todosatendimentos.filter(valor => valor.radar == item.unidade).length}</div>
         <div className="scroll" STYLE={{ height: 200 }}>
-          {listatendimentos.filter(valor => valor.radar == item.unidade).map(item => (
+          {todosatendimentos.filter(valor => valor.radar == item.unidade).map(item => (
             <div className="row">
               <button className="green-button" style={{ padding: 10, width: '100%' }}>{item.nome}</button>
             </div>
@@ -1131,7 +1167,7 @@ function Unidades() {
         </div>
         <div style={{ marginTop: 10 }}>PACIENTES AUSENTES</div>
         <div className="scroll" STYLE={{ height: 200 }}>
-          {listatendimentos.filter(valor => valor.radar != item.unidade).map(item => (
+          {todosatendimentos.filter(valor => valor.radar != item.unidade).map(item => (
             <div className="row">
               <button className="green-button" style={{ padding: 10 }}>{item.nome}</button>
               <button className="green-button" style={{ width: 100 }}>{item.radar}</button>
@@ -1335,14 +1371,14 @@ function Unidades() {
         className={painelgestor == 1 ? "red-button" : "green-button"}
         style={{
           display: window.innerWidth > 400 ? 'flex' : 'none',
-          width: '8vw', minHeight: '8vw',
+          width: 50, height: 50,
           alignSelf: 'flex-start',
-          position: 'absolute',
-          bottom: 10, left: 10, zIndex: 5,
+          padding: 20,
+          margin: 20,
         }}
         onClick={painelgestor == 1 ? () => setpainelgestor(0) : () => setpainelgestor(1)}
       >
-        PAINEL DO GESTOR
+        G
       </button>
     )
   }
@@ -1391,25 +1427,28 @@ function Unidades() {
   // filtro de unidades...
   function FilterUnidades() {
     return (
-      <input
-        className="input"
-        autoComplete="off"
-        placeholder="BUSCAR UNIDADE..."
-        onFocus={(e) => (e.target.placeholder = '')}
-        onBlur={(e) => (e.target.placeholder = 'BUSCAR UNIDADE...')}
-        onChange={() => filterUnidade()}
-        style={{
-          width: '60vw',
-          padding: 20,
-          margin: 20,
-          alignSelf: 'center',
-          textAlign: 'center'
-        }}
-        type="text"
-        id="inputFilterUnidade"
-        defaultValue={filterunidade}
-        maxLength={100}
-      ></input>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+        <input
+          className="input"
+          autoComplete="off"
+          placeholder="BUSCAR UNIDADE..."
+          onFocus={(e) => (e.target.placeholder = '')}
+          onBlur={(e) => (e.target.placeholder = 'BUSCAR UNIDADE...')}
+          onChange={() => filterUnidade()}
+          style={{
+            width: '60vw',
+            padding: 20,
+            margin: 20,
+            alignSelf: 'center',
+            textAlign: 'center'
+          }}
+          type="text"
+          id="inputFilterUnidade"
+          defaultValue={filterunidade}
+          maxLength={100}
+        ></input>
+        <PainelDoGestorBtn></PainelDoGestorBtn>
+      </div>
     )
   }
 
@@ -1424,7 +1463,6 @@ function Unidades() {
       <PainelDoGestor></PainelDoGestor>
       <Header link={'/hospitais'} titulo={JSON.stringify(nomehospital).substring(3, JSON.stringify(nomehospital).length - 1)}></Header>
       <Toast valor={valor} cor={cor} mensagem={mensagem} tempo={tempo} />
-      <PainelDoGestorBtn></PainelDoGestorBtn>
       <FilterUnidades></FilterUnidades>
       <ShowUnidades></ShowUnidades>
       <ViewInterconsultas></ViewInterconsultas>
