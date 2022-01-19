@@ -2328,7 +2328,7 @@ input::-webkit-inner-spin-button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  opacity: 0;
+  opacity: 1;
   height: 11vw;
   width: 11vw;
   margin: 5px;
@@ -2337,16 +2337,17 @@ input::-webkit-inner-spin-button {
   border-radius: 5px;
   border-style: solid;
   border-width: 5px;
-  background-color: grey;
-  border-color: grey;
+  background-color: white;
+  border-color: white;
   transition: 250ms 1000ms ease-in-out;
 }
 
 .pulsewidgetcontrolescardhover {
-  top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px;
+  
+  
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -2362,15 +2363,39 @@ input::-webkit-inner-spin-button {
   background-color: lightgrey;
   border-color: lightgrey;
   transition: 250ms 1000ms ease-in-out;
+  z-index: 20;
+}
+
+.pulsewidgetcontrolescardhoverexpanded {
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  
+  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  opacity: 1;
+  margin: 5px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 5px;
+  background-color: lightgrey;
+  border-color: lightgrey;
+  transition: 250ms 1000ms ease-in-out;
+  z-index: 20;
 }
 
 .pulsewidgetcontroles {
   display: none;
   flex-direction: row;
   justify-content: flex-start;
-  opacity: 0;
-  height: 0px;
-  width: 0px;
+  opacity: 1;
+  
   margin: 0px;
   overflow-y: hidden;
   overflow-x: hidden;
@@ -2398,6 +2423,7 @@ input::-webkit-inner-spin-button {
   background-color: white;
   border-color: white;
   transition: 250ms 1000ms ease-in-out;
+  z-index: 25;
 }
 
 .pulsewidgetcontroleshover::-webkit-scrollbar {
@@ -2436,6 +2462,21 @@ input::-webkit-inner-spin-button {
 .pulsewidgetcontroleshover::-webkit-scrollbar-track {
   background-color: var(--cor2);
   border-radius: 5px;
+}
+
+.dadosclinicosgraficomostra{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 70vw;
+  height: 15vw;
+  position: relative;
+  padding: 10px;
+  margin: 10px;
+}
+
+.dadosclinicosgraficoesconde{
+  display: none;
 }
 
 .pulsewidgetcontent::-webkit-scrollbar-button {

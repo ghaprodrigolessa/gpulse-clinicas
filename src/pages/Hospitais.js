@@ -16,7 +16,12 @@ function Hospitais() {
   var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
   var htmlleitos = process.env.REACT_APP_API_LEITOS;
   // recuperando estados globais (Context.API).
-  const { settodosleitos, todosleitos, idusuario, tipousuario, setnomehospital, setidhospital } = useContext(Context)
+  const {
+    settodosleitos, todosleitos,
+    idusuario, tipousuario,
+    setnomehospital, setidhospital,
+    settodosatendimentos
+  } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
 
@@ -30,11 +35,10 @@ function Hospitais() {
   }
 
   // carregamento da lista de hospitais nos quais o usuário trabalha.
-  const [hospitais, setHospitais] = useState([])
   const loadHospitais = () => {
     // ROTA: SELECT * FROM usuarioxhospital WHERE idusuario = loginid.
     axios.get(htmlempresas).then((response) => {
-      setHospitais(response.data)
+      sethospitais(response.data)
       // alert(response.data);
     })
   }
@@ -66,13 +70,16 @@ function Hospitais() {
   const selectHospital = (item) => {
     setnomehospital(item.nome)
     setidhospital(item.id)
-    history.push('/unidades')
+    history.push('/unidades');
   }
   // selecionando a tela de atendimentos (apenas secretária).
   const selectAtendimento = (item) => {
-    history.push('/secretaria')
+    history.push('/secretaria');
   }
 
+  const [atendimentos, setatendimentos] = useState([]);
+  const [hospitais, sethospitais] = useState([]);
+  
   useEffect(() => {
     // scroll to top on render (importante para as versões mobile).
     window.scrollTo(0, 0)
@@ -89,13 +96,11 @@ function Hospitais() {
   }, [])
 
   // carregando regitro de atendimentos.
-  const [atendimentos, setatendimentos] = useState([])
   const loadAtendimentos = () => {
     axios.get(htmlatendimentos).then((response) => {
       var x = [0, 1]
       x = response.data
-      setatendimentos(x.filter((value) => value.ativo !== 0))
-      // alert(x.map(item => item.Leito.unidade.setor.empresa.id))
+      setatendimentos(x);
     })
   }
 

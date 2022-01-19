@@ -66,6 +66,7 @@ import Prescricao from '../components/Prescricao';
 import PrintFormulario from '../components/PrintFormulario';
 
 // importando gráficos.
+import Chart from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import 'chartjs-plugin-style';
@@ -4175,25 +4176,18 @@ function Prontuario() {
 
   const [atendimento, setatendimento] = useState([]);
   useEffect(() => {
+    freezeScreen(6000);
+    getDadosVitais(idatendimento);
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
     loadAtendimento(idpaciente);
     // alert(idpaciente);
-
-    // carregando dados vitais.
-    getDadosVitais(idatendimento);
-
     // updatePrincipal();
-
     // APT - carregando IVCF:
     setivcf(7);
 
     // carregando configurações de visualização dos componentes.
     loadSettings();
-    setloadprincipal(0);
-    setTimeout(() => {
-      setloadprincipal(0);
-    }, 3000);
     // abrindo o prontuário sempre na tela principal.
     setstateprontuario(1);
     // prevenindo a exibição do boneco caso um médico acesse a corrida pela tela/state prescrição.
@@ -4262,20 +4256,29 @@ function Prontuario() {
     viewSettings(settings);
   }, [settings])
 
+  const freezeScreen = (time) => {
+    document.getElementById("loadprincipal").style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById("loadprincipal").style.display = 'none';
+    }, time);
+  }
+
   // animação para carregamento da tela principal.
   const [loadprincipal, setloadprincipal] = useState(0);
   const LoadPrincipal = useCallback(() => {
     return (
-      <div
+      <div id="loadprincipal"
         // className="conteudo"
         style={{
-          display: loadprincipal == 1 && stateprontuario == 1 ? 'flex' : 'none',
+          display: 'flex',
+          flexDirection: 'column',
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: '#f2f2f2', opacity: 1, borderRadius: 0, zIndex: 1, margin: 0,
-          alignItems: 'center', justifyContent: 'center',
+          backgroundColor: 'rgba( 255, 255, 255, 0.7)', opacity: 0.8, borderRadius: 0, zIndex: 999, margin: 0,
+          alignItems: 'center', justifyContent: 'center', alignSelf: 'center',
         }}>
-        <div className="pulsarlogo">
-          <LogoInverted height={''} width={''}></LogoInverted>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <LogoInverted height={100} width={100}></LogoInverted>
+          <div className="title2center" style={{ color: '#8f9bbc' }}>CARREGANDO</div>
         </div>
       </div>
     )
@@ -4597,22 +4600,6 @@ function Prontuario() {
                     }}
                   >
                     {moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') < 2 ? + moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANO' : moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANOS'}
-                  </button>
-                  <button
-                    className="rowitem"
-                    style={{
-                      marginLeft: 5,
-                      display: window.innerWidth > 400 ? 'flex' : 'none',
-                      borderStyle: 'solid',
-                      borderWidth: 2.5,
-                      borderColor: '#ffffff',
-                      borderRadius: 5,
-                      backgroundColor: '#ec7063',
-                      color: '#ffffff',
-                      alignSelf: 'flex-start',
-                    }}
-                  >
-                    {'CUIDADOS PALIATIVOS'}
                   </button>
                 </div>
                 <div
@@ -5428,18 +5415,75 @@ function Prontuario() {
   // CARD DADOS VITAIS (GRÁFICO).
   // função para captura dos dados vitais do atendimento atual.
   const [dadosvitais, setdadosvitais] = useState([]);
+
+  const [dadosvitaistaxlabel, setdadosvitaistaxlabel] = useState([]);
+  const [dadosvitaistaxvalue, setdadosvitaistaxvalue] = useState([]);
+
+  const [dadosvitaisfclabel, setdadosvitaisfclabel] = useState([]);
+  const [dadosvitaisfcvalue, setdadosvitaisfcvalue] = useState([]);
+
+  const [dadosvitaisfrlabel, setdadosvitaisfrlabel] = useState([]);
+  const [dadosvitaisfrvalue, setdadosvitaisfrvalue] = useState([]);
+
+  const [dadosvitaispamlabel, setdadosvitaispamlabel] = useState([]);
+  const [dadosvitaispamvalue, setdadosvitaispamvalue] = useState([]);
+
+  const [dadosvitaisfc, setdadosvitaisfc] = useState([]);
+  const [dadosvitaisfr, setdadosvitaisfr] = useState([]);
+  const [dadosvitaispam, setdadosvitaispam] = useState([]);
   const getDadosVitais = (valor) => {
     axios.get(htmldadosvitais + valor).then((response) => {
       var x = [0, 1];
+      var y = [0, 1];
       x = response.data;
-      setdadosvitais(response.data);
-      arrayCodigosDadosVitais.map(item => getLastDadosClinicos(x, item));
-      arrayCodigosDadosVitais.map(item => getDataToDataChart(x, item));
+      y = x.filter(item => moment(item.data_coleta) > moment().subtract(15, 'days')).sort((a, b) => moment(a.data_coleta) - moment(b.data_coleta));
+      setdadosvitais(y);
+      alert(JSON.stringify(x.filter(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM') == '06/01/22 - 07:01' && item.cd_sinal_vital == 3).sort((a, b) => a.id < b.id).map(item => item.cd_sinal_vital + ' - ' + item.ds_sinal_vital + ': ' + item.valor)));
+
+      // tax.
+      let repeatedtaxlabel = y.filter(item => item.cd_sinal_vital == 1 && item.valor > 34 && item.valor < 41).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let repeatedtaxvalue = y.filter(item => item.cd_sinal_vital == 1 && item.valor > 34 && item.valor < 41).map(item => item.valor);
+      let correcttaxlabel = [...new Set(repeatedtaxlabel)];
+      let correcttaxvalue = [...new Set(repeatedtaxvalue)];
+      setdadosvitaistaxlabel(correcttaxlabel.slice(-12));
+      setdadosvitaistaxvalue(correcttaxvalue.slice(-12));
+
+      // fc.
+      let repeatedfclabel = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let repeatedfcvalue = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => item.valor);
+      let correctfclabel = [...new Set(repeatedfclabel)];
+      let correctfcvalue = [...new Set(repeatedfcvalue)];
+      setdadosvitaisfclabel(correctfclabel.slice(-12));
+      setdadosvitaisfcvalue(correctfcvalue.slice(-12));
+
+      // fr.
+      let repeatedfrlabel = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let repeatedfrvalue = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => item.valor);
+      let correctfrlabel = [...new Set(repeatedfrlabel)];
+      let correctfrvalue = [...new Set(repeatedfrvalue)];
+      setdadosvitaisfrlabel(correctfrlabel.slice(-12));
+      setdadosvitaisfrvalue(correctfrvalue.slice(-12));
+
+      // pam (vai confundir com fc).
+      let repeatedpamlabel = y.filter(item => item.cd_sinal_vital == 6 && item.valor > 50 && item.valor < 130).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let repeatedpamvalue = y.filter(item => item.cd_sinal_vital == 6 && item.valor > 50 && item.valor < 130).map(item => item.valor);
+      let correctpamlabel = [...new Set(repeatedpamlabel)];
+      let correctpamvalue = [...new Set(repeatedpamvalue)];
+      setdadosvitaispamlabel(correctpamlabel.slice(-12));
+      setdadosvitaispamvalue(correctpamvalue.slice(-12));
+
+      setdadosvitaisfc(y.filter(item => item.cd_sinal_vital == 2 && item.valor > 60 && item.valor < 120).slice(-21));
+      setdadosvitaisfr(y.filter(item => item.cd_sinal_vital == 3 && item.valor > 15 && item.valor < 26).slice(-21));
+      setdadosvitaispam(y.filter(item => item.cd_sinal_vital == 6 && item.valor > 55 && item.valor < 130).slice(-21));
+
+      // alert(unique.length);
+      arrayCodigosDadosVitais.map(item => getLastDadosClinicos(y, item));
+      arrayCodigosDadosVitais.map(item => getDataToDataChart(y, item));
       setTimeout(() => {
         setarrayLastDadosClinicos(fdp1);
         setarrayDadosDataChart(fdp2);
         // alert(JSON.stringify(arrayDadosDataChart));
-      }, 3000);
+      }, 1000);
     })
   }
 
@@ -5476,8 +5520,8 @@ function Prontuario() {
   // função para captura dos valores para os gráficos de dados vitais.
   var fdp2 = [];
   const getDataToDataChart = (data, codigo) => {
-    var valor = [];
-    valor = data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor);
+    var valor = [0, 1];
+    valor = data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor).slice(-7);
     setdataDadosVitais(data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')));
     setvalorDadosVitais(data.filter(item => item.cd_sinal_vital == codigo && item.valor > 0).map(item => ' ' + item.valor));
 
@@ -5491,7 +5535,7 @@ function Prontuario() {
 
     fdp2.push(
       {
-        label: dadosvitais.filter(item => item.cd_sinal_vital == codigo).slice(-1).map(item => item.ds_sinal_vital),
+        label: data.filter(item => item.cd_sinal_vital == codigo).slice(-1).map(item => item.ds_sinal_vital),
         data: valor,
         borderColor: dynamicColors(),
         pointBackgroundColor: dynamicColors(),
@@ -5616,51 +5660,672 @@ function Prontuario() {
     );
   }
 
+  // randomizando cores dos gráficos.
+  var dynamicColors = function () {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgb(" + r + "," + g + "," + b + ")";
+  };
+
+  // gráfico para TODOS OS DADOS CLÍNICOS.
+  const dataChartControles = {
+    labels: dadosvitaistaxlabel,
+    datasets: [
+      {
+        data: dadosvitaistaxvalue,
+        label: 'TAX',
+        borderColor: '#BB8FCE',
+        pointBackgroundColor: '#BB8FCE',
+        fill: 'false'
+      },
+      {
+        data: dadosvitaisfcvalue,
+        label: 'FC',
+        borderColor: '#52BE80',
+        pointBackgroundColor: '#52BE80',
+        fill: 'false'
+      },
+      {
+        data: dadosvitaisfrvalue,
+        label: 'FR',
+        borderColor: '#7FB3D5',
+        pointBackgroundColor: '#7FB3D5',
+        fill: 'false'
+      },
+      {
+        data: dadosvitaispamvalue,
+        label: 'PAM',
+        borderColor: '#EC7063',
+        pointBackgroundColor: '#EC7063',
+        fill: 'false'
+      },
+    ],
+  }
+  function ChartControles() {
+    return (
+      <div className="dadosclinicosgraficomostra" id="chartcontroles">
+        <Line
+          ref={myChartRef}
+          data={dataChartControles}
+          plugins={ChartDataLabels}
+          width="400"
+          height="100"
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: true,
+                    suggestedMin: 0,
+                    suggestedMax: 250,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: true,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // gráfico para TAX (código 1).
+  const dataChartControlesTax = {
+    labels: dadosvitaistaxlabel,
+    datasets: [
+      {
+        data: dadosvitaistaxvalue,
+        label: 'TAX',
+        borderColor: '#BB8FCE',
+        pointBackgroundColor: '#BB8FCE',
+        fill: 'false'
+      },
+    ],
+  }
+  function ChartControlesTax() {
+    return (
+      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 1}>
+        <Line
+          ref={myChartRef}
+          data={dataChartControlesTax}
+          plugins={ChartDataLabels}
+          width="400"
+          height="100"
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: true,
+                    suggestedMin: 30,
+                    suggestedMax: 50,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: true,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // gráfico para FC (código 2).
+  const dataChartControlesFc = {
+    labels: dadosvitaisfclabel,
+    datasets: [
+      {
+        data: dadosvitaisfcvalue,
+        label: 'FC',
+        borderColor: '#52BE80',
+        pointBackgroundColor: '#52BE80',
+        fill: 'false'
+      },
+    ],
+  }
+  function ChartControlesFc() {
+    return (
+      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 2}>
+        <Line
+          ref={myChartRef}
+          data={dataChartControlesFc}
+          plugins={ChartDataLabels}
+          width="400"
+          height="100"
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: true,
+                    suggestedMin: 50,
+                    suggestedMax: 150,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: true,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // gráfico para FR (código 3).
+  const dataChartControlesFr = {
+    labels: dadosvitaisfrlabel,
+    datasets: [
+      {
+        data: dadosvitaisfrvalue,
+        label: 'FR',
+        borderColor: '#7FB3D5',
+        pointBackgroundColor: '#7FB3D5',
+        fill: 'false'
+      },
+    ],
+  }
+  function ChartControlesFr() {
+    return (
+      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 3}>
+        <Line
+          ref={myChartRef}
+          data={dataChartControlesFr}
+          plugins={ChartDataLabels}
+          width="400"
+          height="100"
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: true,
+                    suggestedMin: 10,
+                    suggestedMax: 40,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: true,
+          }}
+        />
+      </div>
+    );
+  }
+
+  // gráfico para PAM (código 6).
+  const dataChartControlesPam = {
+    labels: dadosvitaispamlabel,
+    datasets: [
+      {
+        data: dadosvitaispamvalue,
+        label: 'PAM',
+        borderColor: '#EC7063',
+        pointBackgroundColor: '#EC7063',
+        fill: 'false'
+      },
+    ],
+  }
+  function ChartControlesPam() {
+    return (
+      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 6}>
+        <Line
+          ref={myChartRef}
+          data={dataChartControlesPam}
+          plugins={ChartDataLabels}
+          width="400"
+          height="100"
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: true,
+                    suggestedMin: 50,
+                    suggestedMax: 150,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: true,
+          }}
+        />
+      </div>
+    );
+  }
+
+  const myChartRef = React.createRef();
+  const toggleDataset = () => {
+    let chart = myChartRef.current.chartInstance;
+    chart.hide(1);
+  };
+
+  var corlinha = '';
+  var corfundo = '';
+  var dynamicColors = function () {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    corlinha = "rgb(" + r + "," + g + "," + b + ")";
+    corfundo = "rgba(" + r + "," + g + "," + b + ", 0.3)";
+  };
+  const renderCharts = (codigo) => {
+    // alert(dadosvitais.filter(item => item.cd_sinal_vital == codigo).map(item => item.valor))
+    dynamicColors();
+    return (
+      <div className="dadosclinicosgraficoesconde" id={"dadosclinicosgrafico" + codigo}>
+        <Line
+          data={{
+            labels: dadosvitais.filter(item => item.cd_sinal_vital == codigo).sort(((a, b) => moment(a.data_coleta).format('DD/MM/YYYY - HH:MM') < moment(b.data_coleta).format('DD/MM/YYYY - HH:MM'))).map(item => moment(item.data_coleta).format('DD/MM/YYYY - HH:MM')),
+            datasets: [
+              {
+                data: dadosvitais.filter(item => item.cd_sinal_vital == codigo).sort(((a, b) => a.cd_sinal_vital < b.cd_sinal_vital)).map(item => item.valor).slice(-21),
+                label: dadosvitais.filter(item => item.cd_sinal_vital == codigo).map(item => item.ds_sinal_vital).slice(-1),
+                backgroundColor: corfundo,
+                borderColor: corlinha,
+                hoverBorderColor: corlinha,
+                pointBackgroundColor: corlinha,
+              },
+            ],
+          }}
+          width={window.innerWidth > 400 ? 100 * valorDadosVitais.length : 200}
+          plugins={ChartDataLabels}
+          options={{
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 0,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: false,
+                  ticks: {
+                    suggestedMin: 0,
+                    suggestedMax: 200,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    zeroLineColor: 'transparent',
+                    lineWidth: 0,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: false,
+          }}
+        />
+      </div>
+    );
+  }
+
   // card dados vitais / controles.
   const CardControles = useCallback(() => {
     return (
       <div id="cardcontroles"
-        className="pulsewidgetcontrolescardhover"
+        className="pulsewidgetcontrolescard" style={{ position: 'relative' }}
         onClick={(e) => {
-          document.getElementById("cardcontroles").classList.toggle("pulsewidgetcontrolescard");
-          document.getElementById("seletores dos gráficos").classList.toggle("pulsewidgetcontroles");
-          document.getElementById("gráfico de controles").classList.toggle("pulsewidgetcontroles");
-          if (document.getElementById("conteudodadosvitais").style.display == 'flex') {
-            document.getElementById("conteudodadosvitais").style.display = 'none';
-          } else {
-            document.getElementById("conteudodadosvitais").style.display = 'flex';
-          }
+          // freezeScreen(10000);
+          // carregando dados vitais.
+          // getDadosVitais(idatendimento);
+          // setTimeout(() => {
+          document.getElementById("cardcontroles").className = "pulsewidgetcontrolescardhover";
+          document.getElementById("cardcontroles").setAttribute("disabled", "true");
+          document.getElementById("seletores dos gráficos").className = "pulsewidgetcontroleshover";
+          document.getElementById("gráfico de controles").className = "pulsewidgetcontroleshover";
+          document.getElementById("botaominimizacardcontroles").style.display = 'flex';
+          var position = document.getElementById("cardcontroles").offsetTop;
+          // alert(position);
+          document.getElementById("painel principal").scrollTo(0, position - 230);
+          // }, 10000);
           e.stopPropagation();
         }}
       >
+        <button id="botaominimizacardcontroles" className="blue-button"
+          style={{ display: 'none', width: 20, minWidth: 20, height: 20, minHeight: 20, position: 'absolute', top: 10, right: 10 }}
+          onClick={(e) => {
+            document.getElementById("cardcontroles").className = "pulsewidgetcontrolescard";
+            document.getElementById("cardcontroles").removeAttribute("disabled");
+            document.getElementById("seletores dos gráficos").className = "pulsewidgetcontroles";
+            document.getElementById("gráfico de controles").className = "pulsewidgetcontroles";
+            document.getElementById("botaominimizacardcontroles").style.display = 'none';
+            e.stopPropagation();
+          }}
+        >
+          -
+        </button>
         <div id="titulodadosvitais">
           <div
             className="title4">
             {'CONTROLES'}
           </div>
         </div>
-        <div id="conteudodadosvitais" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div id="conteudodadosvitais"
+          style={{ display: 'flex', flexDirection: 'column' }}>
           <div id="seletores dos gráficos"
-            className="pulsewidgetcontroleshover"
+            className="pulsewidgetcontroles"
           >
             {arrayLastDadosClinicos.map(item => (
               <button id={"btngrafico" + item.codigo}
                 className="blue-button"
                 onClick={(e) => {
-                  filterDataToDataChart(item.codigo);
-                  setTimeout(() => {
-                    var botoes = document.getElementById("seletores dos gráficos").getElementsByClassName("red-button");
-                    for (var i = 0; i < botoes.length; i++) {
-                      botoes.item(i).className = "blue-button";
-                    }
-                    document.getElementById("btngrafico" + item.codigo).className = "red-button";
-                  }, 1000);
+                  // document.getElementById("cardcontroles").className = 'pulsewidgetcontrolescardhoverexpanded'
+                  // document.getElementById("gráfico de controles").style.display = 'flex';
+                  var graficos = document.getElementById("mappedgraphics").getElementsByClassName("dadosclinicosgraficomostra");
+                  for (var i = 0; i < graficos.length; i++) {
+                    graficos.item(i).className = "dadosclinicosgraficoesconde";
+                  }
+
+                  document.getElementById("chartcontroles" + item.codigo).className = "dadosclinicosgraficomostra"
+                  // alert(item.codigo);
                   e.stopPropagation();
                 }}
                 style={{
                   display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                  height: 150, width: 120,
-                  minHeight: 120, minWidth: 120,
+                  backgroundColor: item.codigo == 1 ? '#BB8FCE' : item.codigo == 2 ? '#52BE80' : item.codigo == 3 ? '#7FB3D5' : '#EC7063',
+                  height: 150, width: 150,
+                  minHeight: 150, minWidth: 150,
                   margin: 10, padding: 10,
                 }}>
                 <div style={{ height: 75, display: 'flex', flexDirection: 'column', justifyContent: 'center', verticalAlign: 'center' }}>
@@ -5673,13 +6338,24 @@ function Prontuario() {
             ))}
           </div>
           <div id="gráfico de controles"
-            onClick={(e) => { e.stopPropagation() }}
-            className="pulsewidgetcontroleshover"
+            className="pulsewidgetcontroles"
+            style={{ overflowX: 'hidden' }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <ChartDadosVitais></ChartDadosVitais>
+            <div id="mappedgraphics"
+              style={{
+                display: 'flex',
+                flexDirection: 'column', justifyContent: 'center',
+                alignItems: 'center', alignContent: 'center', padding: 10,
+              }}>
+              <ChartControles></ChartControles>
+              <ChartControlesTax></ChartControlesTax>
+              <ChartControlesFc></ChartControlesFc>
+              <ChartControlesFr></ChartControlesFr>
+              <ChartControlesPam></ChartControlesPam>
+            </div>
           </div>
         </div>
-
       </div >
     );
   }, [arrayLastDadosClinicos, arrayDadosDataChart, valorDadosVitais]);
@@ -6660,10 +7336,7 @@ function Prontuario() {
   // MENU LATERAL.
   // selecionando o menu principal.
   const clickPrincipal = () => {
-    setloadprincipal(0);
-    setTimeout(() => {
-      setloadprincipal(0);
-    }, 3000);
+    freezeScreen(3000);
     cleanFilters();
     setstateprontuario(1);
     // reposicionando a scroll da tela principal para o topo.
@@ -9763,7 +10436,6 @@ function Prontuario() {
 
   const [filterformulario, setfilterformulario] = useState('');
   var searchformulario = '';
-  var timeout = null;
 
   const filterFormulario = () => {
     clearTimeout(timeout);
@@ -11627,7 +12299,10 @@ function Prontuario() {
   const selectPaciente = (item) => {
     setidpaciente(item.cd_paciente);
     setidatendimento(item.cd_atendimento);
-    // alert(item.cd_paciente);
+    // setloadprincipal(1);
+    //setTimeout(() => {
+    //setloadprincipal(0);
+    //}, 3000);
   };
   // SIDEBAR ANIMADA COM LISTA DE PACIENTES.
   function SideBar() {
@@ -11657,7 +12332,12 @@ function Prontuario() {
           }}
         >
           <div className="title2" style={{ color: "#ffffff" }}>{'LISTA DE PACIENTES:  ' + nomeunidade}</div>
-          <div className="scroll" style={{ height: '80vh', width: '100%', justifyContent: 'flex-start', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: 7.5 }}>
+          <div className="scroll"
+            style={{
+              backgroundColor: 'white',
+              height: '80vh', width: '100%',
+              justifyContent: 'flex-start', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: 7.5
+            }}>
             {todosatendimentos.filter(item => item.Leito.unidade.id == idunidade).map(item => (
               <div
                 key={item.id}

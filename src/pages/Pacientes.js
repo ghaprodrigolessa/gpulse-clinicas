@@ -41,6 +41,7 @@ function Pacientes() {
     todosleitos,
     settodospacientes, todospacientes,
     settodosatendimentos, todosatendimentos,
+    keyRefreshAtendimentos,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -293,14 +294,14 @@ function Pacientes() {
             }}
             className="header-button"
             style={{ backgroundColor: 'transparent', color: classificabox == 0 ? '' : 'red', minWidth: 100 }}
-            title="BOX"
+            title="LEITO"
           >
-            {classificabox == 0 ? 'BOX' : classificabox == 1 ? 'BOX ↓' : 'BOX ↑'}
+            {classificabox == 0 ? 'LEITO' : classificabox == 1 ? 'LEITO ↓' : 'LEITO ↑'}
           </button>
           <button
             className="header-button"
             style={{ backgroundColor: 'transparent' }}
-            title="BOX"
+            title="LEITO"
           >
 
           </button>
@@ -446,7 +447,7 @@ function Pacientes() {
                 <button
                   className="grey-button"
                   style={{ minWidth: 100, margin: 2.5, color: '#ffffff', backgroundColor: 'grey' }}
-                  title="BOX"
+                  title="LEITO"
                   disabled="true"
                 >
                   {item.Leito.descricao}

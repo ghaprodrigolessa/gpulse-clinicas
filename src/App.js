@@ -292,11 +292,6 @@ function App() {
     loadSettings();
     loadLeitos();
     loadAtendimentos();
-    // atualizando a lista de atendimentos.
-    setInterval(() => {
-      console.log('ATUALIZANDO ATENDIMENTOS')
-      loadAtendimentos();
-    }, 60000);
   }, [])
 
   // lista de atendimentos.
