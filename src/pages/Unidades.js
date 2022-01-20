@@ -5,6 +5,7 @@ import axios from 'axios'
 import { Doughnut, Line, Bar } from 'react-chartjs-2'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import salvar from '../images/salvar.svg'
+import lupa from '../images/lupa.svg'
 import deletar from '../images/deletar.svg'
 import Toast from '../components/Toast'
 import Header from '../components/Header'
@@ -58,7 +59,7 @@ function Unidades() {
         var x = response.data;
         setunidades(response.data)
         setarrayunidades(response.data)
-        // alert(x.map(item => item.empresa.id));
+        // alert(x.map(item => item.id));
       })
   }
 
@@ -132,6 +133,7 @@ function Unidades() {
   }
 
   useEffect(() => {
+    // alert('ATENDIMENTOS: ' + todosatendimentos.map(item => item.Leito.unidade.id));
     // carregando a lista de unidades.
     loadUnidades()
     // carregando a lista de cirurgias.
@@ -771,7 +773,7 @@ function Unidades() {
             position: 'relative',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             // alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
             borderRadius: 5,
             padding: 10,
@@ -779,10 +781,20 @@ function Unidades() {
             minWidth: window.innerWidth < 600 ? '90%' : '20vw',
           }}
         >
+          <img
+            alt=""
+            src={lupa}
+            style={{
+              display: window.innerWidth > 400 ? 'flex' : 'none',
+              height: '20%',
+              marginTop: window.innerWidth > 800 ? 0 : 0,
+              marginBottom: window.innerWidth > 800 ? 0 : 60,
+            }}
+          ></img>
           <div
             className="title2"
             style={{
-              fontSize: 22,
+              fontSize: 18,
               fontWeight: 'bold',
               margin: 10,
               padding: 0,
@@ -1375,6 +1387,9 @@ function Unidades() {
           alignSelf: 'flex-start',
           padding: 20,
           margin: 20,
+          position: 'absolute',
+          left: 10,
+          bottom: 10,
         }}
         onClick={painelgestor == 1 ? () => setpainelgestor(0) : () => setpainelgestor(1)}
       >
@@ -1388,7 +1403,8 @@ function Unidades() {
       <div className="scroll fade-in"
         style={{
           position: 'absolute', top: 20, bottom: 20, right: 20,
-          backgroundColor: 'darkgray',
+          borderColor: 'gray',
+          backgroundColor: 'gray',
           borderRadius: 5,
           padding: 10,
           display: painelgestor == 1 ? 'flex' : 'none',
@@ -1447,7 +1463,6 @@ function Unidades() {
           defaultValue={filterunidade}
           maxLength={100}
         ></input>
-        <PainelDoGestorBtn></PainelDoGestorBtn>
       </div>
     )
   }
@@ -1466,6 +1481,7 @@ function Unidades() {
       <FilterUnidades></FilterUnidades>
       <ShowUnidades></ShowUnidades>
       <ViewInterconsultas></ViewInterconsultas>
+      <PainelDoGestorBtn></PainelDoGestorBtn>
     </div>
   )
 }

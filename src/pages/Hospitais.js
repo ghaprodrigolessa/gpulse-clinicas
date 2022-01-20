@@ -20,7 +20,8 @@ function Hospitais() {
     settodosleitos, todosleitos,
     idusuario, tipousuario,
     setnomehospital, setidhospital,
-    settodosatendimentos
+    settodosatendimentos, todosatendimentos,
+    settodosconvenios, todosconvenios
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -35,10 +36,11 @@ function Hospitais() {
   }
 
   // carregamento da lista de hospitais nos quais o usuário trabalha.
+  const [hospitais, setHospitais] = useState([])
   const loadHospitais = () => {
     // ROTA: SELECT * FROM usuarioxhospital WHERE idusuario = loginid.
     axios.get(htmlempresas).then((response) => {
-      sethospitais(response.data)
+      setHospitais(response.data)
       // alert(response.data);
     })
   }
@@ -70,16 +72,13 @@ function Hospitais() {
   const selectHospital = (item) => {
     setnomehospital(item.nome)
     setidhospital(item.id)
-    history.push('/unidades');
+    history.push('/unidades')
   }
   // selecionando a tela de atendimentos (apenas secretária).
   const selectAtendimento = (item) => {
-    history.push('/secretaria');
+    history.push('/secretaria')
   }
 
-  const [atendimentos, setatendimentos] = useState([]);
-  const [hospitais, sethospitais] = useState([]);
-  
   useEffect(() => {
     // scroll to top on render (importante para as versões mobile).
     window.scrollTo(0, 0)
@@ -96,18 +95,59 @@ function Hospitais() {
   }, [])
 
   // carregando regitro de atendimentos.
+  let arrayconvenios = [];
   const loadAtendimentos = () => {
     axios.get(htmlatendimentos).then((response) => {
       var x = [0, 1]
-      x = response.data
-      setatendimentos(x);
+      x = response.data;
+      settodosatendimentos(x.filter((value) => value.ativo !== 0));
     })
+    arrayconvenios = todosatendimentos.map(item => mountConvenios(item));
+  }
+
+  // randomizando cores dos gráficos.
+  const [randomcolors, setrandomcolors] = useState([]);
+  var dynamicColors = function () {
+    var r = Math.floor(Math.random() * 255);
+    var g = Math.floor(Math.random() * 255);
+    var b = Math.floor(Math.random() * 255);
+    return "rgba(" + r + "," + g + "," + b + ", 0.5)";
+  };
+  const [labelconvenios, setlabelconvenios] = useState([]);
+  const mountConvenios = (item) => {
+    var obj = {
+      codigo: item.cd_convenio,
+      nome: item.nm_convenio,
+      color: dynamicColors(),
+    }
+    arrayconvenios.push(obj);
+    arrayconvenios = arrayconvenios.filter((value, index, self) =>
+      index === self.findIndex((t) => (t.codigo === value.codigo)));
+    settodosconvenios(arrayconvenios);
+    setlabelconvenios(arrayconvenios.map(item => item.nome));
+
+    // alert(todosconvenios.map(item => item.nome))
+  }
+
+  const loadDataChartConvenios = () => {
+    // alert(todosconvenios.length);
+    todosconvenios.map(item => mountDataChartConvenios(item.codigo));
+  }
+
+  let arrayconveniosdatachart = [];
+  const [conveniosdatachart, setconveniosdatachart] = useState([]);
+  const mountDataChartConvenios = (codigo) => {
+    var dado = todosatendimentos.filter(item => item.cd_convenio == codigo).length;
+    arrayconveniosdatachart.push(dado);
+    setconveniosdatachart(arrayconveniosdatachart);
   }
 
   // CHART.
   /* gráfico em torta que exibe o total de leitos vagos e o total
   de leitos ocupados para cada hospital. */
   var dataChart = []
+  var dataChartAtendimentosPorConvenios = []
+
   const [renderchart, setrenderchart] = useState(0);
   function GetData(item) {
     // gerando os dados do gráfico.
@@ -120,16 +160,30 @@ function Hospitais() {
           data: [
             leitos.filter((value) => value.unidade.setor.empresa.id == item.id).length // total de leitos
             -
-            atendimentos.filter((value) => value.empresa_id == item.id).length, // atendimentos
-            atendimentos.filter((value) => value.empresa_id == item.id).length // atendimentos
+            todosatendimentos.filter((value) => value.empresa_id == item.id).length, // atendimentos
+            todosatendimentos.filter((value) => value.empresa_id == item.id).length // atendimentos
           ],
           backgroundColor: ['#52be80', '#F4D03F'],
           borderWidth: 5,
           borderColor: '#ffffff',
+          borderRadius: 5,
           hoverBorderColor: ['#ffffff', '#ffffff'],
         },
       ],
     }
+
+    dataChartAtendimentosPorConvenios = {
+      labels: todosconvenios.map(item => item.nome),
+      datasets: [
+        {
+          label: labelconvenios,
+          data: conveniosdatachart,
+          backgroundColor: todosconvenios.map(item => item.color),
+          borderRadius: 5,
+        },
+      ],
+    }
+
     if (leitos.filter((value) => value.unidade.setor.empresa.id == item.id).length > 0) {
       return (
         <div id="invólucro"
@@ -138,8 +192,7 @@ function Hospitais() {
             backgroundColor: '#ffffff', margin: 10,
             borderRadius: 5,
             boxShadow: '0px 2px 20px 5px rgba(0, 0, 0, 0.1)',
-            height: '60vh',
-            width: window.innerWidth < 600 ? '90vw' : '',
+            height: 450, width: window.innerWidth < 400 ? '90vw' : '',
           }}>
           <div
             id={"hospital" + item.id}
@@ -150,12 +203,12 @@ function Hospitais() {
               display: renderchart == 1 ? 'flex' : 'none',
               flexDirection: 'column',
               alignItems: 'center',
-              alignSelf: window.innerWidth > 600 ? 'flex-start' : 'center',
+              alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
               borderRadius: 5,
               padding: 10,
-              height: 'calc(60vh - 30px)',
-              width: window.innerWidth < 600 ? '100%' : '21vw',
-              minWidth: window.innerWidth < 600 ? '90%' : '21vw',
+              width: window.innerWidth < 400 ? '100%' : '21vw',
+              minWidth: window.innerWidth < 400 ? '90%' : '21vw',
+              height: 420
             }}
           >
             <div
@@ -172,10 +225,7 @@ function Hospitais() {
             >
               {JSON.stringify(item.nome).substring(3, JSON.stringify(item.nome).length - 1)}
             </div>
-            <div style={{
-              display: 'flex', flexDirection: 'column', justifyContent: 'center',
-              position: 'relative'
-            }}>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
               <Doughnut
                 data={dataChart}
                 width={window.innerWidth > 400 ? 0.13 * window.innerWidth : 200}
@@ -239,7 +289,7 @@ function Hospitais() {
                 >
                   {
                     Math.ceil(
-                      (atendimentos.filter((value) => value.empresa_id == item.id).length * 100) /
+                      (todosatendimentos.filter((value) => value.empresa_id == item.id).length * 100) /
                       leitos.filter((value) => value.unidade.setor.empresa.id == item.id).length,
                     ) +
                     '%'}
@@ -322,6 +372,7 @@ function Hospitais() {
                 width: 25, minWidth: 25, height: 25, minHeight: 25,
                 position: 'absolute', bottom: 5, right: 5
               }}
+              onMouseEnter={() => loadDataChartConvenios()}
               onClick={(e) => {
                 document.getElementById("hospitaisstuff" + item.id).style.opacity = 0
                 document.getElementById("expandbtn" + item.id).style.display = "none"
@@ -364,152 +415,192 @@ function Hospitais() {
               -
             </div>
           </div>
-          <div id={"hospitaisstuff" + item.id} className="retractcard"
-            style={{ display: 'flex', flexDirection: 'row', height: '55vh' }}>
-            {convenios.map(valor => (
-              <div className="card"
+          <div id={"hospitaisstuff" + item.id} className="retractcard" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignContent: 'center' }}>
+              <div className="scrollhorizontalhover"
                 style={{
-                  flexDirection: 'column', width: '9.5vw', height: '25vh',
-                  justifyContent: 'space-between'
+                  display: 'flex', opacity: 1, position: 'relative',
+                  width: '65vw', height: '40vh', margin: 10,
+                  overflowY: 'hidden',
                 }}>
-                <div className="title2center">{valor.convenio == 1 ? 'UNIMED' : valor.convenio == 2 ? 'BRADESCO' : valor.convenio == 3 ? 'HAPVIDA' : valor.convenio == 4 ? 'FUSEX' : valor.convenio == 5 ? 'CASSI' : valor.convenio == 6 ? 'YOKO' : 'PARTICULAR'}</div>
-                <div style={{ margin: 10 }}>
-                  <Doughnut
-                    data={{
-                      labels: [
-                        'CRÔNICOS',
-                        'PALIATIVO',
-                        'REABILITAÇÃO',
-                      ],
-                      datasets: [
+                <Bar
+                  data={dataChartAtendimentosPorConvenios}
+                  width="200"
+                  height="50"
+                  plugins={ChartDataLabels}
+                  padding={10}
+                  options={{
+                    tooltips: {
+                      enabled: false
+                    },
+                    plugins: {
+                      datalabels: {
+                        display: function (context) {
+                          return context.dataset.data[context.dataIndex] !== 0
+                        },
+                        color: '#FFFFFF',
+                        textShadowColor: 'black',
+                        textShadowBlur: 5,
+                        font: {
+                          weight: 'bold',
+                          size: 16,
+                        },
+                      },
+                    },
+                    layout: {
+                      padding: {
+                        left: 0,
+                        right: 4,
+                        top: 0,
+                        bottom: 0
+                      }
+                    },
+                    scales: {
+                      xAxes: [
                         {
-                          data: [
-                            atendimentos.filter(value => value.hospital == item.hospital && value.convenio == valor.convenio && value.linhadecuidado == 1).length,
-                            atendimentos.filter(value => value.hospital == item.hospital && value.convenio == valor.convenio && value.linhadecuidado == 2).length,
-                            atendimentos.filter(value => value.hospital == item.hospital && value.convenio == valor.convenio && value.linhadecuidado == 3).length,
-                          ],
-                          fill: true,
-                          backgroundColor: ['#52be80', '#5DADE2', '#F4D03F'],
-                          borderColor: 'white',
-                          hoverBorderColor: ['#E1E5F2', '#E1E5F2', '#E1E5F2'],
+                          display: true,
+                          ticks: {
+                            padding: 10,
+                            display: true,
+                            fontColor: '#61636e',
+                            fontWeight: 'bold',
+                          },
+                          gridLines: {
+                            tickMarkLength: false,
+                            zeroLineColor: 'transparent',
+                            lineWidth: 1,
+                            drawOnChartArea: true,
+                          },
                         },
                       ],
-                    }}
-                    padding={10}
-                    width={window.innerWidth > 400 ? '100%' : 150}
-                    height={window.innerWidth > 400 ? '80%' : 150}
-                    plugins={ChartDataLabels}
-                    options={{
-                      plugins: {
-                        datalabels: {
-                          display: function (context) {
-                            return context.dataset.data[context.dataIndex] !== 0
+                      yAxes: [
+                        {
+                          display: true,
+                          ticks: {
+                            padding: 10,
+                            display: true,
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            fontColor: '#61636e',
+                            fontWeight: 'bold',
                           },
-                          color: '#FFFFFF',
-                          textShadowColor: 'black',
-                          textShadowBlur: 5,
-                          font: {
-                            weight: 'bold',
-                            size: 16,
+                          gridLines: {
+                            tickMarkLength: false,
+                            zeroLineColor: 'transparent',
+                            lineWidth: 1,
+                            drawOnChartArea: true,
                           },
                         },
-                      },
-                      tooltips: {
-                        enabled: false,
-                      },
-                      hover: { mode: null },
-                      elements: {
-                        arc: {
-                          hoverBorderColor: 'rgba(143, 155, 188, 0.3)',
-                          borderColor: 'rgba(143, 155, 188, 0.3)',
-                          borderWidth: 2.5,
-                        },
-                      },
-                      animation: {
-                        duration: 500,
-                      },
-                      title: {
-                        display: false,
-                        text: 'OCUPAÇÃO DE LEITOS',
-                      },
-                      legend: {
-                        display: false,
-                        position: 'bottom',
-                      },
-                      maintainAspectRatio: true,
-                      responsive: false,
-                    }}
-                  />
-                </div>
+                      ],
+                    },
+                    legend: {
+                      display: false,
+                      position: 'bottom',
+                    },
+                    maintainAspectRatio: true,
+                    responsive: true,
+                  }}
+                />
               </div>
-            ))}
-            <button className="green-button"
-              style={{ flexDirection: 'column', width: '9.5vw', height: '25vh', margin: 15, padding: 5 }}
-              onClick={() => {
-                settransition(0);
-                setTimeout(() => {
-                  settransition(1);
-                }, 500);
-              }}
-            >
-              <img alt="" src={change} style={{ height: 50, width: 50 }}></img>
-              <div className="title2center"
-                style={{
-                  display: window.innerWidth > 800 ? 'flex' : 'none',
-                  color: '#ffffff', fontSize: 12, margin: 0, padding: 0
-                }}>
-                PACIENTES EM TRANSIÇÃO DE SERVIÇOS:</div>
-              <div className="title2center" style={{ color: '#ffffff', fontSize: 16, marginTop: 0 }}>12</div>
-            </button>
+              <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
+                {todosconvenios.map(valor => (
+                  <div className="card" style={{ flexDirection: 'column', width: '9.5vw', height: '13vw', justifyContent: 'space-between' }}>
+                    <div className="title2center">{valor.nome}</div>
+                    <div style={{ margin: 10 }}>
+                      <Doughnut
+                        data={{
+                          labels: [
+                            'CRÔNICOS',
+                            'PALIATIVO',
+                            'REABILITAÇÃO',
+                          ],
+                          datasets: [
+                            {
+                              data: [
+                                todosatendimentos.filter(value => value.hospital == item.hospital && value.convenio == valor.convenio && value.linhadecuidado == 1).length,
+                                todosatendimentos.filter(value => value.hospital == item.hospital && value.convenio == valor.convenio && value.linhadecuidado == 2).length,
+                                todosatendimentos.filter(value => value.hospital == item.hospital && value.convenio == valor.convenio && value.linhadecuidado == 3).length,
+                              ],
+                              fill: true,
+                              backgroundColor: ['#52be80', '#5DADE2', '#F4D03F'],
+                              borderColor: 'white',
+                              hoverBorderColor: ['#E1E5F2', '#E1E5F2', '#E1E5F2'],
+                            },
+                          ],
+                        }}
+                        padding={10}
+                        width={window.innerWidth > 400 ? '100%' : 150}
+                        height={window.innerWidth > 400 ? '80%' : 150}
+                        plugins={ChartDataLabels}
+                        options={{
+                          plugins: {
+                            datalabels: {
+                              display: function (context) {
+                                return context.dataset.data[context.dataIndex] !== 0
+                              },
+                              color: '#FFFFFF',
+                              textShadowColor: 'black',
+                              textShadowBlur: 5,
+                              font: {
+                                weight: 'bold',
+                                size: 16,
+                              },
+                            },
+                          },
+                          tooltips: {
+                            enabled: false,
+                          },
+                          hover: { mode: null },
+                          elements: {
+                            arc: {
+                              hoverBorderColor: 'rgba(143, 155, 188, 0.3)',
+                              borderColor: 'rgba(143, 155, 188, 0.3)',
+                              borderWidth: 2.5,
+                            },
+                          },
+                          animation: {
+                            duration: 500,
+                          },
+                          title: {
+                            display: false,
+                            text: 'OCUPAÇÃO DE LEITOS',
+                          },
+                          legend: {
+                            display: false,
+                            position: 'bottom',
+                          },
+                          maintainAspectRatio: true,
+                          responsive: false,
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                <button className="green-button"
+                  style={{ flexDirection: 'column', width: '9.5vw', height: '13vw', margin: 15, padding: 5 }}
+                  onClick={() => {
+                    settransition(0);
+                    setTimeout(() => {
+                      settransition(1);
+                    }, 500);
+                  }}
+                >
+                  <img alt="" src={change} style={{ height: 50, width: 50 }}></img>
+                  <div className="title2center"
+                    style={{
+                      display: window.innerWidth > 800 ? 'flex' : 'none',
+                      color: '#ffffff', fontSize: 12, margin: 0, padding: 0
+                    }}>
+                    PACIENTES EM TRANSIÇÃO DE SERVIÇOS:</div>
+                  <div className="title2center" style={{ color: '#ffffff', fontSize: 16, marginTop: 0 }}>12</div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )
     } else {
-      return (
-        <div id="invólucro"
-          style={{
-            display: 'flex', flexDirection: 'row',
-            backgroundColor: '#ffffff', margin: 10,
-            borderRadius: 5,
-            boxShadow: '0px 2px 20px 5px rgba(0, 0, 0, 0.1)',
-            height: '60vh',
-            width: window.innerWidth < 400 ? '90vw' : '',
-          }}>
-          <div
-            id={"hospital" + item.id}
-            className="card"
-            onClick={() => selectHospital(item)}
-            style={{
-              position: 'relative',
-              display: renderchart == 1 ? 'flex' : 'none',
-              flexDirection: 'column',
-              alignItems: 'center',
-              alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
-              borderRadius: 5,
-              padding: 10,
-              height: 'calc(60vh - 30px)',
-              width: window.innerWidth < 400 ? '100%' : '21vw',
-              minWidth: window.innerWidth < 400 ? '90%' : '21vw',
-            }}
-          >
-            <div
-              className="title2center"
-              style={{
-                fontSize: 22,
-                fontWeight: 'bold',
-                margin: 10,
-                padding: 0,
-                height: 75,
-                width: '100%',
-                textAlign: 'center',
-              }}
-            >
-              {JSON.stringify(item.nome).substring(3, JSON.stringify(item.nome).length - 1)}
-            </div>
-            <div className="title2center" style={{ color: '#ec7063' }}>SEM REGISTROS DE OCUPAÇÃO DISPONÍVEIS</div>
-          </div>
-        </div>
-      )
+      return null;
     }
   }
 

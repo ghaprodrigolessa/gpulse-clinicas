@@ -66,7 +66,7 @@ import Prescricao from '../components/Prescricao';
 import PrintFormulario from '../components/PrintFormulario';
 
 // importando gráficos.
-import Chart from 'chart.js';
+
 import { Line, Doughnut } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import 'chartjs-plugin-style';
@@ -2457,6 +2457,7 @@ function Prontuario() {
                     {
                       display: true,
                       ticks: {
+                        padding: 10,
                         fontColor: '#61636e',
                         fontWeight: 'bold',
                       },
@@ -2471,6 +2472,7 @@ function Prontuario() {
                     {
                       display: false,
                       ticks: {
+                        padding: 10,
                         suggestedMin: 0,
                         suggestedMax: 100,
                         fontColor: '#61636e',
@@ -2542,6 +2544,7 @@ function Prontuario() {
                     {
                       display: true,
                       ticks: {
+                        padding: 10,
                         fontColor: '#61636e',
                         fontWeight: 'bold',
                       },
@@ -2556,6 +2559,7 @@ function Prontuario() {
                     {
                       display: false,
                       ticks: {
+                        padding: 10,
                         suggestedMin: 0,
                         suggestedMax: 10,
                         fontColor: '#61636e',
@@ -2627,6 +2631,7 @@ function Prontuario() {
                     {
                       display: true,
                       ticks: {
+                        padding: 10,
                         fontColor: '#61636e',
                         fontWeight: 'bold',
                       },
@@ -2641,6 +2646,7 @@ function Prontuario() {
                     {
                       display: false,
                       ticks: {
+                        padding: 10,
                         suggestedMin: 0,
                         suggestedMax: 10,
                         fontColor: '#61636e',
@@ -4176,7 +4182,7 @@ function Prontuario() {
 
   const [atendimento, setatendimento] = useState([]);
   useEffect(() => {
-    freezeScreen(6000);
+    freezeScreen(3000);
     getDadosVitais(idatendimento);
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
@@ -4229,7 +4235,8 @@ function Prontuario() {
   }
   const viewSettings = (origem) => {
     // esquemas de cores >> 1 = purplescheme, 2 = bluescheme, etc...
-    var paleta = origem.filter(valor => valor.componente == "COLORSCHEME").map(valor => valor.view);
+    // var paleta = origem.filter(valor => valor.componente == "COLORSCHEME").map(valor => valor.view);
+    var paleta = 1;
     setschemecolor(paleta == 1 ? 'purplescheme' : paleta == 2 ? 'bluescheme' : 'ghapscheme');
     setmenuevolucoes(origem.filter(valor => valor.componente == "EVOLUÇÕES").map(valor => valor.view));
     setmenudiagnosticos(origem.filter(valor => valor.componente == "DIAGNÓSTICOS").map(valor => valor.view));
@@ -4270,7 +4277,7 @@ function Prontuario() {
       <div id="loadprincipal"
         // className="conteudo"
         style={{
-          display: 'flex',
+          display: loadprincipal == 1 ? 'flex' : 'none',
           flexDirection: 'column',
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba( 255, 255, 255, 0.7)', opacity: 0.8, borderRadius: 0, zIndex: 999, margin: 0,
@@ -5428,6 +5435,9 @@ function Prontuario() {
   const [dadosvitaispamlabel, setdadosvitaispamlabel] = useState([]);
   const [dadosvitaispamvalue, setdadosvitaispamvalue] = useState([]);
 
+  const [dadosvitaissao2label, setdadosvitaissao2label] = useState([]);
+  const [dadosvitaissao2value, setdadosvitaissao2value] = useState([]);
+
   const [dadosvitaisfc, setdadosvitaisfc] = useState([]);
   const [dadosvitaisfr, setdadosvitaisfr] = useState([]);
   const [dadosvitaispam, setdadosvitaispam] = useState([]);
@@ -5438,39 +5448,52 @@ function Prontuario() {
       x = response.data;
       y = x.filter(item => moment(item.data_coleta) > moment().subtract(15, 'days')).sort((a, b) => moment(a.data_coleta) - moment(b.data_coleta));
       setdadosvitais(y);
-      alert(JSON.stringify(x.filter(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM') == '06/01/22 - 07:01' && item.cd_sinal_vital == 3).sort((a, b) => a.id < b.id).map(item => item.cd_sinal_vital + ' - ' + item.ds_sinal_vital + ': ' + item.valor)));
+      // alert(JSON.stringify(x.filter(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM') == '06/01/22 - 07:01' && item.cd_sinal_vital == 3).sort((a, b) => a.id < b.id).map(item => item.cd_sinal_vital + ' - ' + item.ds_sinal_vital + ': ' + item.valor)));
 
       // tax.
-      let repeatedtaxlabel = y.filter(item => item.cd_sinal_vital == 1 && item.valor > 34 && item.valor < 41).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
-      let repeatedtaxvalue = y.filter(item => item.cd_sinal_vital == 1 && item.valor > 34 && item.valor < 41).map(item => item.valor);
-      let correcttaxlabel = [...new Set(repeatedtaxlabel)];
-      let correcttaxvalue = [...new Set(repeatedtaxvalue)];
+      let correcttaxlabel = y.filter(item => item.cd_sinal_vital == 1).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let correcttaxvalue = y.filter(item => item.cd_sinal_vital == 1).map(item => item.valor);
       setdadosvitaistaxlabel(correcttaxlabel.slice(-12));
       setdadosvitaistaxvalue(correcttaxvalue.slice(-12));
 
       // fc.
-      let repeatedfclabel = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
-      let repeatedfcvalue = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => item.valor);
-      let correctfclabel = [...new Set(repeatedfclabel)];
-      let correctfcvalue = [...new Set(repeatedfcvalue)];
+      let correctfclabel = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let correctfcvalue = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => item.valor);
       setdadosvitaisfclabel(correctfclabel.slice(-12));
       setdadosvitaisfcvalue(correctfcvalue.slice(-12));
 
       // fr.
-      let repeatedfrlabel = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
-      let repeatedfrvalue = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => item.valor);
-      let correctfrlabel = [...new Set(repeatedfrlabel)];
-      let correctfrvalue = [...new Set(repeatedfrvalue)];
+      let correctfrlabel = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let correctfrvalue = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => item.valor);
       setdadosvitaisfrlabel(correctfrlabel.slice(-12));
       setdadosvitaisfrvalue(correctfrvalue.slice(-12));
 
-      // pam (vai confundir com fc).
-      let repeatedpamlabel = y.filter(item => item.cd_sinal_vital == 6 && item.valor > 50 && item.valor < 130).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
-      let repeatedpamvalue = y.filter(item => item.cd_sinal_vital == 6 && item.valor > 50 && item.valor < 130).map(item => item.valor);
-      let correctpamlabel = [...new Set(repeatedpamlabel)];
-      let correctpamvalue = [...new Set(repeatedpamvalue)];
-      setdadosvitaispamlabel(correctpamlabel.slice(-12));
-      setdadosvitaispamvalue(correctpamvalue.slice(-12));
+      // pam.
+      let correctpaslabel = y.filter(item => item.cd_sinal_vital == 4).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM').slice(-12));
+      let correctpasvalue = y.filter(item => item.cd_sinal_vital == 4).map(item => item.valor).slice(-12);
+      let correctpadvalue = y.filter(item => item.cd_sinal_vital == 5).map(item => item.valor).slice(-12);
+      var posicao = -1;
+      let correctpam = [];
+      for (var i = 0; i < 12; i++) {
+        posicao = posicao + 1
+        var pas = correctpasvalue.slice(posicao, posicao + 1);
+        var pad = correctpadvalue.slice(posicao, posicao + 1);
+        var pam = Math.ceil((parseInt(pas) + (2 * parseInt(pad))) / 3);
+        correctpam.push(pam);
+      }
+      setTimeout(() => {
+        setdadosvitaispamlabel(correctpaslabel);
+        setdadosvitaispamvalue(correctpam);
+      }, 1000);
+
+      // sao2.
+      let correctsao2label = y.filter(item => item.cd_sinal_vital == 11).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let correctsao2value = y.filter(item => item.cd_sinal_vital == 11).map(item => item.valor);
+      setdadosvitaissao2label(correctsao2label.slice(-12));
+      setdadosvitaissao2value(correctsao2value.slice(-12));
+
+      // setdadosvitaispamlabel(correctpamlabel.slice(-12));
+      // setdadosvitaispamvalue(correctpamvalue.slice(-12));
 
       setdadosvitaisfc(y.filter(item => item.cd_sinal_vital == 2 && item.valor > 60 && item.valor < 120).slice(-21));
       setdadosvitaisfr(y.filter(item => item.cd_sinal_vital == 3 && item.valor > 15 && item.valor < 26).slice(-21));
@@ -5492,7 +5515,7 @@ function Prontuario() {
   dados clínicos do  atendimento (arrayLastDadosClinicos), a partir de uma array 
   contendo os códigos de cada dado clínico (arrayCodigoDadosVitais).
   */
-  const arrayCodigosDadosVitais = [1, 2, 3, 4, 5, 6];
+  const arrayCodigosDadosVitais = [1, 2, 3, 4, 11];
   const [arrayLastDadosClinicos, setarrayLastDadosClinicos] = useState([]);
   const [arrayDadosDataChart, setarrayDadosDataChart] = useState([]);
 
@@ -5598,6 +5621,7 @@ function Prontuario() {
               {
                 display: true,
                 ticks: {
+                  padding: 10,
                   fontColor: '#61636e',
                   fontWeight: 'bold',
                 },
@@ -5612,6 +5636,7 @@ function Prontuario() {
               {
                 display: false,
                 ticks: {
+                  padding: 10,
                   suggestedMin: 0,
                   suggestedMax: 200,
                   fontColor: '#61636e',
@@ -5700,6 +5725,13 @@ function Prontuario() {
         pointBackgroundColor: '#EC7063',
         fill: 'false'
       },
+      {
+        data: dadosvitaissao2value,
+        label: 'SAO2',
+        borderColor: '#85C1E9',
+        pointBackgroundColor: '#85C1E9',
+        fill: 'false'
+      },
     ],
   }
   function ChartControles() {
@@ -5712,16 +5744,26 @@ function Prontuario() {
           width="400"
           height="100"
           options={{
+            layout: {
+              padding: {
+                left: 0,
+                right: 4,
+                top: 0,
+                bottom: 0
+              }
+            },
             scales: {
               xAxes: [
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: false,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -5732,6 +5774,7 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: true,
                     suggestedMin: 0,
                     suggestedMax: 250,
@@ -5739,6 +5782,7 @@ function Prontuario() {
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -5805,16 +5849,26 @@ function Prontuario() {
           width="400"
           height="100"
           options={{
+            layout: {
+              padding: {
+                left: 0,
+                right: 4,
+                top: 0,
+                bottom: 0
+              }
+            },
             scales: {
               xAxes: [
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: false,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -5825,6 +5879,7 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: true,
                     suggestedMin: 30,
                     suggestedMax: 50,
@@ -5832,6 +5887,7 @@ function Prontuario() {
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -5898,16 +5954,26 @@ function Prontuario() {
           width="400"
           height="100"
           options={{
+            layout: {
+              padding: {
+                left: 0,
+                right: 4,
+                top: 0,
+                bottom: 0
+              }
+            },
             scales: {
               xAxes: [
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: false,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -5918,6 +5984,7 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: true,
                     suggestedMin: 50,
                     suggestedMax: 150,
@@ -5925,6 +5992,7 @@ function Prontuario() {
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -5991,16 +6059,26 @@ function Prontuario() {
           width="400"
           height="100"
           options={{
+            layout: {
+              padding: {
+                left: 0,
+                right: 4,
+                top: 0,
+                bottom: 0
+              }
+            },
             scales: {
               xAxes: [
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: false,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -6011,6 +6089,7 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: true,
                     suggestedMin: 10,
                     suggestedMax: 40,
@@ -6018,6 +6097,7 @@ function Prontuario() {
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -6063,7 +6143,7 @@ function Prontuario() {
 
   // gráfico para PAM (código 6).
   const dataChartControlesPam = {
-    labels: dadosvitaispamlabel,
+    labels: dadosvitaistaxlabel,
     datasets: [
       {
         data: dadosvitaispamvalue,
@@ -6076,7 +6156,7 @@ function Prontuario() {
   }
   function ChartControlesPam() {
     return (
-      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 6}>
+      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 4}>
         <Line
           ref={myChartRef}
           data={dataChartControlesPam}
@@ -6084,16 +6164,26 @@ function Prontuario() {
           width="400"
           height="100"
           options={{
+            layout: {
+              padding: {
+                left: 0,
+                right: 4,
+                top: 0,
+                bottom: 0
+              }
+            },
             scales: {
               xAxes: [
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: false,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -6104,6 +6194,7 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: true,
                     suggestedMin: 50,
                     suggestedMax: 150,
@@ -6111,6 +6202,7 @@ function Prontuario() {
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 1,
                     drawOnChartArea: true,
@@ -6154,6 +6246,110 @@ function Prontuario() {
     );
   }
 
+  // gráfico para SAO2 (código 11).
+  const dataChartControlesSao2 = {
+    labels: dadosvitaissao2label,
+    datasets: [
+      {
+        data: dadosvitaissao2value,
+        label: 'FR',
+        borderColor: '#85C1E9',
+        pointBackgroundColor: '#85C1E9',
+        fill: 'false'
+      },
+    ],
+  }
+  function ChartControlesSao2() {
+    return (
+      <div className="dadosclinicosgraficoesconde" id={"chartcontroles" + 11}>
+        <Line
+          ref={myChartRef}
+          data={dataChartControlesSao2}
+          plugins={ChartDataLabels}
+          width="400"
+          height="100"
+          options={{
+            layout: {
+              padding: {
+                left: 0,
+                right: 4,
+                top: 0,
+                bottom: 0
+              }
+            },
+            scales: {
+              xAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    padding: 10,
+                    display: false,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    tickMarkLength: false,
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  display: true,
+                  ticks: {
+                    padding: 10,
+                    display: true,
+                    suggestedMin: 60,
+                    suggestedMax: 100,
+                    fontColor: '#61636e',
+                    fontWeight: 'bold',
+                  },
+                  gridLines: {
+                    tickMarkLength: false,
+                    zeroLineColor: 'transparent',
+                    lineWidth: 1,
+                    drawOnChartArea: true,
+                  },
+                },
+              ],
+            },
+            plugins: {
+              datalabels: {
+                display: false,
+                color: '#ffffff',
+                font: {
+                  weight: 'bold',
+                  size: 16,
+                },
+              },
+            },
+            tooltips: {
+              enabled: true,
+              displayColors: false,
+            },
+            hover: { mode: null },
+            elements: {},
+            animation: {
+              duration: 500,
+            },
+            title: {
+              display: false,
+              text: 'PPS',
+            },
+            legend: {
+              display: false,
+              position: 'bottom',
+              align: 'start'
+            },
+            maintainAspectRatio: true,
+            responsive: true,
+          }}
+        />
+      </div>
+    );
+  }
   const myChartRef = React.createRef();
   const toggleDataset = () => {
     let chart = myChartRef.current.chartInstance;
@@ -6196,11 +6392,13 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    padding: 10,
                     display: false,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 0,
                     drawOnChartArea: true,
@@ -6211,12 +6409,14 @@ function Prontuario() {
                 {
                   display: false,
                   ticks: {
+                    padding: 10,
                     suggestedMin: 0,
                     suggestedMax: 200,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
                   gridLines: {
+                    tickMarkLength: false,
                     zeroLineColor: 'transparent',
                     lineWidth: 0,
                     drawOnChartArea: true,
@@ -6266,7 +6466,7 @@ function Prontuario() {
       <div id="cardcontroles"
         className="pulsewidgetcontrolescard" style={{ position: 'relative' }}
         onClick={(e) => {
-          // freezeScreen(10000);
+          // freezeScreen(3000);
           // carregando dados vitais.
           // getDadosVitais(idatendimento);
           // setTimeout(() => {
@@ -6278,7 +6478,7 @@ function Prontuario() {
           var position = document.getElementById("cardcontroles").offsetTop;
           // alert(position);
           document.getElementById("painel principal").scrollTo(0, position - 230);
-          // }, 10000);
+          // }, 3000);
           e.stopPropagation();
         }}
       >
@@ -6323,15 +6523,19 @@ function Prontuario() {
                 }}
                 style={{
                   display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                  backgroundColor: item.codigo == 1 ? '#BB8FCE' : item.codigo == 2 ? '#52BE80' : item.codigo == 3 ? '#7FB3D5' : '#EC7063',
+                  backgroundColor:
+                    item.codigo == 1 ? '#BB8FCE' :
+                      item.codigo == 2 ? '#52BE80' :
+                        item.codigo == 3 ? '#7FB3D5' :
+                          item.codigo == 11 ? '#85C1E9' : '#EC7063',
                   height: 150, width: 150,
                   minHeight: 150, minWidth: 150,
                   margin: 10, padding: 10,
                 }}>
                 <div style={{ height: 75, display: 'flex', flexDirection: 'column', justifyContent: 'center', verticalAlign: 'center' }}>
-                  <div>{item.descricao}</div>
+                  <div>{item.codigo == 4 ? 'PRESSÃO ARTERIAL MÉDIA' : item.descricao}</div>
                 </div>
-                <div style={{ fontSize: 18 }}>{item.valor}</div>
+                <div style={{ fontSize: 18 }}>{item.codigo == 4 ? dadosvitaispamvalue.slice(-1) : item.valor}</div>
                 <div>{JSON.stringify(item.data).substring(2, 12)}</div>
                 <div>{JSON.stringify(item.data).substring(15, 20)}</div>
               </button>
@@ -6353,6 +6557,7 @@ function Prontuario() {
               <ChartControlesFc></ChartControlesFc>
               <ChartControlesFr></ChartControlesFr>
               <ChartControlesPam></ChartControlesPam>
+              <ChartControlesSao2></ChartControlesSao2>
             </div>
           </div>
         </div>
@@ -7336,7 +7541,7 @@ function Prontuario() {
   // MENU LATERAL.
   // selecionando o menu principal.
   const clickPrincipal = () => {
-    freezeScreen(3000);
+    // freezeScreen(3000);
     cleanFilters();
     setstateprontuario(1);
     // reposicionando a scroll da tela principal para o topo.

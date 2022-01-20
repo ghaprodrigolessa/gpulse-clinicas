@@ -19,13 +19,13 @@ import DatePicker from './components/DatePicker'
 // importando páginas.
 import Acolhimento from './pages/Acolhimento'
 import Atendimentos from './pages/Atendimentos'
+import TodosPacientes from './pages/TodosPacientes'
 //import Bloco from './pages/Bloco'
 import Escala from './pages/Escala'
 import Farmacia from './pages/Farmacia'
 import Login from './pages/Login'
 import Hospitais from './pages/Hospitais'
 import Pacientes from './pages/Pacientes'
-import TodosPacientes from './pages/TodosPacientes'
 import Ambulatorio from './pages/Ambulatorio'
 import Prontuario from './pages/Prontuario'
 //import Secretaria from './pages/Secretaria'
@@ -52,7 +52,7 @@ function IddleTimeOut() {
         timer = 0
         setTimeout(() => {
           toast(1, '#ec7063', 'USUÁRIO DESLOGADO POR INATIVIDADE.', 3000)
-          history.push('/gpulse-apt')
+          history.push('/')
         }, 3000)
       }
     }, 1000)
@@ -116,7 +116,7 @@ function IddleTimeOut() {
       <Switch>
         <div id="páginas">
           <Route exact path="/">
-            <Login />
+            <Login></Login>
           </Route>
           <Route path="/atendimentos">
             <Atendimentos></Atendimentos>
@@ -127,14 +127,14 @@ function IddleTimeOut() {
           <Route path="/unidades">
             <Unidades></Unidades>
           </Route>
+          <Route path="/todospacientes">
+            <TodosPacientes></TodosPacientes>
+          </Route>
           <Route path="/escala">
             <Escala></Escala>
           </Route>
           <Route path="/pacientes">
             <Pacientes></Pacientes>
-          </Route>
-          <Route path="/todospacientes">
-            <TodosPacientes></TodosPacientes>
           </Route>
           <Route path="/ambulatorio">
             <Ambulatorio></Ambulatorio>
@@ -195,6 +195,7 @@ function App() {
   const [todosleitos, settodosleitos] = useState([]);
   const [todospacientes, settodospacientes] = useState([]);
   const [todosatendimentos, settodosatendimentos] = useState([]);
+  const [todosconvenios, settodosconvenios] = useState([]);
   // listas da tela prontuário.
   const [listevolucoes, setlistevolucoes] = useState([]);
   const [arrayevolucao, setarrayevolucao] = useState([]);
@@ -278,31 +279,23 @@ function App() {
       setschemecolor(paleta == 1 ? 'purplescheme' : 'bluescheme');
     });
   }
-
+  
   const loadLeitos = () => {
     axios.get(htmlleitos).then((response) => {
       var x = [0, 1]
       x = response.data
       settodosleitos([0, 1]);
       settodosleitos(response.data)
+      // alert(x.map(item => 'LEITOS: ' + item.unidade.setor.empresa.id))
     })
   }
 
   useEffect(() => {
-    loadSettings();
+    //loadHospitais();
+    //loadUnidades();
+    //loadSettings();
     loadLeitos();
-    loadAtendimentos();
   }, [])
-
-  // lista de atendimentos.
-  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
-  const loadAtendimentos = () => {
-    axios.get(htmlatendimentos).then((response) => {
-      var x = [0, 1]
-      x = response.data
-      settodosatendimentos(x);
-    })
-  }
 
   return (
     <Context.Provider
@@ -339,6 +332,7 @@ function App() {
         // listas principais.
         todosleitos, settodosleitos,
         todosatendimentos, settodosatendimentos,
+        todosconvenios, settodosconvenios,
         todospacientes, settodospacientes,
         // listas do prontuário.
         listevolucoes, setlistevolucoes,

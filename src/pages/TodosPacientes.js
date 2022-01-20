@@ -39,55 +39,9 @@ function TodosPacientes() {
   // history (react-router-dom).
   let history = useHistory()
 
-  // função que atualiza o atendimento do paciente recebido na unidade.
-  const updateAtendimento = (x, result) => {
-    var obj = {
-      idpaciente: x.idpaciente,
-      radar: nomeunidade,
-      hospital: x.hospital,
-      unidade: x.unidade,
-      box: x.box,
-      admissao: x.admissao,
-      nome: x.nome,
-      dn: x.dn,
-      peso: x.peso,
-      altura: x.altura,
-      antecedentes: x.antecedentes,
-      alergias: x.alergias,
-      medicacoes: x.medicacoes,
-      exames: x.exames,
-      historia: x.historia,
-      status: x.status,
-      ativo: x.ativo,
-      classificacao: x.classificacao,
-      descritor: x.descritor,
-      precaucao: x.precaucao,
-      assistente: x.assistente,
-    };
-    axios.post(html + '/updateatendimento/' + result, obj).then(() => {
-    });
-  };
-
-  // carregamento do número de leitos do cti selecionado.
-  const [leitos, setleitos] = useState(10);
-  const loadLeitos = () => {
-    // ROTA: SELECT * FROM hospitaisxunidades WHERE hospital = hospital AND unidade = unidade.
-    axios.get(htmlleitos).then((response) => {
-      setleitos(response.data);
-    });
-  }
-
-  // lista de pacientes.
-  const [listpacientes, setlistpacientes] = useState([]);
-  const [arraypacientes, setarraypacientes] = useState([]);
-  const loadPacientes = () => {
-    axios.get(html + "/pacientes").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setlistpacientes(x);
-      setarraypacientes(x);
-    });
-  }
+  useEffect(() => {
+    MountArrayPacientesEmAtendimento();
+  }, []);
 
   // lista de atendimentos (demais unidades de internação como enfermarias, ctis, etc.).
   const [atendimentos, setatendimentos] = useState(todosatendimentos);
@@ -492,61 +446,6 @@ function TodosPacientes() {
     history.push('/prontuario')
   };
 
-  const newConsulta = (item) => {
-    // extraindo informações do último atendimento do paciente.
-    axios.get(html + "/atendimentos").then((response) => {
-      var x = [0, 1];
-      var y = [0, 1];
-      var x = response.data;
-      var y = x.filter(value => value.idpaciente == item.idpaciente).slice(-1);
-      // criando um novo atendimento ambulatorial.
-      var obj = {
-        idpaciente: y.map(item => item.idpaciente),
-        hospital: nomehospital,
-        unidade: nomeunidade,
-        box: '',
-        admissao: moment().format('DD/MM/YYYY HH:mm'),
-        nome: y.map(item => item.nome),
-        dn: y.map(item => item.dn),
-        peso: '',
-        altura: '',
-        antecedentes: y.map(item => item.antecedentes),
-        alergias: y.map(item => item.alergias),
-        medicacoes: y.map(item => item.medicacoes),
-        exames: y.map(item => item.exames),
-        historia: y.map(item => item.historia),
-        status: 4, // cadastrado por padrão como indefinido.
-        ativo: 1,
-        classificacao: 0,
-        descritor: '',
-        precaucao: 0,
-        assistente: nomeusuario,
-      };
-      axios.post(html + '/insertatendimento', obj).then(() => {
-        // selecionando novamente o último atendimento, referente à consulta recém-criada.
-        axios.get(html + "/atendimentos").then((response) => {
-          var x = [0, 1];
-          var z = [0, 1];
-          var x = response.data;
-          var z = x.filter(value => value.idpaciente == item.idpaciente).sort(((a, b) => a.id > b.id ? 1 : -1)).slice(-1);
-          // abrindo a tela corrida para o paciente selecionado.
-          history.push('/prontuario')
-        });
-      });
-    });
-  }
-
-  // estado para visualização do totem de chamadas.
-  const [viewtoten, setviewtoten] = useState(0);
-  const [renderchart, setrenderchart] = useState(0);
-  useEffect(() => {
-    // carregando a lista de pacientes e de atendimentos.
-    MountArrayPacientesEmAtendimento();
-    console.log('MERDA');
-    // carregando o total de leitos da unidade.
-    // loadLeitos();
-  }, []);
-
   // filtro de pacientes...
   function FilterPacientes() {
     return (
@@ -603,31 +502,13 @@ function TodosPacientes() {
           // filtrando pelo box/leito do paciente.
         } else if (pegapelonome == '' && pegaidpelobox != '' && pegaidpeloassistente == '') {
           setarrayatendimentos(todosatendimentos.filter(item => item.Leito.descricao.includes(searchpaciente)));
+          // filtrando pelo prestador.
         } else if (pegapelonome == '' && pegaidpelobox == '' && pegaidpeloassistente != '') {
           setarrayatendimentos(todosatendimentos.filter(item => item.nm_prestador.includes(searchpaciente)));
-        } else { setarraypacientes([]) }
+        } else { setarrayatendimentos([]) }
 
         document.getElementById("inputFilterPaciente").value = searchpaciente;
         document.getElementById("inputFilterPaciente").focus();
-      }
-    }, 500);
-  }
-
-  const filterPacientePa = () => {
-    clearTimeout(timeout);
-    document.getElementById("inputFilterPacientePa").focus();
-    searchatendimento = document.getElementById("inputFilterPacientePa").value.toUpperCase();
-    console.log('BUCETA: ' + searchatendimento);
-    timeout = setTimeout(() => {
-      if (searchatendimento == '') {
-        setarrayatendimentos(atendimentos);
-        document.getElementById("inputFilterPacientePa").value = '';
-        document.getElementById("inputFilterPacientePa").focus();
-      } else {
-        setfilterpaciente(document.getElementById("inputFilterPacientePa").value.toUpperCase());
-        setarrayatendimentos(atendimentos.filter(item => item.nome.includes(searchatendimento) == true));
-        document.getElementById("inputFilterPacientePa").value = searchatendimento;
-        document.getElementById("inputFilterPacientePa").focus();
       }
     }, 500);
   }
@@ -646,7 +527,6 @@ function TodosPacientes() {
   const GetArrayPacientesEmAtendimento = (valor) => {
     axios.get(htmlpacientes + valor.cd_paciente).then((response) => {
       varPacientesEmAtendimento.push(response.data);
-      // setarrayPacientesEmAtendimento([]);
     });
   }
 

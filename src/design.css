@@ -243,7 +243,6 @@ body {
   overflow-x: "scroll";
   overflow-y: "hidden";
   margin: 10px;
-  width: 80vw;
   height: 5px;
   opacity: 0;
   transition: 500ms, 500ms ease-in-out;
