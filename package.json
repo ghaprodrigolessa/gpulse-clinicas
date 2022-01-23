@@ -25,7 +25,8 @@
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
-    "react-speech-recognition": "^3.8.2"
+    "react-speech-recognition": "^3.8.2",
+    "react-useinterval": "^1.0.2"
   },
   "scripts": {
     "start": "env-cmd -f ./.env react-scripts start",

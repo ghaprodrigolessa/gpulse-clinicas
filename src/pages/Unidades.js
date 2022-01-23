@@ -12,6 +12,7 @@ import Header from '../components/Header'
 import moment from 'moment'
 import Context from '../Context'
 import { useHistory } from 'react-router-dom'
+import useInterval from 'react-useinterval'
 
 // lixo a excluir (insistência de Guilherme).
 import { Stuff } from '../components/Stuff'
@@ -82,6 +83,21 @@ function Unidades() {
       )
     })
   }
+
+  // carregando regitro de atendimentos.
+  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
+  const loadAtendimentos = () => {
+    axios.get(htmlatendimentos).then((response) => {
+      var x = [0, 1]
+      x = response.data;
+      settodosatendimentos(x.filter((value) => value.ativo != 0));
+    })
+  }
+  // atualizando resgistro de atendimentos.
+  useInterval(() => {
+    console.log('ATUALIZANDO ATENDIMENTOS EM UNIDADES');
+    loadAtendimentos();
+  }, 60000);
 
   // TIPOS DE UNIDADES: 1 = pronto-socorro; 2 = demais unidades de internação (CTIs, enfermarias); 3 = bloco cirúrgico; 4 = ambulatórios.
   // montando a lista de unidades.
@@ -978,7 +994,7 @@ function Unidades() {
                   },
                 },
                 animation: {
-                  duration: 500,
+                  duration: 0,
                 },
                 title: {
                   display: false,
@@ -1250,7 +1266,7 @@ function Unidades() {
                   },
                   hover: { mode: null },
                   animation: {
-                    duration: 500,
+                    duration: 0,
                   },
                   title: {
                     display: false,
@@ -1322,7 +1338,7 @@ function Unidades() {
                   },
                   hover: { mode: null },
                   animation: {
-                    duration: 500,
+                    duration: 0,
                   },
                   title: {
                     display: false,

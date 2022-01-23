@@ -62,6 +62,7 @@ function IddleTimeOut() {
     timer = 0
     loadTimeOut()
   }
+
   // função para construção dos toasts.
   const [valor, setvalor] = useState(0)
   const [cor, setcor] = useState('transparent')
@@ -84,6 +85,15 @@ function IddleTimeOut() {
     }
   }
 
+  // desabilitando o reload da página.
+  document.addEventListener('keydown', (e) => {
+    e = window.event;
+    if (e.key == 116) {
+      toast(1, 'red', 'CARAMBA...', 3000);
+      e.preventDefault();
+    }
+  });
+
   useEffect(() => {
     loadTimeOut()
     window.onmousemove = function () {
@@ -102,6 +112,12 @@ function IddleTimeOut() {
     document.body.addEventListener('touchmove', function (event) {
       event.preventDefault();
     });
+
+    // alterando o comportamento ao clicar no botão refresh.
+    window.addEventListener("load", () => {
+        history.push('/');
+    });
+
   }, [])
 
   return (
@@ -110,9 +126,8 @@ function IddleTimeOut() {
       translate="no"
       onTouchEnd={(e) => disablePinchZoom(e)}
     >
-      <Toast valor={valor} cor={cor} mensagem={mensagem} tempo={tempo} />
-      <Toast></Toast>
       <DatePicker></DatePicker>
+      <Toast valor={valor} cor={cor} mensagem={mensagem} tempo={tempo} />
       <Switch>
         <div id="páginas">
           <Route exact path="/">
@@ -161,6 +176,18 @@ function IddleTimeOut() {
 
 function App() {
   /* eslint eqeqeq: 0 */
+
+  /*
+  // retornando à tela login ao clicar no botão atualizar do navegador.
+  if (window.performance.getEntriesByType("navigation")[0].entryType == "reload") {
+    window.location.replace('/');
+  } else {
+    return null;
+  }
+  */
+
+
+
   // estados globais (serão usados no Context.API).
   // identificação do usuário logado.
   const [idusuario, setidusuario] = useState(0)
@@ -179,6 +206,7 @@ function App() {
   const [idpaciente, setidpaciente] = useState(0)
   const [dadospaciente, setdadospaciente] = useState([])
   const [idatendimento, setidatendimento] = useState(0)
+  const [convenio, setconvenio] = useState(0)
   const [nomepaciente, setnomepaciente] = useState('')
   const [dn, setdn] = useState('')
   const [peso, setpeso] = useState(0)
@@ -268,6 +296,8 @@ function App() {
   const [statusplanoterapeutico, setstatusplanoterapeutico] = useState(0);
   const [linhadecuidado, setlinhadecuidado] = useState(0);
 
+  const [refreshatendimentos, setrefreshatendimentos] = useState(0);
+
   var html = 'https://pulsarapp-server.herokuapp.com';
   const loadSettings = () => {
     axios.get(html + "/settings").then((response) => {
@@ -279,7 +309,7 @@ function App() {
       setschemecolor(paleta == 1 ? 'purplescheme' : 'bluescheme');
     });
   }
-  
+
   const loadLeitos = () => {
     axios.get(htmlleitos).then((response) => {
       var x = [0, 1]
@@ -308,6 +338,7 @@ function App() {
         conselhousuario, setconselhousuario,
         // identificação do atendimento (hospital, unidade de atendimento).
         idatendimento, setidatendimento,
+        convenio, setconvenio,
         idhospital, setidhospital,
         nomehospital, setnomehospital,
         idunidade, setidunidade,
@@ -393,6 +424,8 @@ function App() {
         dataplanoterapeutico, setdataplanoterapeutico,
         statusplanoterapeutico, setstatusplanoterapeutico,
         linhadecuidado, setlinhadecuidado,
+
+        refreshatendimentos, setrefreshatendimentos
       }}
     >
       <div className={schemecolor}>

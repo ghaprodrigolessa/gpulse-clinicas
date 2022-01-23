@@ -9,31 +9,25 @@ import Context from '../Context'
 import { useHistory } from 'react-router-dom'
 import change from '../images/change.svg'
 import AptTransicaoDeServicos from '../components/AptTransicaoDeServicos'
+import useInterval from 'react-useinterval'
 
 function Hospitais() {
   var html = 'https://pulsarapp-server.herokuapp.com';
   var htmlempresas = process.env.REACT_APP_API_EMPRESAS;
   var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
   var htmlleitos = process.env.REACT_APP_API_LEITOS;
+  let intervalatendimentos = null;
   // recuperando estados globais (Context.API).
   const {
     settodosleitos, todosleitos,
     idusuario, tipousuario,
     setnomehospital, setidhospital,
     settodosatendimentos, todosatendimentos,
-    settodosconvenios, todosconvenios
+    settodosconvenios, todosconvenios,
+    refreshatendimentos,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
-
-  // carregamento da lista de convênios.
-  const [convenios, setconvenios] = useState([])
-  const loadConvenios = () => {
-    // ROTA: SELECT * FROM usuarioxhospital WHERE idusuario = loginid.
-    axios.get(html + "/convenios").then((response) => {
-      setconvenios(response.data)
-    })
-  }
 
   // carregamento da lista de hospitais nos quais o usuário trabalha.
   const [hospitais, setHospitais] = useState([])
@@ -82,28 +76,27 @@ function Hospitais() {
   useEffect(() => {
     // scroll to top on render (importante para as versões mobile).
     window.scrollTo(0, 0)
-    // carregando convênios.
-    loadConvenios();
     // carregando registros de atendimentos e de leitos para geração dos gráficos.
     loadAtendimentos();
     // carregando a lista de hospitais.
-    loadHospitais()
-    // atraso para renderização dos cards com os gráficos (evita o glitch das animações dos doughnuts).
-    setTimeout(() => {
-      setrenderchart(1);
-    }, 1000);
+    loadHospitais();
   }, [])
 
   // carregando regitro de atendimentos.
+  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
   let arrayconvenios = [];
   const loadAtendimentos = () => {
     axios.get(htmlatendimentos).then((response) => {
       var x = [0, 1]
       x = response.data;
-      settodosatendimentos(x.filter((value) => value.ativo !== 0));
+      settodosatendimentos(x.filter((value) => value.ativo != 0));
     })
-    arrayconvenios = todosatendimentos.map(item => mountConvenios(item));
   }
+  // atualizando resgistro de atendimentos.
+  useInterval(() => {
+    console.log('ATUALIZANDO ATENDIMENTOS EM HOSPITAIS.');
+    loadAtendimentos();
+  }, 60000);
 
   // randomizando cores dos gráficos.
   const [randomcolors, setrandomcolors] = useState([]);
@@ -123,15 +116,17 @@ function Hospitais() {
     arrayconvenios.push(obj);
     arrayconvenios = arrayconvenios.filter((value, index, self) =>
       index === self.findIndex((t) => (t.codigo === value.codigo)));
+
     settodosconvenios(arrayconvenios);
     setlabelconvenios(arrayconvenios.map(item => item.nome));
+    arrayconveniosdatachart = [];
 
-    // alert(todosconvenios.map(item => item.nome))
+    loadDataChartConvenios(arrayconvenios);
   }
 
-  const loadDataChartConvenios = () => {
-    // alert(todosconvenios.length);
-    todosconvenios.map(item => mountDataChartConvenios(item.codigo));
+  const loadDataChartConvenios = (value) => {
+    // alert(arrayconvenios.length);
+    value.map(item => mountDataChartConvenios(item.codigo));
   }
 
   let arrayconveniosdatachart = [];
@@ -148,7 +143,6 @@ function Hospitais() {
   var dataChart = []
   var dataChartAtendimentosPorConvenios = []
 
-  const [renderchart, setrenderchart] = useState(0);
   function GetData(item) {
     // gerando os dados do gráfico.
     var leitos = [0, 1]
@@ -200,7 +194,7 @@ function Hospitais() {
             onClick={() => selectHospital(item)}
             style={{
               position: 'relative',
-              display: renderchart == 1 ? 'flex' : 'none',
+              display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               alignSelf: window.innerWidth > 400 ? 'flex-start' : 'center',
@@ -260,7 +254,7 @@ function Hospitais() {
                     },
                   },
                   animation: {
-                    duration: 500,
+                    duration: 0,
                   },
                   title: {
                     display: false,
@@ -372,7 +366,10 @@ function Hospitais() {
                 width: 25, minWidth: 25, height: 25, minHeight: 25,
                 position: 'absolute', bottom: 5, right: 5
               }}
-              onMouseEnter={() => loadDataChartConvenios()}
+              onMouseEnter={() => {
+                // carregando convênios.
+                todosatendimentos.map(item => mountConvenios(item));
+              }}
               onClick={(e) => {
                 document.getElementById("hospitaisstuff" + item.id).style.opacity = 0
                 document.getElementById("expandbtn" + item.id).style.display = "none"
@@ -559,7 +556,7 @@ function Hospitais() {
                             },
                           },
                           animation: {
-                            duration: 500,
+                            duration: 0,
                           },
                           title: {
                             display: false,
@@ -612,7 +609,7 @@ function Hospitais() {
     <div
       className="main fade-in"
       style={{
-        display: renderchart == 1 ? 'flex' : 'none',
+        display: 'flex',
       }}
     >
       <Header link={'/'} titulo={'SERVIÇOS'}></Header>

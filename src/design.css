@@ -2472,10 +2472,14 @@ input::-webkit-inner-spin-button {
   position: relative;
   padding: 10px;
   margin: 10px;
+  animation-name: fadein;
+  animation-duration: 500ms;
 }
 
 .dadosclinicosgraficoesconde{
   display: none;
+  animation-name: fadein;
+  animation-duration: 500ms;
 }
 
 .pulsewidgetcontent::-webkit-scrollbar-button {
@@ -2711,15 +2715,15 @@ input::-webkit-inner-spin-button {
 @keyframes pulsarlogo {
   0% {
     opacity: 0.3;
-    height: 8vw;
+    transform: scale(1);
   }
   50% {
     opacity: 1;
-    height: 16vw;
+    transform: scale(1.5);
   }
   100% {
     opacity: 0.3;
-    height: 8vw;
+    transform: scale(1);
   }
 }
 

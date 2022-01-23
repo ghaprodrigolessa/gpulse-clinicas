@@ -105,6 +105,7 @@ function Prontuario() {
     todosatendimentos,
     setidatendimento,
     idatendimento,
+    convenio, setconvenio,
     setidpaciente,
     idpaciente,
     nomepaciente, setnomepaciente,
@@ -165,6 +166,7 @@ function Prontuario() {
     schemecolor, setschemecolor,
     // APT IVCF / curva de Moraes.
     ivcf, setivcf,
+    setrefreshatendimentos, refreshatendimentos
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -4183,6 +4185,7 @@ function Prontuario() {
   const [atendimento, setatendimento] = useState([]);
   useEffect(() => {
     freezeScreen(3000);
+    setrefreshatendimentos(0);
     getDadosVitais(idatendimento);
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
@@ -4264,26 +4267,29 @@ function Prontuario() {
   }, [settings])
 
   const freezeScreen = (time) => {
-    document.getElementById("loadprincipal").style.display = 'flex';
+    setloadprincipal(1);
+    //document.getElementById("loadprincipal").style.display = 'flex';
     setTimeout(() => {
-      document.getElementById("loadprincipal").style.display = 'none';
+      setloadprincipal(0);
+      //document.getElementById("loadprincipal").style.display = 'none';
     }, time);
   }
 
   // animação para carregamento da tela principal.
-  const [loadprincipal, setloadprincipal] = useState(0);
+  const [loadprincipal, setloadprincipal] = useState(1);
   const LoadPrincipal = useCallback(() => {
     return (
       <div id="loadprincipal"
         // className="conteudo"
+        className="fade-in"
         style={{
           display: loadprincipal == 1 ? 'flex' : 'none',
           flexDirection: 'column',
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba( 255, 255, 255, 0.7)', opacity: 0.8, borderRadius: 0, zIndex: 999, margin: 0,
+          backgroundColor: 'rgba( 255, 255, 255, 1)', opacity: 1, borderRadius: 0, zIndex: 999, margin: 0,
           alignItems: 'center', justifyContent: 'center', alignSelf: 'center',
         }}>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="pulsarlogo" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <LogoInverted height={100} width={100}></LogoInverted>
           <div className="title2center" style={{ color: '#8f9bbc' }}>CARREGANDO</div>
         </div>
@@ -4452,9 +4458,10 @@ function Prontuario() {
             src={foto}
             onClick={() => setshowqr(1)}
             style={{
-              height: '90%',
+              height: '80%',
               padding: 0,
               margin: 5,
+              marginLeft: 10,
               borderRadius: 5,
             }}
           ></img>
@@ -4752,6 +4759,7 @@ function Prontuario() {
       >
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'PRONTUÁRIO: ' + idpaciente}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'ATENDIMENTO: ' + idatendimento}</div>
+        <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'CONVÊNIO: ' + convenio}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'DN: ' + dn}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'NOME DA MÃE: ' + nomemae}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'CONTATO: ' + contato}</div>
@@ -12504,6 +12512,7 @@ function Prontuario() {
   const selectPaciente = (item) => {
     setidpaciente(item.cd_paciente);
     setidatendimento(item.cd_atendimento);
+    setconvenio(item.nm_convenio);
     // setloadprincipal(1);
     //setTimeout(() => {
     //setloadprincipal(0);
@@ -12543,7 +12552,7 @@ function Prontuario() {
               height: '80vh', width: '100%',
               justifyContent: 'flex-start', borderTopLeftRadius: 0, borderBottomLeftRadius: 0, paddingLeft: 7.5
             }}>
-            {todosatendimentos.filter(item => item.Leito.unidade.id == idunidade).map(item => (
+            {todosatendimentos.filter(item => item.Leito.unidade.id == idunidade).sort(((a, b) => a.Leito.descricao > b.Leito.descricao ? 1 : -1)).map(item => (
               <div
                 key={item.id}
                 style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
@@ -12625,7 +12634,6 @@ function Prontuario() {
   }
 
   // RENDERIZAÇÃO DO COMPONENTE PRONTUÁRIO.
-  // renderização do componente.
   return (
     <div
       className="main fade-in"

@@ -9,6 +9,7 @@ import moment from 'moment';
 import Header from '../components/Header';
 import Context from '../Context';
 import { useHistory } from "react-router-dom";
+import useInterval from 'react-useinterval';
 
 // leitor de qr code.
 import QrReader from 'react-qr-reader';
@@ -33,6 +34,7 @@ function Pacientes() {
     nomeunidade,
     tipounidade,
     setidpaciente,
+    setconvenio,
     idpaciente,
     idatendimento,
     setidatendimento,
@@ -41,7 +43,6 @@ function Pacientes() {
     todosleitos,
     settodospacientes, todospacientes,
     settodosatendimentos, todosatendimentos,
-    keyRefreshAtendimentos,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -71,6 +72,22 @@ function Pacientes() {
   const handleError = err => {
     console.log('ERRO: ' + err)
   }
+
+  // carregando regitro de atendimentos.
+  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
+  const loadAtendimentos = () => {
+    axios.get(htmlatendimentos).then((response) => {
+      var x = [0, 1]
+      x = response.data;
+      settodosatendimentos(x.filter((value) => value.ativo != 0));
+      setarrayatendimentos(x);
+    })
+  }
+  // atualizando resgistro de atendimentos.
+  useInterval(() => {
+    console.log('ATUALIZANDO ATENDIMENTOS EM PACIENTES.');
+    loadAtendimentos();
+  }, 60000);
 
   // função que atualiza o atendimento do paciente recebido na unidade.
   const updateAtendimento = (x, result) => {
@@ -939,9 +956,9 @@ function Pacientes() {
   const selectPaciente = (item) => {
     setidpaciente(item.cd_paciente)
     setidatendimento(item.cd_atendimento)
-    setdadospaciente(arrayPacientesEmAtendimento.filter(value => value.codigo_paciente == item.cd_paciente))
-    updatelist = 0;
-    history.push('/prontuario')
+    setconvenio(item.nm_convenio);
+    setdadospaciente(arrayPacientesEmAtendimento.filter(value => value.codigo_paciente == item.cd_paciente));
+    history.push('/prontuario');
   };
 
   const newConsulta = (item) => {
@@ -991,9 +1008,7 @@ function Pacientes() {
   // estado para visualização do totem de chamadas.
   const [viewtoten, setviewtoten] = useState(0);
   const [renderchart, setrenderchart] = useState(0);
-  var updatelist = 0;
   useEffect(() => {
-    updatelist = 1;
     // carregando a lista de pacientes e de atendimentos.
     MountArrayPacientesEmAtendimento();
     setclassificabox(1);
@@ -1014,16 +1029,6 @@ function Pacientes() {
     // carregando o total de leitos da unidade.
     loadLeitos();
   }, []);
-
-  const loadAtendimentos = () => {
-    axios.get(htmlatendimentos).then((response) => {
-      var x = [0, 1]
-      x = response.data
-      settodosatendimentos(x);
-      setarrayatendimentos(x);
-      console.log('atualizando lista de atendimentos');
-    })
-  }
 
   function ShowToten() {
     return (
