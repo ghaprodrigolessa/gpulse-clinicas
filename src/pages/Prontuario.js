@@ -5108,24 +5108,6 @@ function Prontuario() {
                   {antecedentes}
                 </textarea>
               </div>
-              <div style={{ padding: 5, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div className="title2center" style={{ color: '#8f9bbc' }}>ALERGIAS</div>
-                <textarea
-                  className="textarea"
-                  onKeyUp={() => {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                      setantecedentes(document.getElementById("inputAlergias").value);
-                      updateAtendimento();
-                    }, 2000);
-                  }}
-                  style={{ width: window.innerWidth < 400 ? '40vw' : 'calc(35vw - 20px)', height: 140 }}
-                  id="inputAlergias"
-                  title="ALERGIAS."
-                >
-                  {alergias}
-                </textarea>
-              </div>
             </div>
             <div
               style={{
