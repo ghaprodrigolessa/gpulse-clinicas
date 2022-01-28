@@ -104,6 +104,8 @@ function Prontuario() {
     todosleitos,
     todospacientes,
     todosatendimentos,
+    historicoatendimentos, sethistoricoatendimentos,
+
     setidatendimento,
     idatendimento,
     convenio, setconvenio,
@@ -332,7 +334,8 @@ function Prontuario() {
   const [altura, setaltura] = useState('');
   const [admissao, setadmissao] = useState('');
   const [antecedentes, setantecedentes] = useState('');
-  const [alergias, setalergias] = useState('');
+  const [alergias, setalergias] = useState([]);
+  const [diagnosticoprincipal, setdiagnosticoprincipal] = useState('');
   const [medicacoes, setmedicacoes] = useState('');
   const [exames, setexames] = useState('');
   const [historia, sethistoria] = useState('');
@@ -362,6 +365,17 @@ function Prontuario() {
     // alert(dn);
   }
 
+  // carregando o histórico de atendimentos do paciente.
+  var htmlhistoricodeatendimentos = process.env.REACT_APP_API_HISTORICODEATENDIMENTOS;
+  const loadHistoricoDeAtendimentos = () => {
+    axios.get(htmlhistoricodeatendimentos + idpaciente).then((response) => {
+      var x = [0, 1]
+      x = response.data;
+      // alert('LISTA DE ATENDIMENTOS: ' + x.length);
+      sethistoricoatendimentos(x);
+    })
+  }
+
   // carregando o atendimento do paciente selecionado.
   const [listatendimentos, setlistatendimentos] = useState([]);
   const loadAtendimento = (valor) => {
@@ -371,7 +385,10 @@ function Prontuario() {
     setdiasinternado(moment().diff(moment(atendimento.map(item => item.dt_hr_atendimento), 'YYYY/MM/DD'), 'days'));
     setadmissao(moment(atendimento.map(item => item.dt_hr_atendimento)).format('DD/MM/YYYY'));
     setantecedentes('INDISPONÍVEL NA API');
-    setalergias('INDISPONÍVEL NA API');
+    var ciddiagnostico = atendimento.map(item => item.cd_cid);
+    var descricaodiagnostico = JSON.stringify(atendimento.map(item => item.ds_cid)).substring(2, 30);
+    setdiagnosticoprincipal(ciddiagnostico + ' - ' + descricaodiagnostico + '...');
+
     setmedicacoes('INDISPONÍVEL NA API');
     setexames('INDISPONÍVEL NA API');
     sethistoria('INDISPONÍVEL NA API');
@@ -1196,7 +1213,14 @@ function Prontuario() {
         id="carddiagnosticos"
         onClick={() => document.getElementById("carddiagnosticos").classList.toggle("pulsewidgetscrollmax")}
       >
-        <div className="title4 pulsewidgettitle">{'DIAGNÓSTICOS'}</div>
+        <div className="title4 pulsewidgettitle">
+          <div>
+            {'DIAGNÓSTICOS'}
+          </div>
+          <div style={{ fontSize: 12, color: '#61636e', margin: 10 }}>
+            {diagnosticoprincipal}
+          </div>
+        </div>
         <div
           className="pulsewidgetcontent"
           style={{ display: listdiagnosticos.length > 0 ? 'flex' : 'none' }}>
@@ -2068,7 +2092,7 @@ function Prontuario() {
                         </button>
                         <button id="sign-button"
                           className="animated-green-button"
-                          onClick={idusuario == item.idusuario ? () => updateEvolucao(item, 1) : () => alert(item.idusuario)}
+                          onClick={idusuario == item.idusuario ? () => updateEvolucao(item, 1) : () => null}
                           title="ASSINAR EVOLUÇÃO."
                           style={{
                             display: item.status == 0 && item.idusuario == idusuario ? 'flex' : 'none',
@@ -4196,7 +4220,10 @@ function Prontuario() {
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
     loadAtendimento(idpaciente);
+    loadHistoricoDeAtendimentos();
+    loadTodasAlergias();
     // alert(idpaciente);
+    // alert(listaatendimentos.filter(item => item.cd_paciente == idpaciente).lenght);
     // updatePrincipal();
     // APT - carregando IVCF:
     setivcf(7);
@@ -4434,8 +4461,8 @@ function Prontuario() {
         id="historicodeatendimentos"
         className="scrollhorizontal">
         <div className="buttons">
-          {todosatendimentos.filter(item => item.cd_paciente == idpaciente).map(item =>
-            <div className="blue-button" style={{ padding: 10 }}>
+          {historicoatendimentos.filter(item => item.cd_paciente == idpaciente).map(item =>
+            <div className={item.dt_hr_atendimento !== null ? "red-button" : "blue-button"} style={{ padding: 10 }}>
               {moment(item.dt_hr_atendimento).format('DD/MM/YYYY')}
             </div>
           )}
@@ -4452,6 +4479,7 @@ function Prontuario() {
         <CardDiasdeInternacao></CardDiasdeInternacao>
         <CardAlertas></CardAlertas>
         <CardPrecaucao></CardPrecaucao>
+        <CardAlergias></CardAlergias>
         <CardGestaoDeRiscos></CardGestaoDeRiscos>
         <CardIVCF></CardIVCF>
       </div>
@@ -4656,16 +4684,16 @@ function Prontuario() {
                       {'•'}
                     </div>
                     <div
-                    title="linha de cuidado"
-                    style={{
-                      color:
-                        linhadecuidado == 1 ? "#52be80" : linhadecuidado == 2 ? "#f5b041" : "#ec7063",
-                    }}
-                  >
-                    {linhadecuidado == 1 ? 'REABILITAÇÃO' : linhadecuidado == 2 ? 'PALIATIVO' : 'PACIENTE CRÔNICO'}
+                      title="linha de cuidado"
+                      style={{
+                        color:
+                          linhadecuidado == 1 ? "#52be80" : linhadecuidado == 2 ? "#f5b041" : "#ec7063",
+                      }}
+                    >
+                      {linhadecuidado == 1 ? 'REABILITAÇÃO' : linhadecuidado == 2 ? 'PALIATIVO' : 'PACIENTE CRÔNICO'}
+                    </div>
                   </div>
                 </div>
-                  </div> 
                 <div
                   style={{
                     display: window.innerWidth > 400 ? 'none' : 'flex',
@@ -5022,6 +5050,7 @@ function Prontuario() {
           <CardStatus></CardStatus>
           <CardAlertas></CardAlertas>
           <CardPrecaucao></CardPrecaucao>
+          <CardAlergias></CardAlergias>
           <CardGestaoDeRiscos></CardGestaoDeRiscos>
           <CardIVCF></CardIVCF>
 
@@ -5353,6 +5382,99 @@ function Prontuario() {
     setViewstatus(0);
   }
 
+  // card alergias.
+  var htmltodasalergias = process.env.REACT_APP_API_TODASALERGIAS;
+  const loadTodasAlergias = () => {
+    axios.get(htmltodasalergias + idpaciente).then((response) => {
+      var x = [0, 1]
+      x = response.data;
+      setalergias(x);
+      alert('ALERGIAS: ' + x)
+    })
+  }
+
+  function CardAlergias() {
+    return (
+      <div
+        id="cardalergias"
+        className="pulsewidgetscroll"
+        title="ALERGIAS."
+        style={{
+          display: 'flex',
+          backgroundColor: alergias.length > 0 ? "#ec7063" : "#52be80",
+          borderColor: alergias.length > 0 ? "#ec7063" : "#52be80",
+        }}
+        onClick={() => {
+          document.getElementById("cardalergias").classList.toggle("pulsewidgetscrollmax");
+        }}
+      >
+        <div className="pulsewidgettittle">
+          <div style={{color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16}}>
+            {alergias.length > 0 ? 'ALERGIAS: ' + alergias.length : 'ALERGIAS: SEM REGISTRO DE ALERGIAS'}
+          </div>
+        </div>
+        <div className="pulsewidgetcontent" style={{ display: alergias.length < 1 ? 'flex' : 'none' }}>
+          <div style={{color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16}}>
+            {'SEM REGISTRO DE ALERGIAS'}
+          </div>
+        </div>
+        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
+          <div>
+            {alergias.filter(item => item.sn_ativo == 'S').map(item =>
+            (
+              <button
+                title={"REGISTRADO POR: " + item.nm_prestador_criacao + " EM " + moment(item.dh_criacao).format('DD/MM/YY') + "."}
+                className="blue-button"
+                style={{ display: 'flex', flexDirection: 'row' }}>
+                <div>{item.ds_substancia}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
+          <div>
+            {alergias.filter(item => item.sn_ativo == 'N').map(item =>
+            (
+              <button
+                title={"CANCELADA POR: " + item.nm_prestador_inativo + " EM " + moment(item.dh_modificacao).format('DD/MM/YY') + "."}
+                className="blue-button"
+                style={{ display: 'flex', flexDirection: 'row' }}>
+                <div>{item.ds_substancia}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
+          <div>
+            {alergias.filter(item => item.sn_ativo == 'S').map(item =>
+            (
+              <button
+                title={"REGISTRADO POR: " + item.nm_prestador_criacao + " EM " + moment(item.dh_criacao).format('DD/MM/YY') + "."}
+                className="blue-button"
+                style={{ display: 'flex', flexDirection: 'row' }}>
+                <div>{item.ds_alimento}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
+          <div>
+            {alergias.filter(item => item.sn_ativo == 'N').map(item =>
+            (
+              <button
+                title={"CANCELADA POR: " + item.nm_prestador_inativo + " EM " + moment(item.dh_modificacao).format('DD/MM/YY') + "."}
+                className="blue-button"
+                style={{ display: 'flex', flexDirection: 'row' }}>
+                <div>{item.ds_alimento}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // card precaução.
   function CardPrecaucao() {
     return (
@@ -5586,7 +5708,7 @@ function Prontuario() {
         setbalancohidrico(z); // último registro de balanço hídrico.
         y = x.map(item => item.vl_coleta).reduce(somabalancohidrico, 0);
         setbalancoacumulado(y);
-        alert(balancohidrico);
+        // alert(balancohidrico);
       })
       .catch(() => setbalancohidrico([]));
   }

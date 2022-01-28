@@ -2560,6 +2560,7 @@ input::-webkit-inner-spin-button {
 
 .pulsewidgetscrollmax {
   opacity: 1;
+  justify-content: flex-start;
   width: calc(20vw + 10px);
   height: 20vw;
   overflow-y: scroll;

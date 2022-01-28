@@ -115,7 +115,7 @@ function IddleTimeOut() {
 
     // alterando o comportamento ao clicar no botão refresh.
     window.addEventListener("load", () => {
-        history.push('/');
+      history.push('/');
     });
 
   }, [])
@@ -223,7 +223,8 @@ function App() {
   // listas principais.
   const [todosleitos, settodosleitos] = useState([]);
   const [todospacientes, settodospacientes] = useState([]);
-  const [todosatendimentos, settodosatendimentos] = useState([]);
+  const [todosatendimentos, settodosatendimentos] = useState([0, 1]);
+  const [historicoatendimentos, sethistoricoatendimentos] = useState([]);
   const [todosconvenios, settodosconvenios] = useState([]);
   // listas da tela prontuário.
   const [listevolucoes, setlistevolucoes] = useState([]);
@@ -367,6 +368,7 @@ function App() {
         // listas principais.
         todosleitos, settodosleitos,
         todosatendimentos, settodosatendimentos,
+        historicoatendimentos, sethistoricoatendimentos,
         todosconvenios, settodosconvenios,
         todospacientes, settodospacientes,
         // listas do prontuário.

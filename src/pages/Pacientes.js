@@ -20,7 +20,7 @@ import AptPlanoTerapeutico from '../components/AptPlanoTerapeutico';
 function Pacientes() {
   var html = 'https://pulsarapp-server.herokuapp.com';
   var htmlleitos = process.env.REACT_APP_API_LEITOS;
-  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
+  var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS; 
   var htmlpacientes = process.env.REACT_APP_API_FILTRAPACIENTES;
   // recuperando estados globais (Context.API).
   const {
@@ -44,6 +44,7 @@ function Pacientes() {
     todosleitos,
     settodospacientes, todospacientes,
     settodosatendimentos, todosatendimentos,
+    listaatendimentos, setlistaatendimentos,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -83,7 +84,7 @@ function Pacientes() {
       settodosatendimentos(x);
       setarrayatendimentos(x);
       // alert('ATENDIMENTOS:' + x.length);
-    })
+    });
   }
   // atualizando resgistro de atendimentos.
   useInterval(() => {
