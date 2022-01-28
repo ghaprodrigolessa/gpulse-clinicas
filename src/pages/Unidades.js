@@ -819,7 +819,7 @@ function Unidades() {
               textAlign: 'center',
             }}
           >
-            {'BUSCAR EM TODAS AS UNIDADES'}
+            {'BUSCAR PACIENTES EM TODAS AS UNIDADES'}
           </div>
         </div>
       </div>
@@ -840,7 +840,7 @@ function Unidades() {
             leitos.filter((value) => value.unidade.id == item.id).length - atendimentos.filter(value => value.Leito.unidade.id == item.id).length, // todos os leitos - atendimentos = leitos vagos
             atendimentos.filter(value => value.Leito.unidade.id == item.id).length, // leitos ocupados.
           ],
-          backgroundColor: ['#52be80', '#F4D03F'],
+          backgroundColor: ['lightgray', '#8f9bbc'],
           borderColor: '#ffffff',
           hoverBorderColor: ['#ffffff', '#ffffff'],
         },
@@ -1040,6 +1040,32 @@ function Unidades() {
               width: '100%'
             }}
           >
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+              <div
+                id="LEITOS OCUPADOS"
+                className="secondary"
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 5,
+                  backgroundColor: '#8f9bbc',
+                  margin: 2.5,
+                  padding: 0,
+                }}
+              ></div>
+              <p
+                className="title2center"
+                style={{
+                  width: '8vw',
+                  margin: 2.5,
+                  marginRight: 5,
+                  padding: 0,
+                  fontSize: 10,
+                }}
+              >
+                {window.innerWidth > 400 ? 'LEITOS OCUPADOS' : 'OCUPADOS'}
+              </p>
+            </div>
             <div style={{
               display: window.innerWidth > 800 ? 'flex' : 'none', flexDirection: 'column',
               justifyContent: 'center', alignItems: 'center'
@@ -1052,7 +1078,7 @@ function Unidades() {
                   width: 20,
                   height: 20,
                   borderRadius: 5,
-                  backgroundColor: '#5dbe80',
+                  backgroundColor: 'lightgray',
                   margin: 2.5,
                   padding: 0,
                 }}
@@ -1067,37 +1093,10 @@ function Unidades() {
                   fontSize: 10,
                 }}
               >
-                LEITOS VAGOS
-              </p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-              <div
-                id="LEITOS OCUPADOS"
-                className="secondary"
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 5,
-                  backgroundColor: '#F4D03F',
-                  margin: 2.5,
-                  padding: 0,
-                }}
-              ></div>
-              <p
-                className="title2center"
-                style={{
-                  width: '8vw',
-                  margin: 2.5,
-                  marginRight: 5,
-                  padding: 0,
-                  fontSize: 10,
-                }}
-              >
-                {window.innerWidth > 400 ? 'OCUPADOS' : 'OCUPADOS'}
+                {window.innerWidth > 400 ? 'LEITOS VAGOS' : 'VAGOS'}
               </p>
             </div>
           </div>
-
           <div id={"expandbtn" + item.id}
             className="blue-button"
             style={{

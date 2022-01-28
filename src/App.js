@@ -206,6 +206,7 @@ function App() {
   const [idpaciente, setidpaciente] = useState(0)
   const [dadospaciente, setdadospaciente] = useState([])
   const [idatendimento, setidatendimento] = useState(0)
+  const [datainternacao, setdatainternacao] = useState('')
   const [convenio, setconvenio] = useState(0)
   const [nomepaciente, setnomepaciente] = useState('')
   const [dn, setdn] = useState('')
@@ -276,6 +277,7 @@ function App() {
   const [cardstatus, setcardstatus] = useState(0);
   const [cardalertas, setcardalertas] = useState(0);
   const [cardprecaucao, setcardprecaucao] = useState(0);
+  const [cardriscosassistenciais, setcardriscosassistenciais] = useState(0);
   const [carddiasinternacao, setcarddiasinternacao] = useState(0);
   const [cardultimaevolucao, setcardultimaevolucao] = useState(0);
   const [cardinvasoes, setcardinvasoes] = useState(0);
@@ -315,8 +317,9 @@ function App() {
       var x = [0, 1]
       x = response.data
       settodosleitos([0, 1]);
-      settodosleitos(response.data)
-      // alert(x.map(item => 'LEITOS: ' + item.unidade.setor.empresa.id))
+      settodosleitos(x.filter(item => item.tp_situacao == "A"));
+      // alert('LEITOS: ' + x.filter(item => item.unidade.setor.empresa_id == 1 && item.tp_situacao == "A").length);
+      // alert('LEITOS: ' + x.length);
     })
   }
 
@@ -338,6 +341,7 @@ function App() {
         conselhousuario, setconselhousuario,
         // identificação do atendimento (hospital, unidade de atendimento).
         idatendimento, setidatendimento,
+        datainternacao, setdatainternacao,
         convenio, setconvenio,
         idhospital, setidhospital,
         nomehospital, setnomehospital,
@@ -407,6 +411,7 @@ function App() {
         cardstatus, setcardstatus,
         cardalertas, setcardalertas,
         cardprecaucao, setcardprecaucao,
+        cardriscosassistenciais, setcardriscosassistenciais,
         carddiasinternacao, setcarddiasinternacao,
         cardultimaevolucao, setcardultimaevolucao,
         cardinvasoes, setcardinvasoes,

@@ -22,6 +22,8 @@ import { Hemoderivados } from './Hemoderivados';
 function Prescricao({ newprescricao }) {
   moment.locale('pt-br');
   var html = 'https://pulsarapp-server.herokuapp.com';
+  
+  var htmlbuscaitemprescricao = process.env.REACT_APP_API_BUSCAITEMPRESCRICAO;
   // recuperando estados globais (Context.API).
   const {
     idusuario,
@@ -46,6 +48,20 @@ function Prescricao({ newprescricao }) {
     scrollitemcomponent, setscrollitemcomponent,
     listitensprescricao, setlistitensprescricoes,
   } = useContext(Context)
+
+  
+  const loadBuscaItemPrescricao = (valor) => {
+    axios.get(htmlbuscaitemprescricao + '?descricao_tipo_prescricao=' + valor).then((response) => {
+      var x = [0, 1]
+      x = response.data
+      setarrayoptionsitens(x);    
+      setfilteroptionsitens(valor);
+      document.getElementById("inputFilterItemPrescricao").value = valor;
+
+      // alert(valor);
+      // alert(arrayoptionsitens.map(item => item.ds_tip_presc));
+    })
+  }
 
   const [viewselectmodelprescription, setviewselectmodelprescription] = useState(newprescricao);
   useEffect(() => {
@@ -133,13 +149,14 @@ function Prescricao({ newprescricao }) {
         document.getElementById("inputFilterItemPrescricao").value = '';
         document.getElementById("inputFilterItemPrescricao").focus();
       } else {
-        setfilteritemprescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
-        setarrayitemprescricao(listitensprescricao.filter(item => item.farmaco.includes(searchitemprescricao) === true));
-        setfilteroptionsitens(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
-        setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true));
-        if (tipousuario == 5) {
-          setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true && item.grupo === 'ENFERMAGEM')); // separando itens que podem ser prescritos pela enfermagem.
-        }
+        // setfilteritemprescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
+        // setarrayitemprescricao(listitensprescricao.filter(item => item.farmaco.includes(searchitemprescricao) === true));
+        loadBuscaItemPrescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
+        // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true));
+        // if (tipousuario == 5) {
+          // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true && item.grupo === 'ENFERMAGEM')); // separando itens que podem ser prescritos pela enfermagem.
+        //}
+        
         document.getElementById("inputFilterItemPrescricao").value = searchitemprescricao;
         document.getElementById("inputFilterItemPrescricao").focus();
       }
@@ -415,7 +432,7 @@ function Prescricao({ newprescricao }) {
         onFocus={(e) => (e.target.placeholder = '')}
         onBlur={(e) => (e.target.placeholder = "PROCURAR...")}
         onChange={() => filterItemPrescricao()}
-        disabled={listprescricoes.length > 0 && idprescricao != '' ? false : true}
+        // disabled={listprescricoes.length > 0 && idprescricao != '' ? false : true}
         style={{
           display: stateprontuario == 9 ? 'flex' : 'none',
           opacity: idprescricao !== '' ? 1 : 0.3,
@@ -875,14 +892,15 @@ function Prescricao({ newprescricao }) {
             <button className="green-button"
               onClick={() => insertItem(item)}
               style={{
-                display: statusprescricao === 0 ? 'flex' : 'none',
+                // display: statusprescricao === 0 ? 'flex' : 'none',
+                display: 'flex',
                 alignSelf: 'flex-end',
                 width: 300,
                 margin: 5,
                 marginLeft: 0
               }}
             >
-              {item.farmaco}
+              {item.ds_tip_presc}
             </button>
           </p>
         ))}

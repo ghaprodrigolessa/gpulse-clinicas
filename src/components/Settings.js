@@ -33,6 +33,7 @@ function Settings() {
     cardstatus, setcardstatus,
     cardalertas, setcardalertas,
     cardprecaucao, setcardprecaucao,
+    cardriscosassistenciais, setcardriscosassistenciais,
     carddiasinternacao, setcarddiasinternacao,
     cardultimaevolucao, setcardultimaevolucao,
     carddiagnosticos, setcarddiagnosticos,
@@ -168,13 +169,6 @@ function Settings() {
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <div className="title4">ESQUEMA DE CORES</div>
           <div id="ESQUEMA DE CORES" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-            <button
-              className="blue-button"
-              style={{ width: 100, height: 100, backgroundColor: '#2c2C60' }}
-              onClick={() => updateColorScheme(3)}
-            >
-              GHAP
-            </button>
             <button
               className="blue-button"
               style={{ width: 100, height: 100, backgroundColor: '#7fb3d5' }}

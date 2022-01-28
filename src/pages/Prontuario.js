@@ -86,6 +86,7 @@ function Prontuario() {
   moment.locale('pt-br');
   var html = 'https://pulsarapp-server.herokuapp.com';
   var htmldadosvitais = process.env.REACT_APP_API_FILTRADADOSVITAIS;
+  var htmlbalancohidrico = process.env.REACT_APP_API_BALANCOHIDRICO;
   // recuperando estados globais (Context.API).
   const {
     idunidade,
@@ -106,6 +107,7 @@ function Prontuario() {
     setidatendimento,
     idatendimento,
     convenio, setconvenio,
+    datainternacao, setdatainternacao,
     setidpaciente,
     idpaciente,
     nomepaciente, setnomepaciente,
@@ -156,6 +158,7 @@ function Prontuario() {
     cardstatus, setcardstatus,
     cardalertas, setcardalertas,
     cardprecaucao, setcardprecaucao,
+    cardriscosassistenciais, setcardriscosassistenciais,
     carddiasinternacao, setcarddiasinternacao,
     cardultimaevolucao, setcardultimaevolucao,
     carddiagnosticos, setcarddiagnosticos,
@@ -166,7 +169,8 @@ function Prontuario() {
     schemecolor, setschemecolor,
     // APT IVCF / curva de Moraes.
     ivcf, setivcf,
-    setrefreshatendimentos, refreshatendimentos
+    setrefreshatendimentos, refreshatendimentos,
+    linhadecuidado, setlinhadecuidado,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -1438,7 +1442,8 @@ function Prontuario() {
   // PAINEL DE ALERTAS.
   function CardAlertas() {
     return (
-      <div id="cardalertas" className="pulsewidgetscroll"
+      <div id="cardalertas"
+        className="pulsewidgetscroll"
         onClick={() => document.getElementById("cardalertas").classList.toggle("pulsewidgetscrollmax")}
         style={{
           display: cardalertas == 1 ? 'flex' : 'none',
@@ -4187,6 +4192,7 @@ function Prontuario() {
     freezeScreen(3000);
     setrefreshatendimentos(0);
     getDadosVitais(idatendimento);
+    getBalancoHidrico(idatendimento);
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
     loadAtendimento(idpaciente);
@@ -4291,7 +4297,6 @@ function Prontuario() {
         }}>
         <div className="pulsarlogo" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
           <LogoInverted height={100} width={100}></LogoInverted>
-          <div className="title2center" style={{ color: '#8f9bbc' }}>CARREGANDO</div>
         </div>
       </div>
     )
@@ -4439,6 +4444,19 @@ function Prontuario() {
     );
   }
 
+  // Mastercard (car que expõe todos os dados mais importantes do paciente. Diferencial do Pulse).
+  const [expandmastercard, setexpandmastercard] = useState(0);
+  function Mastercard() {
+    return (
+      <div id="mastercard" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+        <CardDiasdeInternacao></CardDiasdeInternacao>
+        <CardAlertas></CardAlertas>
+        <CardPrecaucao></CardPrecaucao>
+        <CardGestaoDeRiscos></CardGestaoDeRiscos>
+        <CardIVCF></CardIVCF>
+      </div>
+    )
+  }
   // IDENTIFICAÇÃO DO PACIENTE.
   // gerando qrcode da idpaciente.
   var QRCode = require('qrcode.react');
@@ -4604,18 +4622,50 @@ function Prontuario() {
                     <DetalhesPaciente></DetalhesPaciente>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-                  <button
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', padding: 5 }}>
+                  <div
                     className="rowitem"
                     style={{
-                      marginTop: 2,
+                      margin: 2.5,
+                      padding: 0,
                       color: '#ffffff',
                       alignSelf: 'flex-start',
+                      justifyContent: 'row',
                     }}
                   >
-                    {moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') < 2 ? + moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANO' : moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANOS'}
-                  </button>
+                    <div id="idade">
+                      {moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') < 2 ? + moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANO' : moment().diff(moment(dn, 'DD/MM/YYYY'), 'years') + ' ANOS'}
+                    </div>
+                    <div id="separador - bolinha 1"
+                      style={{ marginLeft: 15, marginRight: 15 }}>
+                      {'•'}
+                    </div>
+                    <div id="tempo de internação"
+                      title="TEMPO DE INTERNAÇÃO (DIAS)"
+                      style={{
+                        color:
+                          moment().diff(moment(datainternacao), 'days') < 31 ? "#52be80" :
+                            moment().diff(moment(datainternacao), 'days') > 30 && moment().diff(moment(datainternacao), 'days') < 60 ? "yellow" :
+                              "#ec7063",
+                      }}
+                    >
+                      {moment().diff(moment(datainternacao), 'days') > 1 ? moment().diff(moment(datainternacao), 'days') + ' DIAS DE INTERNAÇÃO.' : moment().diff(moment(datainternacao), 'days') + ' DIA DE INTERNAÇÃO.'}
+                    </div>
+                    <div id="separador - bolinha 1"
+                      style={{ marginLeft: 15, marginRight: 15 }}>
+                      {'•'}
+                    </div>
+                    <div
+                    title="linha de cuidado"
+                    style={{
+                      color:
+                        linhadecuidado == 1 ? "#52be80" : linhadecuidado == 2 ? "#f5b041" : "#ec7063",
+                    }}
+                  >
+                    {linhadecuidado == 1 ? 'REABILITAÇÃO' : linhadecuidado == 2 ? 'PALIATIVO' : 'PACIENTE CRÔNICO'}
+                  </div>
                 </div>
+                  </div> 
                 <div
                   style={{
                     display: window.innerWidth > 400 ? 'none' : 'flex',
@@ -4759,6 +4809,7 @@ function Prontuario() {
       >
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'PRONTUÁRIO: ' + idpaciente}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'ATENDIMENTO: ' + idatendimento}</div>
+        <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'DATA DA INTERNAÇÃO: ' + moment(datainternacao).format('DD/MM/YY - HH:MM')}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'CONVÊNIO: ' + convenio}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'DN: ' + dn}</div>
         <div className="title5" style={{ fontSize: 12, textAlign: 'left' }}>{'NOME DA MÃE: ' + nomemae}</div>
@@ -4967,20 +5018,22 @@ function Prontuario() {
             flexWrap: 'wrap', justifyContent: 'space-evenly'
           }}
         >
-          <CardIVCF></CardIVCF>
-          <CardStatus></CardStatus>
           <CardDiasdeInternacao></CardDiasdeInternacao>
+          <CardStatus></CardStatus>
           <CardAlertas></CardAlertas>
+          <CardPrecaucao></CardPrecaucao>
           <CardGestaoDeRiscos></CardGestaoDeRiscos>
+          <CardIVCF></CardIVCF>
 
+          <CardControles></CardControles>
+
+          <CardNutricao></CardNutricao>
           <CardInvasoes></CardInvasoes>
           <CardLesoes></CardLesoes>
+          <CardVm></CardVm>
 
           <CardEvolucoes></CardEvolucoes>
           <CardDiagnosticos></CardDiagnosticos>
-          <CardVm></CardVm>
-          <CardControles></CardControles>
-          <CardNutricao></CardNutricao>
 
           <CardAntibioticos></CardAntibioticos>
           <CardInternacoes></CardInternacoes>
@@ -5411,7 +5464,7 @@ function Prontuario() {
     return (
       <div
         className="pulsewidgetstatic"
-        style={{ backgroundColor: '#8f9bbc', display: carddiasinternacao == 1 ? 'flex' : 'none', }}
+        style={{ backgroundColor: '#8f9bbc', display: 'flex', }}
         id="DIAS DE INTERNAÇÃO"
       >
         <p
@@ -5421,7 +5474,7 @@ function Prontuario() {
             textAlign: 'center',
           }}
         >
-          {'DIAS DE INTERNAÇÃO: ' + moment().diff(moment(admissao, 'DD/MM/YYYY'), 'days')}
+          {'TEMPO DE INTERNAÇÃO: ' + moment().diff(moment(datainternacao), 'days') + ' DIAS.'}
         </p>
       </div>
     )
@@ -5459,25 +5512,25 @@ function Prontuario() {
       // alert(JSON.stringify(x.filter(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM') == '06/01/22 - 07:01' && item.cd_sinal_vital == 3).sort((a, b) => a.id < b.id).map(item => item.cd_sinal_vital + ' - ' + item.ds_sinal_vital + ': ' + item.valor)));
 
       // tax.
-      let correcttaxlabel = y.filter(item => item.cd_sinal_vital == 1).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let correcttaxlabel = y.filter(item => item.cd_sinal_vital == 1).map(item => moment(item.data_coleta).format('DD/MM - HH') + 'H');
       let correcttaxvalue = y.filter(item => item.cd_sinal_vital == 1).map(item => item.valor);
       setdadosvitaistaxlabel(correcttaxlabel.slice(-12));
       setdadosvitaistaxvalue(correcttaxvalue.slice(-12));
 
       // fc.
-      let correctfclabel = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
-      let correctfcvalue = y.filter(item => item.cd_sinal_vital == 2 && item.valor > 55 && item.valor < 150).map(item => item.valor);
+      let correctfclabel = y.filter(item => item.cd_sinal_vital == 2).map(item => moment(item.data_coleta).format('DD/MM - HH') + 'H');
+      let correctfcvalue = y.filter(item => item.cd_sinal_vital == 2).map(item => item.valor);
       setdadosvitaisfclabel(correctfclabel.slice(-12));
       setdadosvitaisfcvalue(correctfcvalue.slice(-12));
 
       // fr.
-      let correctfrlabel = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
-      let correctfrvalue = y.filter(item => item.cd_sinal_vital == 3 && item.valor > 12 && item.valor < 30).map(item => item.valor);
+      let correctfrlabel = y.filter(item => item.cd_sinal_vital == 3).map(item => moment(item.data_coleta).format('DD/MM - HH') + 'H');
+      let correctfrvalue = y.filter(item => item.cd_sinal_vital == 3).map(item => item.valor);
       setdadosvitaisfrlabel(correctfrlabel.slice(-12));
       setdadosvitaisfrvalue(correctfrvalue.slice(-12));
 
       // pam.
-      let correctpaslabel = y.filter(item => item.cd_sinal_vital == 4).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM').slice(-12));
+      let correctpaslabel = y.filter(item => item.cd_sinal_vital == 4).map(item => moment(item.data_coleta).format('DD/MM - HH') + 'H').slice(-12);
       let correctpasvalue = y.filter(item => item.cd_sinal_vital == 4).map(item => item.valor).slice(-12);
       let correctpadvalue = y.filter(item => item.cd_sinal_vital == 5).map(item => item.valor).slice(-12);
       var posicao = -1;
@@ -5495,7 +5548,7 @@ function Prontuario() {
       }, 1000);
 
       // sao2.
-      let correctsao2label = y.filter(item => item.cd_sinal_vital == 11).map(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM'));
+      let correctsao2label = y.filter(item => item.cd_sinal_vital == 11).map(item => moment(item.data_coleta).format('DD/MM - HH') + 'H');
       let correctsao2value = y.filter(item => item.cd_sinal_vital == 11).map(item => item.valor);
       setdadosvitaissao2label(correctsao2label.slice(-12));
       setdadosvitaissao2value(correctsao2value.slice(-12));
@@ -5503,9 +5556,9 @@ function Prontuario() {
       // setdadosvitaispamlabel(correctpamlabel.slice(-12));
       // setdadosvitaispamvalue(correctpamvalue.slice(-12));
 
-      setdadosvitaisfc(y.filter(item => item.cd_sinal_vital == 2 && item.valor > 60 && item.valor < 120).slice(-21));
-      setdadosvitaisfr(y.filter(item => item.cd_sinal_vital == 3 && item.valor > 15 && item.valor < 26).slice(-21));
-      setdadosvitaispam(y.filter(item => item.cd_sinal_vital == 6 && item.valor > 55 && item.valor < 130).slice(-21));
+      setdadosvitaisfc(y.filter(item => item.cd_sinal_vital == 2).slice(-21));
+      setdadosvitaisfr(y.filter(item => item.cd_sinal_vital == 3).slice(-21));
+      setdadosvitaispam(y.filter(item => item.cd_sinal_vital == 6).slice(-21));
 
       // alert(unique.length);
       arrayCodigosDadosVitais.map(item => getLastDadosClinicos(y, item));
@@ -5518,12 +5571,91 @@ function Prontuario() {
     })
   }
 
+  // CARD BALANÇO HÍDRICO
+  const [balancohidrico, setbalancohidrico] = useState([0, 1]);
+  const [balancoacumulado, setbalancoacumulado] = useState(0);
+  const getBalancoHidrico = (valor) => {
+    axios
+      .get(htmlbalancohidrico + valor)
+      .then((response) => {
+        var x = [0, 1];
+        var y = [0, 1];
+        var z = [0, 1];
+        x = response.data;
+        z = x.slice(-1);
+        setbalancohidrico(z); // último registro de balanço hídrico.
+        y = x.map(item => item.vl_coleta).reduce(somabalancohidrico, 0);
+        setbalancoacumulado(y);
+        alert(balancohidrico);
+      })
+      .catch(() => setbalancohidrico([]));
+  }
+
+  function somabalancohidrico(acumulado, novo) {
+    return acumulado + novo;
+  }
+
+  function CardBalancoHidrico() {
+    return (
+      <div
+        className="pulsewidgetstatic"
+        style={{
+          display: 'flex',
+          height: 150, width: 150,
+          minHeight: 150, minWidth: 150,
+          margin: 10, padding: 10,
+        }}
+        id="BALANÇO HÍDRICO"
+      >
+        <div
+          className="title2center"
+          style={{
+            marginBottom: 0,
+            textAlign: 'center',
+          }}
+        >
+          {'BALANÇO HÍDRICO:'}
+        </div>
+        <div style={{ display: balancohidrico.length > 0 ? 'flex' : 'none' }}>
+          <div
+            className="title2center"
+            style={{
+              marginBottom: 0,
+              textAlign: 'center',
+            }}
+          >
+            {balancohidrico.map(item => moment(item.dh_registro).format('DD/MM/YY'))}
+          </div>
+          <div
+            className="title2center"
+            style={{
+              marginBottom: 0,
+              textAlign: 'center',
+            }}
+          >
+            {balancohidrico.map(item => item.vl_coleta) + 'ML'}
+          </div>
+        </div>
+        <div style={{ display: balancohidrico.length < 1 ? 'flex' : 'none' }}>
+          <div
+            style={{
+              marginBottom: 0,
+              textAlign: 'center',
+            }}
+          >
+            {'SEM REGISTROS DE BALANÇO HÍDRICO'}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   /* 
   criação de uma array com descrição, valores e datas dos últimos 
   dados clínicos do  atendimento (arrayLastDadosClinicos), a partir de uma array 
   contendo os códigos de cada dado clínico (arrayCodigoDadosVitais).
   */
-  const arrayCodigosDadosVitais = [1, 2, 3, 4, 11];
+  const arrayCodigosDadosVitais = [1, 2, 3, 4, 5, 11];
   const [arrayLastDadosClinicos, setarrayLastDadosClinicos] = useState([]);
   const [arrayDadosDataChart, setarrayDadosDataChart] = useState([]);
 
@@ -5765,8 +5897,10 @@ function Prontuario() {
                 {
                   display: true,
                   ticks: {
+                    fontSize: 10,
+                    width: 50,
                     padding: 10,
-                    display: false,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -5783,6 +5917,7 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     display: true,
                     suggestedMin: 0,
                     suggestedMax: 250,
@@ -5871,7 +6006,8 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
-                    display: false,
+                    fontSize: 10,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -5888,6 +6024,7 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     display: true,
                     suggestedMin: 30,
                     suggestedMax: 50,
@@ -5976,7 +6113,8 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
-                    display: false,
+                    fontSize: 10,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -5993,6 +6131,7 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     display: true,
                     suggestedMin: 50,
                     suggestedMax: 150,
@@ -6081,7 +6220,8 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
-                    display: false,
+                    fontSize: 10,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -6098,6 +6238,7 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     display: true,
                     suggestedMin: 10,
                     suggestedMax: 40,
@@ -6186,7 +6327,8 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
-                    display: false,
+                    fontSize: 10,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -6203,6 +6345,7 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     display: true,
                     suggestedMin: 50,
                     suggestedMax: 150,
@@ -6291,7 +6434,8 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
-                    display: false,
+                    fontSize: 10,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -6308,6 +6452,7 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     display: true,
                     suggestedMin: 60,
                     suggestedMax: 100,
@@ -6401,7 +6546,8 @@ function Prontuario() {
                   display: true,
                   ticks: {
                     padding: 10,
-                    display: false,
+                    fontSize: 10,
+                    display: true,
                     fontColor: '#61636e',
                     fontWeight: 'bold',
                   },
@@ -6415,9 +6561,10 @@ function Prontuario() {
               ],
               yAxes: [
                 {
-                  display: false,
+                  display: true,
                   ticks: {
                     padding: 10,
+                    fontSize: 10,
                     suggestedMin: 0,
                     suggestedMax: 200,
                     fontColor: '#61636e',
@@ -6525,7 +6672,11 @@ function Prontuario() {
                     graficos.item(i).className = "dadosclinicosgraficoesconde";
                   }
 
-                  document.getElementById("chartcontroles" + item.codigo).className = "dadosclinicosgraficomostra"
+                  if (item.codigo == 4 || item.codigo == 5) {
+                    document.getElementById("chartcontroles" + 4).className = "dadosclinicosgraficomostra"
+                  } else {
+                    document.getElementById("chartcontroles" + item.codigo).className = "dadosclinicosgraficomostra"
+                  }
                   // alert(item.codigo);
                   e.stopPropagation();
                 }}
@@ -6541,13 +6692,14 @@ function Prontuario() {
                   margin: 10, padding: 10,
                 }}>
                 <div style={{ height: 75, display: 'flex', flexDirection: 'column', justifyContent: 'center', verticalAlign: 'center' }}>
-                  <div>{item.codigo == 4 ? 'PRESSÃO ARTERIAL MÉDIA' : item.descricao}</div>
+                  <div>{item.descricao}</div>
                 </div>
-                <div style={{ fontSize: 18 }}>{item.codigo == 4 ? dadosvitaispamvalue.slice(-1) : item.valor}</div>
+                <div style={{ fontSize: 18 }}>{item.valor}</div>
                 <div>{JSON.stringify(item.data).substring(2, 12)}</div>
                 <div>{JSON.stringify(item.data).substring(15, 20)}</div>
               </button>
             ))}
+            <CardBalancoHidrico></CardBalancoHidrico>
           </div>
           <div id="gráfico de controles"
             className="pulsewidgetcontroles"
@@ -6881,43 +7033,62 @@ function Prontuario() {
     }
   }
 
+  // CARD PARA O IVCF.
+  function CardIVCF() {
+    return (
+      <div id="cardivcf"
+        className="pulsewidgetscroll"
+        onClick={() => {
+          document.getElementById("cardivcf").className = "pulsewidgetscrollmax";
+          document.getElementById("cardivcf").style.width = '75vw';
+          document.getElementById("cardivcf").style.height = '75vh';
+          document.getElementById("cardivcf").style.flexDirection = 'row';
+          document.getElementById("cardivcf").style.overflowY = 'scroll';
+          document.getElementById("cardivcf").style.overflowX = 'hidden';
+        }}>
+        <div className="pulsewidgettitle">
+          <div className="title4">FRAGILIDADE CLÍNICO-FUNCIONAL</div>
+        </div>
+        <div className="pulsewidgetcontent"
+          style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}
+          onClick={(e) => {
+            document.getElementById("cardivcf").className = "pulsewidgetscroll";
+            document.getElementById("cardivcf").style.width = '11vw';
+            document.getElementById("cardivcf").style.height = '11vw';
+            document.getElementById("cardivcf").style.overflowY = 'hidden';
+            e.stopPropagation();
+          }}>
+          <AptIVCF></AptIVCF>
+        </div>
+      </div>
+    );
+  }
+
   // CARD PARA GESTÃO DE RISCOS.
   function CardGestaoDeRiscos() {
     return (
-      <div id="cardgestaoderiscos" className="pulsewidgetcontroles"
-        style={{
-          backgroundColor: alertas.length < 1 ? '#52be80' : '#ec7063',
-          borderColor: alertas.length < 1 ? '#52be80' : '#ec7063'
-        }}
+      <div id="cardgestaoderiscos"
+        className="pulsewidgetscroll"
         onClick={() => {
-          document.getElementById("cardgestaoderiscos").className = "pulsewidgetcontroleshover";
-          document.getElementById("cardgestaoderiscos").style.height = '60vh';
+          document.getElementById("cardgestaoderiscos").className = "pulsewidgetscrollmax";
+          document.getElementById("cardgestaoderiscos").style.width = '60vh';
           document.getElementById("cardgestaoderiscos").style.flexDirection = 'row';
           document.getElementById("cardgestaoderiscos").style.overflowY = 'scroll';
           document.getElementById("cardgestaoderiscos").style.overflowX = 'hidden';
         }}>
         <div className="pulsewidgettitle">
-          <div className="title5">GESTÃO DE RISCOS</div>
-          <div className="title5" style={{ fontSize: 12 }}>{'ALERTAS: ' + alertas.length}</div>
+          <div className="title4">GESTÃO DE RISCOS</div>
         </div>
         <div className="pulsewidgetcontent"
           style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}
           onClick={(e) => {
-            document.getElementById("cardgestaoderiscos").className = "pulsewidgetcontroles";
-            document.getElementById("cardgestaoderiscos").style.height = '11vw';
+            document.getElementById("cardgestaoderiscos").className = "pulsewidgetscroll";
+            document.getElementById("cardgestaoderiscos").style.width = '11vw';
             document.getElementById("cardgestaoderiscos").style.overflowY = 'hidden';
             e.stopPropagation();
           }}>
-          <CardPrecaucao></CardPrecaucao>
           <CardQueda></CardQueda>
           <CardLesao></CardLesao>
-          {alertas.map((item) => (
-            <div
-              className="pulsewidgetstatic" style={{ overflowY: "scroll", justifyContent: 'flex-start' }}
-            >
-              <div className="title2center">{item}</div>
-            </div>
-          ))}
         </div>
       </div>
     );
@@ -7388,15 +7559,6 @@ function Prontuario() {
     });
   };
 
-  // card IVCF.
-  function CardIVCF() {
-    return (
-      <div>
-        <AptIVCF></AptIVCF>
-      </div>
-    )
-  }
-
   // card invasões.
   function CardInvasoes() {
     return (
@@ -7466,13 +7628,13 @@ function Prontuario() {
     return (
       <div
         id="EVOLUÇÃO E EXAME FÍSICO"
-        title="ÚLTIMA EVOLUÇÃO E CONTROLES."
+        title="ÚLTIMA EVOLUÇÃO MÉDICA."
         style={{ display: cardultimaevolucao == 1 ? 'flex' : 'none' }}
         className="pulsewidgetscroll"
         onClick={() => document.getElementById("EVOLUÇÃO E EXAME FÍSICO").classList.toggle("pulsewidgetscrollmax")}
       >
         <div className="title4 pulsewidgettitle">
-          {'ÚLTIMA EVOLUÇÃO E CONTROLES'}
+          {'ÚLTIMA EVOLUÇÃO MÉDICA'}
         </div>
         <div className="pulsewidgetcontent" style={{ justifyContent: 'flex-start' }}>
           <div className="title4" style={{ whiteSpace: 'pre-wrap' }}>
@@ -12513,6 +12675,8 @@ function Prontuario() {
     setidpaciente(item.cd_paciente);
     setidatendimento(item.cd_atendimento);
     setconvenio(item.nm_convenio);
+    setdatainternacao(item.dt_hr_atendimento);
+
     // setloadprincipal(1);
     //setTimeout(() => {
     //setloadprincipal(0);
@@ -12594,7 +12758,7 @@ function Prontuario() {
       reject('ERRO');
     }
   });
-  
+   
   p1.then((message) => {
     console.log(message);
   });

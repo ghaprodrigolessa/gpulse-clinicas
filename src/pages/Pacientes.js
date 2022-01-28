@@ -39,6 +39,7 @@ function Pacientes() {
     idatendimento,
     setidatendimento,
     setdadospaciente,
+    setdatainternacao,
     dadospaciente,
     todosleitos,
     settodospacientes, todospacientes,
@@ -79,8 +80,9 @@ function Pacientes() {
     axios.get(htmlatendimentos).then((response) => {
       var x = [0, 1]
       x = response.data;
-      settodosatendimentos(x.filter((value) => value.ativo != 0));
+      settodosatendimentos(x);
       setarrayatendimentos(x);
+      // alert('ATENDIMENTOS:' + x.length);
     })
   }
   // atualizando resgistro de atendimentos.
@@ -760,14 +762,14 @@ function Pacientes() {
   var atendimentostotais = [0, 1]
   atendimentostotais = todosatendimentos
   const dataChart = {
-    labels: [' VAGOS', ' OCUPADOS'],
+    labels: [' OCUPADOS', ' VAGOS'],
     datasets: [
       {
         data: [
           leitostotais.filter(item => item.unidade.id == idunidade).length - atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length, // vagos.
           atendimentostotais.filter(item => item.Leito.unidade.id == idunidade).length // ocupados.
         ],
-        backgroundColor: ['#52be80', '#F4D03F'],
+        backgroundColor: ['lightgray', '#8f9bbc'],
         borderWidth: 5,
         borderColor: '#f2f2f2',
         hoverBorderColor: ['#f2f2f2', '#f2f2f2'],
@@ -890,6 +892,36 @@ function Pacientes() {
       >
         <div style={{
           display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center',
+          width: window.innerWidth > 400 ? '' : '30vw'
+        }}>
+          <div
+            id="LEITOS OCUPADOS"
+            className="secondary"
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: 5,
+              backgroundColor: '#8f9bbc',
+              margin: 2.5,
+              padding: 0,
+            }}
+          ></div>
+          <p
+            className="title2center"
+            style={{
+              width: '8vw',
+              margin: 2.5,
+              marginRight: 5,
+              padding: 0,
+              fontSize: 10,
+            }}
+          >
+            {window.innerWidth > 400 ? 'LEITOS OCUPADOS' : 'OCUPADOS'}
+          </p>
+        </div>
+        <div style={{
+          display: 'flex', flexDirection: 'column',
           justifyContent: 'center', alignItems: 'center', alignSelf: 'center',
           width: window.innerWidth > 400 ? '' : '30vw'
         }}>
@@ -900,7 +932,7 @@ function Pacientes() {
               width: 20,
               height: 20,
               borderRadius: 5,
-              backgroundColor: '#52be80',
+              backgroundColor: 'lightgray',
               margin: 2.5,
               padding: 0,
             }}
@@ -918,36 +950,6 @@ function Pacientes() {
             {window.innerWidth > 400 ? 'LEITOS VAGOS' : 'VAGOS'}
           </p>
         </div>
-        <div style={{
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center',
-          width: window.innerWidth > 400 ? '' : '30vw'
-        }}>
-          <div
-            id="LEITOS OCUPADOS"
-            className="secondary"
-            style={{
-              width: 20,
-              height: 20,
-              borderRadius: 5,
-              backgroundColor: '#f4d03f',
-              margin: 2.5,
-              padding: 0,
-            }}
-          ></div>
-          <p
-            className="title2center"
-            style={{
-              width: '8vw',
-              margin: 2.5,
-              marginRight: 5,
-              padding: 0,
-              fontSize: 10,
-            }}
-          >
-            OCUPADOS
-          </p>
-        </div>
       </div>
     );
   }
@@ -956,6 +958,7 @@ function Pacientes() {
   const selectPaciente = (item) => {
     setidpaciente(item.cd_paciente)
     setidatendimento(item.cd_atendimento)
+    setdatainternacao(item.dt_hr_atendimento);
     setconvenio(item.nm_convenio);
     setdadospaciente(arrayPacientesEmAtendimento.filter(value => value.codigo_paciente == item.cd_paciente));
     history.push('/prontuario');
@@ -1011,8 +1014,9 @@ function Pacientes() {
   useEffect(() => {
     // carregando a lista de pacientes e de atendimentos.
     MountArrayPacientesEmAtendimento();
-    setclassificabox(1);
-    loadPacientes();
+    setclassificabox(1)
+    setarrayatendimentosclassified(arrayatendimentos.sort(((a, b) => a.Leito.descricao > b.Leito.descricao ? 1 : -1)));
+    // loadPacientes();
     loadAmbulatorio();
     setTimeout(() => {
       setrenderchart(1);
@@ -1153,6 +1157,7 @@ function Pacientes() {
       setarrayPacientesEmAtendimento([]);
       setarrayPacientesEmAtendimento(varPacientesEmAtendimento);
       settodospacientes(varPacientesEmAtendimento);
+      // alert('PACIENTES: ' + todospacientes.length);
     });
   }
 

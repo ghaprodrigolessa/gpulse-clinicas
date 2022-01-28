@@ -14,7 +14,7 @@
    viewBox="0 0 120.24 120.24"
    version="1.1"
    id="svg38"
-   sodipodi:docname="leito90.svg"
+   sodipodi:docname="leito45.svg"
    inkscape:version="0.92.3 (2405546, 2018-03-11)">
   <metadata
      id="metadata42">
@@ -43,7 +43,7 @@
      showgrid="false"
      inkscape:zoom="3.3058883"
      inkscape:cx="104.25156"
-     inkscape:cy="80.159999"
+     inkscape:cy="60.225098"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -58,18 +58,18 @@
      rx="7.733789"
      ry="7.5773087"
      style="fill:#ffffff;fill-rule:evenodd;stroke:#ffffff;stroke-width:0;stroke-linecap:square;stroke-linejoin:bevel;stroke-opacity:0"
-     x="3.6695597"
-     y="51.981369" />
+     x="-16.39818"
+     y="48.462311" />
   <rect
      id="shape13"
-     transform="rotate(-24.250205)"
+     transform="rotate(-61.544202)"
      width="11.072646"
      height="20.968193"
      rx="3.6273074"
      ry="2.9089823"
      style="fill:#ffffff;fill-rule:evenodd;stroke:#ffffff;stroke-width:0;stroke-linecap:square;stroke-linejoin:bevel;stroke-opacity:0"
-     x="34.917572"
-     y="54.897511" />
+     x="-22.405092"
+     y="64.092117" />
   <rect
      id="shape14"
      transform="rotate(-90.644815)"
@@ -107,12 +107,12 @@
   </g>
   <path
      style="fill:none;stroke:#ffffff;stroke-width:7.50000048;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="M 94.547208,65.564832 H 62.615549 L 50.081096,40.155623"
+     d="m 94.547208,65.564832 -31.931659,0 L 34.880945,51.49902"
      id="path44"
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="ccc" />
   <path
-     style="fill:#008000;stroke:#ffffff;stroke-width:7.50000048;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     style="fill:#00ff00;stroke:#ffffff;stroke-width:7.50000048;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      d="M 94.547208,77.588833 H 27.167435"
      id="path44-5"
      inkscape:connector-curvature="0" />

@@ -34,8 +34,9 @@ function Hospitais() {
   const loadHospitais = () => {
     // ROTA: SELECT * FROM usuarioxhospital WHERE idusuario = loginid.
     axios.get(htmlempresas).then((response) => {
+      var x  = response.data;
       setHospitais(response.data)
-      // alert(response.data);
+      // alert(x.map(item => item.nome));
     })
   }
   // montando a lista de hospitais.
@@ -89,7 +90,8 @@ function Hospitais() {
     axios.get(htmlatendimentos).then((response) => {
       var x = [0, 1]
       x = response.data;
-      settodosatendimentos(x.filter((value) => value.ativo != 0));
+      settodosatendimentos(x);
+      // alert(x.length);
     })
   }
   // atualizando resgistro de atendimentos.
@@ -157,7 +159,7 @@ function Hospitais() {
             todosatendimentos.filter((value) => value.empresa_id == item.id).length, // atendimentos
             todosatendimentos.filter((value) => value.empresa_id == item.id).length // atendimentos
           ],
-          backgroundColor: ['#52be80', '#F4D03F'],
+          backgroundColor: ['lightgray', '#8f9bbc'],
           borderWidth: 5,
           borderColor: '#ffffff',
           borderRadius: 5,
@@ -302,19 +304,43 @@ function Hospitais() {
                 width: '100%'
               }}
             >
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <div id="LEITOS OCUPADOS"
+                  className="secondary corprincipal"
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 5,
+                    // backgroundColor: '#F4D03F',
+                    margin: 2.5,
+                    padding: 0,
+                  }}
+                ></div>
+                <p
+                  className="title2center"
+                  style={{
+                    width: '8vw',
+                    margin: 2.5,
+                    marginRight: 5,
+                    padding: 0,
+                    fontSize: 10,
+                  }}
+                >
+                  {window.innerWidth > 400 ? 'LEITOS OCUPADOS' : 'OCUPADOS'}
+                </p>
+              </div>
               <div style={{
                 display: window.innerWidth > 800 ? 'flex' : 'none', flexDirection: 'column',
                 justifyContent: 'center', alignItems: 'center'
               }}>
-                <div
-                  id="LEITOS VAGOS"
+                <div id="LEITOS VAGOS"
                   className="secondary"
                   style={{
                     display: 'flex',
                     width: 20,
                     height: 20,
                     borderRadius: 5,
-                    backgroundColor: '#5dbe80',
+                    backgroundColor: 'lightgray',
                     margin: 2.5,
                     padding: 0,
                   }}
@@ -330,32 +356,6 @@ function Hospitais() {
                   }}
                 >
                   LEITOS VAGOS
-                </p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <div
-                  id="LEITOS OCUPADOS"
-                  className="secondary"
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 5,
-                    backgroundColor: '#F4D03F',
-                    margin: 2.5,
-                    padding: 0,
-                  }}
-                ></div>
-                <p
-                  className="title2center"
-                  style={{
-                    width: '8vw',
-                    margin: 2.5,
-                    marginRight: 5,
-                    padding: 0,
-                    fontSize: 10,
-                  }}
-                >
-                  {window.innerWidth > 400 ? 'OCUPADOS' : 'OCUPADOS'}
                 </p>
               </div>
             </div>
