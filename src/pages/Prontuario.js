@@ -386,7 +386,7 @@ function Prontuario() {
     setadmissao(moment(atendimento.map(item => item.dt_hr_atendimento)).format('DD/MM/YYYY'));
     setantecedentes('INDISPONÍVEL NA API');
     var ciddiagnostico = atendimento.map(item => item.cd_cid);
-    var descricaodiagnostico = JSON.stringify(atendimento.map(item => item.ds_cid)).substring(2, 30);
+    var descricaodiagnostico = JSON.stringify(atendimento.map(item => item.ds_cid)).substring(2, 30).replace('"', '').replace(']', '');
     setdiagnosticoprincipal(ciddiagnostico + ' - ' + descricaodiagnostico + '...');
 
     setmedicacoes('INDISPONÍVEL NA API');
@@ -1477,6 +1477,9 @@ function Prontuario() {
       >
         <div className="title5 pulsewidgettitle" style={{ color: '#ffffff' }}>
           {'ALERTAS: ' + alertas.length}
+        </div>
+        <div className="pulsewidgetcontent" style={{ color: '#ffffff' }}>
+          {'SEM ALERTAS!'}
         </div>
         <div
           className="pulsewidgetcontent"
@@ -5399,37 +5402,35 @@ function Prontuario() {
         id="cardalergias"
         className="pulsewidgetscroll"
         title="ALERGIAS."
+        onClick={() => {
+          document.getElementById("cardalergias").classList.toggle("pulsewidgetscrollmax");
+        }}
         style={{
           display: 'flex',
           backgroundColor: alergias.length > 0 ? "#ec7063" : "#52be80",
           borderColor: alergias.length > 0 ? "#ec7063" : "#52be80",
         }}
-        onClick={() => {
-          document.getElementById("cardalergias").classList.toggle("pulsewidgetscrollmax");
-        }}
       >
-        <div className="pulsewidgettittle">
-          <div style={{color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16}}>
-            {alergias.length > 0 ? 'ALERGIAS: ' + alergias.length : 'ALERGIAS: SEM REGISTRO DE ALERGIAS'}
-          </div>
+        <div className="pulsewidgettitle"
+          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16 }}>
+          {'ALERGIAS'}
         </div>
-        <div className="pulsewidgetcontent" style={{ display: alergias.length < 1 ? 'flex' : 'none' }}>
-          <div style={{color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16}}>
-            {'SEM REGISTRO DE ALERGIAS'}
-          </div>
+ 
+        <div className="pulsewidgetcontent"
+          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 14 }}>
+          {alergias.length > 0 ? 'ALERGIAS:' : 'ALERGIAS: SEM REGISTRO DE ALERGIAS'}
         </div>
+ 
         <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
-          <div>
-            {alergias.filter(item => item.sn_ativo == 'S').map(item =>
-            (
-              <button
-                title={"REGISTRADO POR: " + item.nm_prestador_criacao + " EM " + moment(item.dh_criacao).format('DD/MM/YY') + "."}
-                className="blue-button"
-                style={{ display: 'flex', flexDirection: 'row' }}>
-                <div>{item.ds_substancia}</div>
-              </button>
-            ))}
-          </div>
+          {alergias.filter(item => item.sn_ativo == 'S').map(item =>
+          (
+            <button
+              title={"REGISTRADO POR: " + item.nm_prestador_criacao + " EM " + moment(item.dh_criacao).format('DD/MM/YY') + "."}
+              className="blue-button"
+              style={{ display: 'flex', flexDirection: 'row' }}>
+              <div>{item.ds_substancia}</div>
+            </button>
+          ))}
         </div>
         <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
           <div>
@@ -5444,7 +5445,6 @@ function Prontuario() {
             ))}
           </div>
         </div>
-
         <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
           <div>
             {alergias.filter(item => item.sn_ativo == 'S').map(item =>
@@ -5471,7 +5471,8 @@ function Prontuario() {
             ))}
           </div>
         </div>
-      </div>
+        
+      </div >
     )
   }
 
