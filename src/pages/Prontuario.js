@@ -5392,7 +5392,7 @@ function Prontuario() {
       var x = [0, 1]
       x = response.data;
       setalergias(x);
-      alert('ALERGIAS: ' + x)
+      // alert('ALERGIAS: ' + x)
     })
   }
 
