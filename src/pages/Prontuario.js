@@ -334,7 +334,7 @@ function Prontuario() {
   const [altura, setaltura] = useState('');
   const [admissao, setadmissao] = useState('');
   const [antecedentes, setantecedentes] = useState('');
-  const [alergias, setalergias] = useState([]);
+  const [alergias, setalergias] = useState([0, 1]);
   const [diagnosticoprincipal, setdiagnosticoprincipal] = useState('');
   const [medicacoes, setmedicacoes] = useState('');
   const [exames, setexames] = useState('');
