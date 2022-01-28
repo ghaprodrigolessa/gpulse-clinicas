@@ -367,12 +367,14 @@ function Prontuario() {
 
   // carregando o histórico de atendimentos do paciente.
   var htmlhistoricodeatendimentos = process.env.REACT_APP_API_HISTORICODEATENDIMENTOS;
+  const [historicodeatendimentos, sethistoricodeatendimentos] = useState([0, 1]);
   const loadHistoricoDeAtendimentos = () => {
     axios.get(htmlhistoricodeatendimentos + idpaciente).then((response) => {
       var x = [0, 1]
       x = response.data;
       // alert('LISTA DE ATENDIMENTOS: ' + x.length);
       sethistoricoatendimentos(x);
+      sethistoricodeatendimentos(x);
     })
   }
 
@@ -4457,14 +4459,13 @@ function Prontuario() {
   }
 
   // HISTÓRICO DE PACIENTES.
-  const [historicodeatendimentos, sethistoricodeatendimentos] = useState(1);
   function HistoricoDeAtendimentos() {
     return (
       <div
         id="historicodeatendimentos"
         className="scrollhorizontal">
         <div className="buttons">
-          {historicoatendimentos.filter(item => item.cd_paciente == idpaciente).map(item =>
+          {historicodeatendimentos.map(item =>
             <div className={item.dt_hr_atendimento !== null ? "red-button" : "blue-button"} style={{ padding: 10 }}>
               {moment(item.dt_hr_atendimento).format('DD/MM/YYYY')}
             </div>

@@ -224,7 +224,7 @@ function App() {
   const [todosleitos, settodosleitos] = useState([]);
   const [todospacientes, settodospacientes] = useState([]);
   const [todosatendimentos, settodosatendimentos] = useState([0, 1]);
-  const [historicoatendimentos, sethistoricoatendimentos] = useState([]);
+  const [historicoatendimentos, sethistoricoatendimentos] = useState([0, 1]);
   const [todosconvenios, settodosconvenios] = useState([]);
   // listas da tela prontuário.
   const [listevolucoes, setlistevolucoes] = useState([]);
