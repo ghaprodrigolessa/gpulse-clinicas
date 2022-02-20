@@ -408,7 +408,7 @@ function Pacientes() {
               color: classificatempointernacao == 0 ? '' : 'red'
             }}
           >
-            {classificatempointernacao == 0 ? 'TEMPO DE INTERNAÇÃO' : classificabox == 1 ? 'TEMPO DE INTERNAÇÃO ↓' : 'TEMPO DE INTERNAÇÃO ↑'}
+            {classificatempointernacao == 0 ? 'TEMPO DE INTERNAÇÃO' : classificatempointernacao == 1 ? 'TEMPO DE INTERNAÇÃO ↓' : 'TEMPO DE INTERNAÇÃO ↑'}
           </div>
           <div
             onClick={() => {

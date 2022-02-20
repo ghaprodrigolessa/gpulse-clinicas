@@ -87,6 +87,7 @@ function Prontuario() {
   var html = 'https://pulsarapp-server.herokuapp.com';
   var htmldadosvitais = process.env.REACT_APP_API_FILTRADADOSVITAIS;
   var htmlbalancohidrico = process.env.REACT_APP_API_BALANCOHIDRICO;
+
   // recuperando estados globais (Context.API).
   const {
     idunidade,
@@ -311,7 +312,7 @@ function Prontuario() {
       axios.post(html + '/insertevolucao', obj).then(() => {
         toast(1, '#52be80', 'EVOLUÇÃO INSERIDA COM SUCESSO', 3000);
         resetTranscript();
-        loadEvolucoes(idpaciente);
+        // loadEvolucoes(idpaciente);
       });
     } else if (stateprontuario == 4 && transcript.length > 0) {
       var obj = {
@@ -334,7 +335,7 @@ function Prontuario() {
   const [altura, setaltura] = useState('');
   const [admissao, setadmissao] = useState('');
   const [antecedentes, setantecedentes] = useState('');
-  const [alergias, setalergias] = useState([0, 1]);
+  const [alergias, setalergias] = useState([]);
   const [diagnosticoprincipal, setdiagnosticoprincipal] = useState('');
   const [medicacoes, setmedicacoes] = useState('');
   const [exames, setexames] = useState('');
@@ -398,6 +399,18 @@ function Prontuario() {
     setprecaucao('INDISPONÍVEL NA API');
     setativo('INDISPONÍVEL NA API');
     setclassificacao('INDISPONÍVEL NA API')
+  }
+
+  // carregando as evoluções do paciente selecionado.
+  var htmlevolucoes = process.env.REACT_APP_API_EVOLUCAO;
+  const loadEvolucoes = () => {
+    axios.get(htmlevolucoes + idatendimento).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setlistevolucoes(x.sort((a, b) => a.id < b.id ? 1 : -1));
+      setarrayevolucao(x.sort((a, b) => a.id < b.id ? 1 : -1));
+      // alert(x.lenght)
+    });
   }
 
   // calculando idade em anos e dias de internação.
@@ -1815,7 +1828,7 @@ function Prontuario() {
   }
 
   // LISTA DE EVOLUÇÕES.
-  const loadEvolucoes = (idpaciente) => {
+  const loadEvolucoesAntigas = (idpaciente) => {
     axios.get(html + "/evolucoes").then((response) => {
       var x = [0, 1];
       var y = [0, 1];
@@ -1877,7 +1890,7 @@ function Prontuario() {
   const deleteEvolucao = (item) => {
     if (item.idusuario == idusuario) {
       axios.get(html + "/deleteevolucao/'" + item.id + "'").then(() => {
-        loadEvolucoes(idpaciente);
+        loadEvolucoesAntigas(idpaciente);
         // toast(1, '#52be80', 'EVOLUÇÃO CANCELADA COM SUCESSO.', 3000);
       });
     } else {
@@ -1916,7 +1929,7 @@ function Prontuario() {
       usuario: item.usuario,
     };
     axios.post(html + '/updateevolucao/' + item.id, obj).then(() => {
-      loadEvolucoes(idpaciente);
+      loadEvolucoesAntigas(idpaciente);
     });
   }
 
@@ -1954,7 +1967,7 @@ function Prontuario() {
     };
     axios.post(html + '/insertevolucao', obj);
     setTimeout(() => {
-      loadEvolucoes(idpaciente);
+      loadEvolucoesAntigas(idpaciente);
     }, 1000);
   }
 
@@ -1997,25 +2010,32 @@ function Prontuario() {
                 key={item.id}
                 id="item da lista"
                 className="row rowbutton"
-                style={{
-                  display: item.status === 2 ? 'none' : 'flex',
-                }}
               >
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
                   <div id="tag do profissional"
                     className="blue-button"
                     style={{
+                      position: 'relative',
                       width: 150,
+                      minHeight: 150,
                       margin: 0,
-                      padding: 0,
-                      flexDirection: 'column',
-                      justifyContent: 'center',
+                      padding: 10,
+                      // flexDirection: 'column',
+                      // justifyContent: 'flex-start',
                       // definindo a cor da tag de evolução, conforme a função do usuário.
-                      backgroundColor: item.funcao < 3 ? '#85C1E9' : item.funcao == 5 ? '#7DCEA0' : '#B2BABB'
+                      backgroundColor: item.ds_conselho == 'CRM' ? '#85C1E9' :
+                        item.ds_conselho == 'COREN' ? '#7DCEA0' :
+                          item.ds_conselho == 'CREFITO' ? '#AF7AC5' :
+                            item.ds_conselho == 'CREFONO' ? '#5499C7' : '#B2BABB'
                     }}
                   >
-                    <div style={{ margin: 5 }}>{JSON.stringify(item.data).substring(1, 9) + ' - ' + JSON.stringify(item.data).substring(10, 15)}</div>
-                    <div style={{ margin: 5 }}>{JSON.stringify(item.usuario).substring(1, 30).replace('"', '').split(" ").slice(0, 1) + ' ' + JSON.stringify(item.usuario).split(" ").slice(1, 2) + ' ' + JSON.stringify(item.usuario).split(" ").slice(2, 3)}</div>
+                    <div style={{ position: 'sticky' }}>
+                      <div style={{ margin: 5, marginBottom: 0, marginTop: 0 }}>{moment(item.dt_hr_pre_med).format('DD/MM/YY')}</div>
+                      <div style={{ margin: 0 }}>{moment(item.dt_hr_pre_med).format('HH:MM')}</div>
+                      <div style={{ margin: 5, marginTop: 0 }}>{JSON.stringify(item.nm_prestador).substring(1, 30).replace('"', '').split(" ").slice(0, 1)}</div>
+                      <div>{item.ds_conselho}</div>
+                      <div>{item.ds_codigo_conselho}</div>
+                    </div>
                   </div>
 
                   <div
@@ -2186,7 +2206,7 @@ function Prontuario() {
                           id="texto da evolução"
                           className="title2"
                           style={{ whiteSpace: 'pre-wrap', justifyContent: 'flex-start', textAlign: 'left', alignSelf: 'flex-start', width: '100%', height: '100%', minHeight: 60 }}>
-                          {item.evolucao}
+                          {item.ds_evolucao.toString().replace(/\r/g, '\n').toUpperCase()}
                         </div>
                         <div
                           id="evolução - hd"
@@ -4217,10 +4237,137 @@ function Prontuario() {
   const [viewformulario, setviewformulario] = useState(0);
 
   const [atendimento, setatendimento] = useState([]);
+
+  // API RODRIGO (BANCO DE DADOS POSTGRE GHAP).
+  var htmlghapatendimentos = process.env.REACT_APP_API_CLONE_ATENDIMENTOS;
+  var htmlghapinsertatendimento = process.env.REACT_APP_API_CLONE_INSERTATENDIMENTO;
+
+  var htmlghapprecaucoesoptions = process.env.REACT_APP_API_CLONE_PRECAUCOESOPTIONS;
+  var htmlghapprecaucoes = process.env.REACT_APP_API_CLONE_PRECAUCOES;
+  var htmlghapinsertprecaucao = process.env.REACT_APP_API_CLONE_INSERTPRECAUCAO;
+  var htmlghapupdateprecaucao = process.env.REACT_APP_API_CLONE_UPDATEPRECAUCAO;
+
+  // ATENDIMENTO.
+  // retornando atendimentos.
+  const getAtendimentosGhap = () => {
+    axios.get(htmlghapatendimentos).then((response) => {
+      x = response.data;
+    });
+  }
+
+  // criando o atendimento no banco de dados Ghap, em correspondência com o MV, caso ainda não exista.
+  const createAtendimentoGhap = () => {
+    axios.get(htmlghapatendimentos).then((response) => {
+      var x = [0, 1];
+      var y = [0, 1];
+      x = response.data;
+      y = x.rows;
+      //alert('IDATENDIMENTO: ' + idatendimento);
+      //alert(y.map(item => item.idatendimento));
+      //alert(y.filter(item => item.idatendimento == idatendimento).length);
+      if (y.filter(item => item.idatendimento == idatendimento).length > 0) {
+        //alert('ATENDIMENTO JÁ EXISTE');
+      } else {
+        //alert('CLONANDO ATENDIMENTO DO MV');
+        var obj = {
+          idpct: idpaciente,
+          idatendimento: idatendimento,
+        }
+        axios.post(htmlghapinsertatendimento, obj);
+      };
+    });
+  }
+
+  // PRECAUÇÕES (LISTA DE OPÇÕES).
+  const [precaucoesoptions, setprecaucoesoptions] = useState([0, 1]);
+  const [idprecaucao, setidprecaucao] = useState(0);
+  const [nomeprecaucao, setnomeprecaucao] = useState('');
+  const getPrecaucoesOptionsGhap = () => {
+    axios.get(htmlghapprecaucoesoptions).then((response) => {
+      var x = [];
+      x = response.data;
+      setprecaucoesoptions(x.rows);
+    });
+  }
+
+  // componente para seleção das opções de precaução.
+  const [viewprecaucoesoptions, setviewprecaucoesoptions] = useState(0);
+  function ViewPrecaucoesOptions() {
+    return (
+      <div className="menucover"
+        style={{ display: viewprecaucoesoptions == 1 ? 'flex' : 'none' }}>
+        <div
+          className="menucontainer" style={{ padding: 20 }}
+        >
+          {precaucoesoptions.map(item => (
+            <div
+              className="blue-button"
+              onClick={() => {
+                setidprecaucao(item.id);
+                setnomeprecaucao(item.nome);
+                insertPrecaucaoGhap();
+                setviewprecaucoesoptions(0);
+                getPrecaucoesGhap();
+              }}
+              style={{ padding: 10, margin: 5, width: 200 }}
+            >
+              {item.nome}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // PRECAUÇÕES (ATENDIMENTO).
+  const [ghapprecaucoes, setghapprecaucoes] = useState([]);
+  // lista de precauções para o atendimento.
+  const getPrecaucoesGhap = () => {
+    axios.get(htmlghapprecaucoes + idatendimento).then((response) => {
+      var x = [];
+      x = response.data;
+      setghapprecaucoes(x.rows);
+      // alert(ghapprecaucoes);
+    });
+  }
+  // inserir precaução.
+  const insertPrecaucaoGhap = () => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      idprecaucao: idprecaucao,
+      nome: nomeprecaucao,
+      datainicio: moment(),
+      idprofissional: 0,
+      datatermino: null,
+    }
+    axios.post(htmlghapinsertprecaucao, obj);
+  }
+  // atualizar precaucao (inativar).
+  const updatePrecaucaoGhap = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      idprecaucao: item.idprecaucao,
+      nome: item.nome,
+      datainicio: item.datainicio,
+      idprofissional: 0,
+      datatermino: moment(),
+    }
+    axios.post(htmlghapupdateprecaucao + item.id, obj);
+  }
+
   useEffect(() => {
+    createAtendimentoGhap();
+
+    // API RODRIGO:
+    // getAtendimentosGhap();
+    getPrecaucoesGhap();
+
+
     freezeScreen(3000);
     setrefreshatendimentos(0);
-    getDadosVitais(idatendimento);
+    // getDadosVitais(idatendimento);
     getBalancoHidrico(idatendimento);
     // carregando dados do paciente e de seu atendimento.
     loadPaciente(idpaciente);
@@ -4362,7 +4509,7 @@ function Prontuario() {
     // calculando o bh acumulado.
     loadBhacumulado();
     // carregando as listas.
-    loadEvolucoes(idpaciente);
+    loadEvolucoes();
     loadDiagnosticos(idpaciente);
     loadProblemas();
     loadPropostas();
@@ -5050,10 +5197,13 @@ function Prontuario() {
             flexWrap: 'wrap', justifyContent: 'space-evenly'
           }}
         >
+          <ViewPrecaucoesOptions></ViewPrecaucoesOptions>
+
           <CardDiasdeInternacao></CardDiasdeInternacao>
           <CardStatus></CardStatus>
           <CardAlertas></CardAlertas>
           <CardPrecaucao></CardPrecaucao>
+
           <CardAlergias></CardAlergias>
           <CardGestaoDeRiscos></CardGestaoDeRiscos>
           <CardIVCF></CardIVCF>
@@ -5398,12 +5548,12 @@ function Prontuario() {
           style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16 }}>
           {'ALERGIAS'}
         </div>
- 
+
         <div className="pulsewidgetcontent"
           style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 14 }}>
           {alergias.length > 0 ? 'ALERGIAS:' : 'ALERGIAS: SEM REGISTRO DE ALERGIAS'}
         </div>
- 
+
         <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
           {alergias.filter(item => item.sn_ativo == 'S').map(item =>
           (
@@ -5454,7 +5604,7 @@ function Prontuario() {
             ))}
           </div>
         </div>
-        
+
       </div >
     )
   }
@@ -5463,17 +5613,90 @@ function Prontuario() {
   function CardPrecaucao() {
     return (
       <div
-        className="pulsewidgetstatic"
+        id="cardprecaucao"
+        className="pulsewidgetscroll"
         title="PRECAUÇÃO OU ISOLAMENTO DE CONTATO."
-        onClick={tipousuario != 4 ? () => showChangePrecaucao(0) : null}
+        onClick={() => document.getElementById("cardprecaucao").classList.toggle("pulsewidgetscrollmax")}
         style={{
           display: cardprecaucao == 1 ? 'flex' : 'none',
-          backgroundColor: precaucao == 1 ? "#8f9bbc" : precaucao == 2 ? "#f5b041" : precaucao == 3 ? "#bb8fce" : "#ec7063"
+          flexDirection: 'column',
+          justifyContent: 'center',
+          backgroundColor: ghapprecaucoes.length > 0 ? '#ec7063' : '#52be80',
+          borderColor: ghapprecaucoes.length > 0 ? '#ec7063' : '#52be80'
         }}
       >
-        <text className="title5">
-          {precaucao == 1 ? 'PRECAUÇÃO PADRÃO' : precaucao == 2 ? 'PRECAUÇÃO DE CONTATO' : precaucao == 3 ? 'PRECAUÇÃO PARA GOTÍCULAS' : 'PRECAUÇÃO PARA AEROSSOL'}
-        </text>
+        <div className="pulsewidgettitle"
+          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16 }}>
+          {'PRECAUÇÕES'}
+        </div>
+
+        <div style={{ display: ghapprecaucoes.length > 0 ? 'none' : 'flex' }}>
+          <div className="pulsewidgetcontent">
+            <div
+              style={{
+                display: 'flex',
+                color: '#ffffff',
+                fontWeight: 'bold', textAlign: 'center', fontSize: 14,
+                marginBottom: 10
+              }}>
+              {'SEM REGISTROS DE PRECAUÇÕES'}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: ghapprecaucoes.length < 1 ? 'none' : 'flex' }}>
+          <div className="pulsewidgetcontent">
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column', justifyContent: 'center',
+              marginBottom: 10,
+              width: '100%'
+            }}>
+              {ghapprecaucoes.map(item => (
+                <div
+                  style={{ display: 'flex', flexDirection: 'row', width: '100%' }}
+                  onMouseEnter={() => document.getElementById("btndeleteprecaucao").style.opacity = 1}
+                  onMouseLeave={() => document.getElementById("btndeleteprecaucao").style.opacity = 0.3}
+                >
+                  <div
+                    title={
+                      item.datatermino == null ?
+                        "REGISTRADO POR: " + item.idprofissional + ", EM " + moment(item.datainicio).format('DD/MM/YY') :
+                        "REGISTRADO POR: " + item.idprofissional + ", EM " + moment(item.datainicio).format('DD/MM/YY') +
+                        ". ENCERRADO POR " + item.idprofissional + ", EM " + moment(item.datatermino).format('DD/MM/YY') + '.'
+                    }
+                    className="title2center"
+                    style={{ color: '#ffffff', opacity: item.datatermino == null ? 1 : 0.5, width: '100%' }}>
+                    {item.nome}
+                  </div>
+                  <button id="btndeleteprecaucao" className="red-button"
+                    style={{ display: item.datatermino == null ? 'flex' : 'none' }}
+                  >
+                    <img
+                      alt=""
+                      src={deletar}
+                      onClick={(e) => { updatePrecaucaoGhap(item); getPrecaucoesGhap(); e.stopPropagation() }}
+                      style={{
+                        margin: 10,
+                        height: 30,
+                        width: 30,
+                      }}
+                    ></img>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="pulsewidgetcontent">
+          <button
+            className="blue-button" style={{ width: 50, height: 50, alignSelf: 'center' }}
+            onClick={() => { getPrecaucoesOptionsGhap(); setviewprecaucoesoptions(1) }}
+          >
+            +
+          </button>
+        </div>
       </div>
     )
   }
@@ -5609,13 +5832,14 @@ function Prontuario() {
   const [dadosvitaisfr, setdadosvitaisfr] = useState([]);
   const [dadosvitaispam, setdadosvitaispam] = useState([]);
   const getDadosVitais = (valor) => {
+    setloadprincipal(1);
     axios.get(htmldadosvitais + valor).then((response) => {
       var x = [0, 1];
       var y = [0, 1];
       x = response.data;
       y = x.filter(item => moment(item.data_coleta) > moment().subtract(15, 'days')).sort((a, b) => moment(a.data_coleta) - moment(b.data_coleta));
       setdadosvitais(y);
-      // alert(JSON.stringify(x.filter(item => moment(item.data_coleta).format('DD/MM/YY - HH:MM') == '06/01/22 - 07:01' && item.cd_sinal_vital == 3).sort((a, b) => a.id < b.id).map(item => item.cd_sinal_vital + ' - ' + item.ds_sinal_vital + ': ' + item.valor)));
+      // alert(valor);
 
       // tax.
       let correcttaxlabel = y.filter(item => item.cd_sinal_vital == 1).map(item => moment(item.data_coleta).format('DD/MM - HH') + 'H');
@@ -5659,14 +5883,10 @@ function Prontuario() {
       setdadosvitaissao2label(correctsao2label.slice(-12));
       setdadosvitaissao2value(correctsao2value.slice(-12));
 
-      // setdadosvitaispamlabel(correctpamlabel.slice(-12));
-      // setdadosvitaispamvalue(correctpamvalue.slice(-12));
-
       setdadosvitaisfc(y.filter(item => item.cd_sinal_vital == 2).slice(-21));
       setdadosvitaisfr(y.filter(item => item.cd_sinal_vital == 3).slice(-21));
       setdadosvitaispam(y.filter(item => item.cd_sinal_vital == 6).slice(-21));
 
-      // alert(unique.length);
       arrayCodigosDadosVitais.map(item => getLastDadosClinicos(y, item));
       arrayCodigosDadosVitais.map(item => getDataToDataChart(y, item));
       setTimeout(() => {
@@ -5674,6 +5894,17 @@ function Prontuario() {
         setarrayDadosDataChart(fdp2);
         // alert(JSON.stringify(arrayDadosDataChart));
       }, 1000);
+
+      setTimeout(() => {
+        setloadprincipal(0);
+        document.getElementById("cardcontroles").className = "pulsewidgetcontrolescardhover";
+        document.getElementById("cardcontroles").setAttribute("disabled", "true");
+        document.getElementById("seletores dos gráficos").className = "pulsewidgetcontroleshover";
+        document.getElementById("gráfico de controles").className = "pulsewidgetcontroleshover";
+        document.getElementById("botaominimizacardcontroles").style.display = 'flex';
+        var position = document.getElementById("cardcontroles").offsetTop;
+        document.getElementById("painel principal").scrollTo(0, position - 230);
+      }, 5000);
     })
   }
 
@@ -6727,19 +6958,9 @@ function Prontuario() {
       <div id="cardcontroles"
         className="pulsewidgetcontrolescard" style={{ position: 'relative' }}
         onClick={(e) => {
-          // freezeScreen(3000);
+          // freezeScreen(5000);
           // carregando dados vitais.
-          // getDadosVitais(idatendimento);
-          // setTimeout(() => {
-          document.getElementById("cardcontroles").className = "pulsewidgetcontrolescardhover";
-          document.getElementById("cardcontroles").setAttribute("disabled", "true");
-          document.getElementById("seletores dos gráficos").className = "pulsewidgetcontroleshover";
-          document.getElementById("gráfico de controles").className = "pulsewidgetcontroleshover";
-          document.getElementById("botaominimizacardcontroles").style.display = 'flex';
-          var position = document.getElementById("cardcontroles").offsetTop;
-          // alert(position);
-          document.getElementById("painel principal").scrollTo(0, position - 230);
-          // }, 3000);
+          getDadosVitais(idatendimento);
           e.stopPropagation();
         }}
       >
@@ -7840,6 +8061,7 @@ function Prontuario() {
     document.body.style.overflow = null;
   }
   const clickEvoluções = () => {
+    loadEvolucoes();
     cleanFilters();
     setstateprontuario(2);
     setshowlesoes(0);
