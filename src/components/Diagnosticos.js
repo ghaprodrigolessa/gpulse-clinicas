@@ -87,6 +87,7 @@ function Diagnostico(
   var htmlghapinsertdiagnostico = process.env.REACT_APP_API_CLONE_INSERTDIAGNOSTICO;
   var htmlghapupdatediagnostico = process.env.REACT_APP_API_CLONE_UPDATEDIAGNOSTICO;
   var htmlghapdiagnosticos = process.env.REACT_APP_API_CLONE_DIAGNOSTICOS;
+  
   // cid10.
   const [listcid, setlistcid] = useState([]);
   const [arraylistcid, setarraylistcid] = useState([]);
