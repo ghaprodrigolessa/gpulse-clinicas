@@ -40,14 +40,6 @@ function Diagnostico(
   // chave para exibição do componente.
   const [viewcomponent, setviewcomponent] = useState(viewdiagnostico);
 
-  // lista de diagnósticos CID10.
-  const [listcid, setlistcid] = useState([]);
-  const loadCid = (idpaciente) => {
-    axios.get(html + "/cid10").then((response) => {
-      setlistcid(response.data);
-    });
-  }
-
   // filtros para cid e diagnósticos.
   const [filtercid, setfiltercid] = useState('');
   const [filterdiagnostico, setfilterdiagnostico] = useState('');
@@ -55,41 +47,19 @@ function Diagnostico(
   var searchdiagnostico = '';
   var timeout = null;
   const [arraydiagnostico, setarraydiagnostico] = useState([]);
-  const filterCid = () => {
-    setvalordatepicker(0);
-    clearTimeout(timeout);
-    document.getElementById("inputDiagnostico").value = '';
-    searchdiagnostico = '';
-    document.getElementById("inputCid").focus();
-    searchcid = document.getElementById("inputCid").value.toUpperCase();
-    timeout = setTimeout(() => {
-      if (searchcid === '') {
-        setarraydiagnostico([]);
-        document.getElementById("inputCid").value = '';
-        document.getElementById("inputCid").focus();
-      } else {
-        setfiltercid(document.getElementById("inputCid").value.toUpperCase());
-        setarraydiagnostico(listcid.filter(item => item.codigo.includes(searchcid) === true));
-        document.getElementById("inputCid").value = searchcid;
-        document.getElementById("inputCid").focus();
-      }
-    }, 500);
-  }
   const filterDiagnostico = () => {
     setvalordatepicker(0);
     clearTimeout(timeout);
-    document.getElementById("inputCid").value = '';
-    searchcid = '';
     document.getElementById("inputDiagnostico").focus();
     searchdiagnostico = document.getElementById("inputDiagnostico").value.toUpperCase();
     timeout = setTimeout(() => {
       if (searchdiagnostico === '') {
-        setarraydiagnostico([]);
+        setarraylistcid([]);
         document.getElementById("inputDiagnostico").value = '';
         document.getElementById("inputDiagnostico").focus();
       } else {
         setfilterdiagnostico(document.getElementById("inputDiagnostico").value.toUpperCase());
-        setarraydiagnostico(listcid.filter(item => item.nome.toUpperCase().includes(searchdiagnostico) === true));
+        setarraylistcid(listcid.filter(item => item.descricao.toUpperCase().includes(searchdiagnostico) === true || item.cid.toUpperCase().includes(searchdiagnostico) === true));
         document.getElementById("inputDiagnostico").value = searchdiagnostico;
         document.getElementById("inputDiagnostico").focus();
       }
@@ -100,73 +70,83 @@ function Diagnostico(
     if (viewdiagnostico !== 0) {
       setvalordatepicker(0);
       // carregando a lista de diagnósticos do sistema.
-      loadCid();
+      getListaDeDiagnosticos();
       setviewcomponent(viewdiagnostico);
       if (viewdiagnostico == 1) {
         setpickdate1(moment().format('DD/MM/YYYY'));
         setpickdate2('');
       } else {
-        setpickdate1(iniciodiag);
-        setpickdate2(terminodiag);
+        setpickdate1(moment(iniciodiag).format('DD/MM/YYYY'));
+        setpickdate2(moment(terminodiag).format('DD/MM/YYYY'));
       }
     } else {
     }
   }, [viewdiagnostico])
 
-  const loadDiagnosticos = (idpaciente) => {
-    axios.get(html + "/diagnosticos").then((response) => {
+  var htmlghapcid = process.env.REACT_APP_API_CLONE_CID;
+  var htmlghapinsertdiagnostico = process.env.REACT_APP_API_CLONE_INSERTDIAGNOSTICO;
+  var htmlghapupdatediagnostico = process.env.REACT_APP_API_CLONE_UPDATEDIAGNOSTICO;
+  var htmlghapdiagnosticos = process.env.REACT_APP_API_CLONE_DIAGNOSTICOS;
+  // cid10.
+  const [listcid, setlistcid] = useState([]);
+  const [arraylistcid, setarraylistcid] = useState([]);
+  const getListaDeDiagnosticos = () => {
+    axios.get(htmlghapcid).then((response) => {
       var x = [0, 1];
       x = response.data;
-      setlistdiagnosticos(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY') < moment(b.inicio, 'DD/MM/YYYY') ? 1 : -1).filter(item => item.idpaciente == idpaciente));
-      setarraydiagnosticos(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY') < moment(b.inicio, 'DD/MM/YYYY') ? 1 : -1).filter(item => item.idpaciente == idpaciente));
+      setlistcid(x.rows);
+      setarraylistcid(x.rows);
+      // alert(listacid.length)
+    });
+  }
+  // lista de diagnósticos para o atendimento.
+  const getDiagnosticosGhap = () => {
+    axios.get(htmlghapdiagnosticos + idatendimento).then((response) => {
+      var x = [];
+      x = response.data;
+      setlistdiagnosticos(x.rows);
+      setarraydiagnosticos(x.rows);
+    });
+  }
+  // inserir diagnóstico.
+  const insertData = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      datainicio: moment(pickdate1, 'DD/MM/YYYY'),
+      datatermino: null,
+      idprofissional: 0,
+      cid: item.cid,
+      descricao: item.descricao,
+    }
+    axios.post(htmlghapinsertdiagnostico, obj).then(() => {
+      toast(1, '#52be80', 'DIAGNÓSTICO REGISTRADO COM SUCESSO.', 3000);
+      setTimeout(() => {
+        getDiagnosticosGhap();
+        fechar();
+      }, 3000);
     });
   }
 
-  // inserindo registro.
-  const insertData = () => {
-    var cid = document.getElementById("inputCid").value.toUpperCase();
-    var diagnostico = document.getElementById("inputDiagnostico").value.toUpperCase();
-    if (pickdate1 != '' && cid != '' && diagnostico != '') {
-      var obj = {
-        idpaciente: idpaciente,
-        idatendimento: idatendimento,
-        cid: cid,
-        diagnostico: diagnostico,
-        inicio: pickdate1,
-        termino: pickdate2,
-        usuario: usuario,
-      };
-      axios.post(html + '/insertdiagnostico', obj).then(() => {
-        toast(1, '#52be80', 'DIAGNÓSTICO REGISTRADO COM SUCESSO.', 3000);
-        setTimeout(() => {
-          loadDiagnosticos(idpaciente);
-          fechar();
-        }, 3000);
-      });
-    } else {
-      toast(1, '#ec7063', 'CAMPOS OBRIGATÓRIOS EM BRANCO.', 6000);
-    }
-  };
-
-  // atualizando registro.
+  // atualizando registro (inativação do registro).
   const updateData = () => {
     var cid = document.getElementById("inputCid").value.toUpperCase();
-    var diagnostico = document.getElementById("inputDiagnostico").value.toUpperCase();
-    if (iniciodiag != '' && cid != '' && diagnostico != '') {
+    var descricao = document.getElementById("inputDiagnostico").value.toUpperCase();
+    var inicio = moment(document.getElementById("inputInicio"), 'DD/MM/YYYY');
+    if (inicio != '' && cid != '' && descricao != '') {
       var obj = {
-        id: iddiagnostico,
-        idpaciente: idpaciente,
+        idpct: idpaciente,
         idatendimento: idatendimento,
+        datainicio: inicio,
+        datatermino: terminodiag,
+        idprofissional: 0,
         cid: cid,
-        diagnostico: diagnostico,
-        inicio: pickdate1,
-        termino: pickdate2,
-        usuario: usuario,
-      };
-      axios.post(html + '/updatediagnostico/' + iddiagnostico, obj).then(() => {
+        descricao: descricao,
+      }
+      axios.post(htmlghapupdatediagnostico + iddiagnostico, obj).then(() => {
         toast(1, '#52be80', 'DIAGNÓSTICO ATUALIZADO COM SUCESSO.', 3000);
         setTimeout(() => {
-          loadDiagnosticos(idpaciente);
+          getDiagnosticosGhap();
           fechar();
         }, 3000);
       });
@@ -202,20 +182,9 @@ function Diagnostico(
   }
 
   const [selectcid, setselectcid] = useState(0);
+  const [selectdescricao, setselectdescricao] = useState('');
   const selectDiagnostico = (item) => {
-    setselectcid(item.codigo);
-    document.getElementById("inputCid").value = item.codigo;
-    document.getElementById("inputDiagnostico").value = item.nome;
-  }
-
-  const salvar = () => {
-    if (viewcomponent == 1) {
-      insertData();
-    } else if (viewcomponent == 2) {
-      updateData();
-    } else {
-
-    }
+    insertData(item);
   }
 
   const fechar = () => {
@@ -245,19 +214,6 @@ function Diagnostico(
                   }}
                 ></img>
               </button>
-              <button className="green-button"
-                onClick={viewcomponent == 1 ? () => insertData() : () => updateData()}
-              >
-                <img
-                  alt=""
-                  src={save}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
             </div>
           </div>
           <div className="corpo">
@@ -279,7 +235,7 @@ function Diagnostico(
                   onBlur={(e) => (e.target.placeholder = 'INÍCIO')}
                   title="DATA DO DIAGNÓSTICO."
                   onClick={() => showDatePicker(1, 1)}
-                  defaultValue={viewcomponent == 2 ? iniciodiag : moment().format('DD/MM/YYYY')}
+                  defaultValue={viewcomponent == 2 ? moment(iniciodiag).format('DD/MM/YYYY') : moment().format('DD/MM/YYYY')}
                   type="text"
                   maxLength={5}
                   id="inputInicio"
@@ -287,45 +243,20 @@ function Diagnostico(
                   {pickdate1}
                 </label>
               </div>
-              <div id="divCid" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: window.innerWidth > 400 ? '20vw' : '90vw', alignSelf: 'center' }}>
-                <label className="title2">
-                  CID:
-                </label>
-                <input
-                  autoComplete="off"
-                  className="input"
-                  placeholder="CID..."
-                  defaultValue={viewcomponent == 2 ? cid : ''}
-                  onFocus={(e) => {
-                    (e.target.placeholder = '');
-                    document.getElementById("divDiagnostico").style.display = "none";
-                    // document.getElementById("divInicio").style.display = "none";
-                  }}
-                  onBlur={(e) => (e.target.placeholder = 'CID...')}
-                  onChange={() => filterCid()}
-                  title="CID."
-                  type="text"
-                  maxLength={5}
-                  id="inputCid"
-                ></input>
-              </div>
               <div id="divDiagnostico" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: window.innerWidth > 400 ? '30vw' : '90vw', alignSelf: 'center' }}>
                 <label className="title2">
-                  DIAGNÓSTICO:
+                  BUSCAR DIAGNÓSTICO:
                 </label>
                 <input
                   autoComplete="off"
                   className="input"
-                  placeholder="DIAGNÓSTICO..."
-                  defaultValue={viewcomponent == 2 ? diagnostico : ''}
+                  placeholder="BUSCAR..."
                   onFocus={(e) => {
                     (e.target.placeholder = '');
-                    document.getElementById("divCid").style.display = "none";
-                    // document.getElementById("divInicio").style.display = "none";
                   }}
-                  onBlur={(e) => (e.target.placeholder = 'DIAGNÓSTICO...')}
+                  onBlur={(e) => (e.target.placeholder = 'BUSCAR...')}
                   onChange={() => filterDiagnostico()}
-                  title="DIAGNÓSTICO."
+                  title="BUSCAR CID."
                   type="text"
                   maxLength={200}
                   id="inputDiagnostico"
@@ -335,9 +266,9 @@ function Diagnostico(
             <div
               className="scroll"
               id="LISTA DE DIAGNÓSTICOS"
-              style={{ width: '80vw', height: '30vh', marginTop: 20 }}
+              style={{ width: '60vw', maxWidth: '60vw', minWidth: '60vw', height: '30vh', marginTop: 20 }}
             >
-              {arraydiagnostico.map((item) => (
+              {arraylistcid.map((item) => (
                 <p
                   key={item.id}
                   id="item da lista"
@@ -345,7 +276,7 @@ function Diagnostico(
                   onClick={() => selectDiagnostico(item)}
                 >
                   <button
-                    className={item.codigo == selectcid ? "red-button" : "blue-button"}
+                    className={item.cid == selectcid ? "red-button" : "blue-button"}
                     style={{
                       display: window.innerWidth > 800 ? 'flex' : 'none',
                       width: 100,
@@ -353,10 +284,10 @@ function Diagnostico(
                       flexDirection: 'column',
                     }}
                   >
-                    <div>{item.codigo}</div>
+                    <div>{item.cid}</div>
                   </button>
                   <button
-                    className={item.codigo == selectcid ? "red-button" : "hover-button"}
+                    className={item.cid == selectcid ? "red-button" : "hover-button"}
                     style={{
                       width: window.innerWidth > 800 ? '100%' : '100%',
                       margin: 2.5,
@@ -364,7 +295,7 @@ function Diagnostico(
                       flexDirection: 'column',
                     }}
                   >
-                    <div>{item.nome.toUpperCase()}</div>
+                    <div>{item.descricao.toUpperCase()}</div>
                   </button>
                 </p>
               ))}

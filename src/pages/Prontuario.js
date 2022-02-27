@@ -987,9 +987,8 @@ function Prontuario() {
       });
     }
     // carregando os alertas (primeiro carregamento).
-
-
   }
+
   // carregando os últimos registros de evolução + exame clínico que apresentam valores válidos de BRADEN E MORSE.
   const [lastbraden, setlastbraden] = useState(0);
   const [databraden, setdatabraden] = useState();
@@ -1176,14 +1175,6 @@ function Prontuario() {
 
   // carregando listas das telas secundárias.
   // LISTA DE DIAGNÓSTICOS.
-  const loadDiagnosticos = (idpaciente) => {
-    axios.get(html + "/diagnosticos").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setlistdiagnosticos(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY') < moment(b.inicio, 'DD/MM/YYYY') ? 1 : -1).filter(item => item.idpaciente == idpaciente));
-      setarraydiagnosticos(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY') < moment(b.inicio, 'DD/MM/YYYY') ? 1 : -1).filter(item => item.idpaciente == idpaciente));
-    });
-  }
   // constantes relacionadas à lista de diagnósticos:
   const [iddiagnostico, setiddiagnostico] = useState(0);
   const [cid, setcid] = useState('');
@@ -1194,9 +1185,9 @@ function Prontuario() {
   const selectDiagnostico = (item) => {
     setiddiagnostico(item.id);
     setcid(item.cid);
-    setdiagnostico(item.diagnostico);
-    setiniciodiag(item.inicio);
-    setterminodiag(item.termino);
+    setdiagnostico(item.descricao);
+    setiniciodiag(item.datainicio);
+    setterminodiag(item.datatermino);
     window.scrollTo(0, 0);
     viewDiagnostico(2);
   }
@@ -1216,62 +1207,6 @@ function Prontuario() {
     setTimeout(() => {
       setviewdiagnostico(valor); // 1 para inserir diagnostico, 2 para atualizar diagnostico.
     }, 500);
-  }
-
-  // exibição da lista de diagnósticos (tela principal).
-  function CardDiagnosticos() {
-    return (
-      <div
-        className="pulsewidgetscroll"
-        title="DIAGNOSTICOS."
-        style={{ display: carddiagnosticos == 1 ? 'flex' : 'none', }}
-        id="carddiagnosticos"
-        onClick={() => document.getElementById("carddiagnosticos").classList.toggle("pulsewidgetscrollmax")}
-      >
-        <div className="title4 pulsewidgettitle">
-          <div>
-            {'DIAGNÓSTICOS'}
-          </div>
-          <div style={{ fontSize: 12, color: '#61636e', margin: 10 }}>
-            {diagnosticoprincipal}
-          </div>
-        </div>
-        <div
-          className="pulsewidgetcontent"
-          style={{ display: listdiagnosticos.length > 0 ? 'flex' : 'none' }}>
-          {listdiagnosticos.map((item) => (
-            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-              <div
-                key={item.id}
-                className={item.termino !== '' ? "title2center" : "title3"}
-                style={{
-                  margin: 0,
-                  marginTop: 2.5,
-                  marginBottom: 5,
-                  marginRight: 5,
-                  opacity: 1.0,
-                  width: '100%',
-                  padding: 5,
-                }}
-              >
-                {item.inicio + ': ' + item.diagnostico + '.'}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div
-          style={{
-            display: listdiagnosticos.length < 1 ? 'flex' : 'none',
-            color: '#8f9bbc',
-            fontWeight: 'bold',
-            fontSize: 16,
-          }}
-          className="pulsewidgetcontent"
-        >
-          {'SEM DIAGNÓSTICOS REGISTRADOS'}
-        </div>
-      </div>
-    );
   }
 
   // exibição da lista de internações e atendimentos (tela principal).
@@ -1313,7 +1248,7 @@ function Prontuario() {
             placeholder="BUSCAR DIAGNÓSTICO..."
             onFocus={(e) => (e.target.placeholder = '')}
             onBlur={(e) => (e.target.placeholder = 'BUSCAR DIAGNÓSTICO...')}
-            onChange={() => filterDiagnostico()}
+            onKeyUp={() => filterDiagnostico()}
             onClick={window.innerWidth < 400 ? (e) => {
               document.getElementById("identificação").style.display = "none";
               document.getElementById("inputFilterDiagnostico").focus();
@@ -1351,8 +1286,9 @@ function Prontuario() {
         document.getElementById("inputFilterDiagnostico").value = '';
         document.getElementById("inputFilterDiagnostico").focus();
       } else {
-        setfilterdiagnostico(document.getElementById("inputFilterDiagnostico").value.toUpperCase());
-        setarraydiagnosticos(listdiagnosticos.filter(item => item.diagnostico.includes(searchdiagnostico) === true));
+        setarraydiagnosticos(listdiagnosticos.filter(item => JSON.stringify(item.descricao).toUpperCase().includes(searchdiagnostico.toUpperCase())));
+        // setfilterdiagnostico(document.getElementById("inputFilterDiagnostico").value.toUpperCase());
+        // setarraydiagnosticos(listdiagnosticos.filter(item => JSON.stringify(item.descricao).includes(searchdiagnostico) == true));
         document.getElementById("inputFilterDiagnostico").value = searchdiagnostico;
         document.getElementById("inputFilterDiagnostico").focus();
       }
@@ -1360,7 +1296,7 @@ function Prontuario() {
         document.getElementById("identificação").style.display = "none";
         document.getElementById("inputFilterDiagnostico").focus();
       }
-    }, 500);
+    }, 1000);
   }
 
   // exibição da lista de diagnósticos (habilitando crud).
@@ -1383,8 +1319,12 @@ function Prontuario() {
                 key={item.id}
                 id="item da lista"
                 className="row"
+                style={{ opacity: item.datatermino == null ? 1 : 0.5 }}
               >
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
+                <div style={{
+                  display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                  width: '100%'
+                }}>
                   <div id="data do diagnóstico e botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                     <button
                       className="green-button"
@@ -1394,26 +1334,13 @@ function Prontuario() {
                         backgroundColor: '#52be80'
                       }}
                     >
-                      {item.inicio}
+                      {moment(item.datainicio).format('DD/MM/YY')}
                     </button>
-                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                      <button className="animated-yellow-button"
-                        onClick={() => selectDiagnostico(item)}
-                      >
-                        <img
-                          alt=""
-                          src={editar}
-                          style={{
-                            margin: 10,
-                            height: 30,
-                            width: 30,
-                          }}
-                        ></img>
-                      </button>
+                    <div style={{ display: item.datatermino == null ? 'flex' : 'none', flexDirection: 'row', justifyContent: 'center' }}>
                       <button
                         id={"deletekey 0 " + item.id}
                         className="animated-red-button"
-                        onClick={(e) => { deletetoast(deleteDiagnostico, item); e.stopPropagation() }}
+                        onClick={(e) => { deletetoast(updateDiagnosticoGhap, item); e.stopPropagation() }}
                       >
                         <img
                           alt=""
@@ -1429,7 +1356,7 @@ function Prontuario() {
                         id={"deletekey 1 " + item.id}
                         style={{ display: 'none', width: 100 }}
                         className="animated-red-button"
-                        onClick={(e) => { deletetoast(deleteDiagnostico, item); e.stopPropagation() }}
+                        onClick={(e) => { deletetoast(updateDiagnosticoGhap, item); e.stopPropagation() }}
                       >
                         <div>DESFAZER</div>
                         <div className="deletetoast"
@@ -1444,10 +1371,10 @@ function Prontuario() {
                   <div id="cid e diagnóstico"
                     style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', width: '100%' }}>
                     <div className="title2" style={{ justifyContent: 'flex-start', marginBottom: 0 }}>
-                      {item.cid + ' - ' + item.diagnostico}
+                      {item.cid + ' - ' + item.descricao.toString().toUpperCase()}
                     </div>
                     <div className="title2" style={{ opacity: 0.5, justifyContent: 'flex-start', marginTop: 0 }}>
-                      {"REGISTRADO POR " + item.usuario + '.'}
+                      {"REGISTRADO POR " + item.idprofissional + '.'}
                     </div>
                   </div>
                 </div>
@@ -4247,6 +4174,15 @@ function Prontuario() {
   var htmlghapinsertprecaucao = process.env.REACT_APP_API_CLONE_INSERTPRECAUCAO;
   var htmlghapupdateprecaucao = process.env.REACT_APP_API_CLONE_UPDATEPRECAUCAO;
 
+  var htmlghapalergias = process.env.REACT_APP_API_CLONE_ALERGIAS;
+  var htmlghapinsertalergia = process.env.REACT_APP_API_CLONE_INSERTALERGIA;
+  var htmlghapupdatealergia = process.env.REACT_APP_API_CLONE_UPDATEALERGIA;
+
+  var htmlghapcid = process.env.REACT_APP_API_CLONE_CID;
+  var htmlghapdiagnosticos = process.env.REACT_APP_API_CLONE_DIAGNOSTICOS;
+  var htmlghapinsertdiagnostico = process.env.REACT_APP_API_CLONE_INSERTDIAGNOSTICO;
+  var htmlghapupdatediagnostico = process.env.REACT_APP_API_CLONE_UPDATEDIAGNOSTICO;
+
   // ATENDIMENTO.
   // retornando atendimentos.
   const getAtendimentosGhap = () => {
@@ -4290,35 +4226,6 @@ function Prontuario() {
     });
   }
 
-  // componente para seleção das opções de precaução.
-  const [viewprecaucoesoptions, setviewprecaucoesoptions] = useState(0);
-  function ViewPrecaucoesOptions() {
-    return (
-      <div className="menucover"
-        style={{ display: viewprecaucoesoptions == 1 ? 'flex' : 'none' }}>
-        <div
-          className="menucontainer" style={{ padding: 20 }}
-        >
-          {precaucoesoptions.map(item => (
-            <div
-              className="blue-button"
-              onClick={() => {
-                setidprecaucao(item.id);
-                setnomeprecaucao(item.nome);
-                insertPrecaucaoGhap();
-                setviewprecaucoesoptions(0);
-                getPrecaucoesGhap();
-              }}
-              style={{ padding: 10, margin: 5, width: 200 }}
-            >
-              {item.nome}
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   // PRECAUÇÕES (ATENDIMENTO).
   const [ghapprecaucoes, setghapprecaucoes] = useState([]);
   // lista de precauções para o atendimento.
@@ -4327,21 +4234,27 @@ function Prontuario() {
       var x = [];
       x = response.data;
       setghapprecaucoes(x.rows);
-      // alert(ghapprecaucoes);
     });
   }
   // inserir precaução.
-  const insertPrecaucaoGhap = () => {
-    var obj = {
-      idpct: idpaciente,
-      idatendimento: idatendimento,
-      idprecaucao: idprecaucao,
-      nome: nomeprecaucao,
-      datainicio: moment(),
-      idprofissional: 0,
-      datatermino: null,
+  const insertPrecaucaoGhap = (id, nome) => {
+    if (ghapprecaucoes.filter(item => item.idprecaucao == id && item.datatermino == null).length > 0) {
+      toast(1, '#ec7063', 'PRECAUÇÃO JÁ CADASTRADA', 3000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        idprecaucao: id,
+        nome: nome,
+        datainicio: moment(),
+        idprofissional: 0,
+        datatermino: null,
+      }
+      axios.post(htmlghapinsertprecaucao, obj).then(() => {
+        getPrecaucoesGhap();
+        setviewprecaucoesoptions(0);
+      });
     }
-    axios.post(htmlghapinsertprecaucao, obj);
   }
   // atualizar precaucao (inativar).
   const updatePrecaucaoGhap = (item) => {
@@ -4354,16 +4267,108 @@ function Prontuario() {
       idprofissional: 0,
       datatermino: moment(),
     }
-    axios.post(htmlghapupdateprecaucao + item.id, obj);
+    axios.post(htmlghapupdateprecaucao + item.id, obj).then(() => {
+      getPrecaucoesGhap();
+    });
+  }
+
+  // ALERGIAS (ATENDIMENTO).
+  const [ghapalergias, setghapalergias] = useState([]);
+  // lista de alergias para o atendimento.
+  const getAlergiasGhap = () => {
+    axios.get(htmlghapalergias + idatendimento).then((response) => {
+      var x = [];
+      x = response.data;
+      setghapalergias(x.rows);
+    });
+  }
+  // inserir alergia.
+  const insertAlergiaGhap = () => {
+    var alergia = '';
+    alergia = document.getElementById("inputAlergia").value;
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      nome: alergia.toUpperCase(),
+      datainicio: moment(),
+      datatermino: null,
+      idprofissional: 0,
+    }
+    axios.post(htmlghapinsertalergia, obj).then(() => {
+      setalergiafield(0);
+      getAlergiasGhap();
+    });
+  }
+  // atualizar alergia (inativar).
+  const updateAlergiaGhap = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      idprecaucao: item.idprecaucao,
+      nome: item.nome,
+      datainicio: item.datainicio,
+      idprofissional: 0,
+      datatermino: moment(),
+    }
+    axios.post(htmlghapupdatealergia + item.id, obj).then(() => {
+      getAlergiasGhap();
+    });
+  }
+
+  // DIAGNÓSTICOS (ATENDIMENTO).
+  // lista de diagnósticos para o atendimento.
+  const getDiagnosticosGhap = () => {
+    axios.get(htmlghapdiagnosticos + idatendimento).then((response) => {
+      var x = [];
+      x = response.data;
+      setlistdiagnosticos(x.rows);
+      setarraydiagnosticos(x.rows);
+    });
+  }
+  // inserir diagnóstico.
+  const insertDiagnosticoGhap = (cid, descricao) => {
+    if (ghapprecaucoes.filter(item => item.cid == cid && item.datatermino == null).length > 0) {
+      toast(1, '#ec7063', 'DIAGNÓSTICO JÁ CADASTRADO E ATIVO.', 3000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        datainicio: moment(),
+        datatermino: null,
+        idprofissional: 0,
+        cid: cid,
+        descricao: descricao,
+      }
+      axios.post(htmlghapinsertdiagnostico, obj).then(() => {
+        setcidselector(0);
+        getDiagnosticosGhap();
+      });
+    }
+  }
+  // atualizar diagnóstico (inativar).
+  const updateDiagnosticoGhap = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      datainicio: item.datainicio,
+      datatermino: moment(),
+      idprofissional: 0,
+      cid: item.cid,
+      descricao: item.descricao,
+    }
+    axios.post(htmlghapupdatediagnostico + item.id, obj).then(() => {
+      getDiagnosticosGhap();
+    });
   }
 
   useEffect(() => {
     createAtendimentoGhap();
-
     // API RODRIGO:
     // getAtendimentosGhap();
     getPrecaucoesGhap();
-
+    getAlergiasGhap();
+    // getListaDeDiagnosticos();
+    getDiagnosticosGhap();
 
     freezeScreen(3000);
     setrefreshatendimentos(0);
@@ -4373,7 +4378,6 @@ function Prontuario() {
     loadPaciente(idpaciente);
     loadAtendimento(idpaciente);
     loadHistoricoDeAtendimentos();
-    loadTodasAlergias();
     // alert(idpaciente);
     // alert(listaatendimentos.filter(item => item.cd_paciente == idpaciente).lenght);
     // updatePrincipal();
@@ -4510,7 +4514,7 @@ function Prontuario() {
     loadBhacumulado();
     // carregando as listas.
     loadEvolucoes();
-    loadDiagnosticos(idpaciente);
+    // loadDiagnosticos(idpaciente);
     loadProblemas();
     loadPropostas();
     loadInterconsultas(idpaciente);
@@ -5205,6 +5209,7 @@ function Prontuario() {
           <CardPrecaucao></CardPrecaucao>
 
           <CardAlergias></CardAlergias>
+          <AlergiaField></AlergiaField>
           <CardGestaoDeRiscos></CardGestaoDeRiscos>
           <CardIVCF></CardIVCF>
 
@@ -5216,6 +5221,7 @@ function Prontuario() {
           <CardVm></CardVm>
 
           <CardEvolucoes></CardEvolucoes>
+          <ViewCidOptions></ViewCidOptions>
           <CardDiagnosticos></CardDiagnosticos>
 
           <CardAntibioticos></CardAntibioticos>
@@ -5518,97 +5524,6 @@ function Prontuario() {
     setViewstatus(0);
   }
 
-  // card alergias.
-  var htmltodasalergias = process.env.REACT_APP_API_TODASALERGIAS;
-  const loadTodasAlergias = () => {
-    axios.get(htmltodasalergias + idpaciente).then((response) => {
-      var x = [0, 1]
-      x = response.data;
-      setalergias(x);
-      // alert('ALERGIAS: ' + x)
-    })
-  }
-
-  function CardAlergias() {
-    return (
-      <div
-        id="cardalergias"
-        className="pulsewidgetscroll"
-        title="ALERGIAS."
-        onClick={() => {
-          document.getElementById("cardalergias").classList.toggle("pulsewidgetscrollmax");
-        }}
-        style={{
-          display: 'flex',
-          backgroundColor: alergias.length > 0 ? "#ec7063" : "#52be80",
-          borderColor: alergias.length > 0 ? "#ec7063" : "#52be80",
-        }}
-      >
-        <div className="pulsewidgettitle"
-          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16 }}>
-          {'ALERGIAS'}
-        </div>
-
-        <div className="pulsewidgetcontent"
-          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 14 }}>
-          {alergias.length > 0 ? 'ALERGIAS:' : 'ALERGIAS: SEM REGISTRO DE ALERGIAS'}
-        </div>
-
-        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
-          {alergias.filter(item => item.sn_ativo == 'S').map(item =>
-          (
-            <button
-              title={"REGISTRADO POR: " + item.nm_prestador_criacao + " EM " + moment(item.dh_criacao).format('DD/MM/YY') + "."}
-              className="blue-button"
-              style={{ display: 'flex', flexDirection: 'row' }}>
-              <div>{item.ds_substancia}</div>
-            </button>
-          ))}
-        </div>
-        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
-          <div>
-            {alergias.filter(item => item.sn_ativo == 'N').map(item =>
-            (
-              <button
-                title={"CANCELADA POR: " + item.nm_prestador_inativo + " EM " + moment(item.dh_modificacao).format('DD/MM/YY') + "."}
-                className="blue-button"
-                style={{ display: 'flex', flexDirection: 'row' }}>
-                <div>{item.ds_substancia}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
-          <div>
-            {alergias.filter(item => item.sn_ativo == 'S').map(item =>
-            (
-              <button
-                title={"REGISTRADO POR: " + item.nm_prestador_criacao + " EM " + moment(item.dh_criacao).format('DD/MM/YY') + "."}
-                className="blue-button"
-                style={{ display: 'flex', flexDirection: 'row' }}>
-                <div>{item.ds_alimento}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="pulsewidgetcontent" style={{ display: alergias.length > 0 ? 'flex' : 'none' }}>
-          <div>
-            {alergias.filter(item => item.sn_ativo == 'N').map(item =>
-            (
-              <button
-                title={"CANCELADA POR: " + item.nm_prestador_inativo + " EM " + moment(item.dh_modificacao).format('DD/MM/YY') + "."}
-                className="blue-button"
-                style={{ display: 'flex', flexDirection: 'row' }}>
-                <div>{item.ds_alimento}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-      </div >
-    )
-  }
-
   // card precaução.
   function CardPrecaucao() {
     return (
@@ -5620,7 +5535,7 @@ function Prontuario() {
         style={{
           display: cardprecaucao == 1 ? 'flex' : 'none',
           flexDirection: 'column',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           backgroundColor: ghapprecaucoes.length > 0 ? '#ec7063' : '#52be80',
           borderColor: ghapprecaucoes.length > 0 ? '#ec7063' : '#52be80'
         }}
@@ -5644,19 +5559,33 @@ function Prontuario() {
           </div>
         </div>
 
-        <div style={{ display: ghapprecaucoes.length < 1 ? 'none' : 'flex' }}>
-          <div className="pulsewidgetcontent">
+        <div id="nivel1" style={{ display: ghapprecaucoes.length < 1 ? 'none' : 'flex', width: '100%' }}>
+          <div id="nivel2" className="pulsewidgetcontent" >
             <div style={{
               display: 'flex',
               flexDirection: 'column', justifyContent: 'center',
               marginBottom: 10,
+              paddingRight: 15,
               width: '100%'
             }}>
               {ghapprecaucoes.map(item => (
-                <div
-                  style={{ display: 'flex', flexDirection: 'row', width: '100%' }}
+                <div className="row"
+                  style={{
+                    display: 'flex', flexDirection: 'row',
+                    backgroundColor:
+                      item.idprecaucao == 1 ? '#E67E22' : // contato (laranja). 
+                        item.idprecaucao == 2 ? '#2471A3' : // aerossol (azul escuro). 
+                          item.idprecaucao == 3 ? '#85C1E9' : // gotículas
+                            item.idprecaucao == 4 ? '#F8C471' : // padrão (amarela).
+                              item.idprecaucao == 5 ? '#ABEBC6' : // covid 19 (verde limão).
+                                item.idprecaucao == 6 ? '#AF7AC5 ' : // kcp/vre (roxo).
+                                  '#D5F5E3', // monitoramento de covid-19.
+                    padding: 10,
+                    width: '100%',
+                    opacity: item.datatermino == null ? 1 : 0.5
+                  }}
                   onMouseEnter={() => document.getElementById("btndeleteprecaucao").style.opacity = 1}
-                  onMouseLeave={() => document.getElementById("btndeleteprecaucao").style.opacity = 0.3}
+                  onMouseLeave={() => document.getElementById("btndeleteprecaucao").style.opacity = 0}
                 >
                   <div
                     title={
@@ -5666,16 +5595,19 @@ function Prontuario() {
                         ". ENCERRADO POR " + item.idprofissional + ", EM " + moment(item.datatermino).format('DD/MM/YY') + '.'
                     }
                     className="title2center"
-                    style={{ color: '#ffffff', opacity: item.datatermino == null ? 1 : 0.5, width: '100%' }}>
+                    style={{
+                      color: '#ffffff', opacity: item.datatermino == null ? 1 : 0.5,
+                      width: '100%'
+                    }}>
                     {item.nome}
                   </div>
-                  <button id="btndeleteprecaucao" className="red-button"
+                  <button id="btndeleteprecaucao" className="animated-red-button"
                     style={{ display: item.datatermino == null ? 'flex' : 'none' }}
                   >
                     <img
                       alt=""
                       src={deletar}
-                      onClick={(e) => { updatePrecaucaoGhap(item); getPrecaucoesGhap(); e.stopPropagation() }}
+                      onClick={(e) => { updatePrecaucaoGhap(item); e.stopPropagation() }}
                       style={{
                         margin: 10,
                         height: 30,
@@ -5700,92 +5632,386 @@ function Prontuario() {
       </div>
     )
   }
-
-  // componente para alteração do tipo de precaução.
-  const [viewprecaucao, setViewprecaucao] = useState(0);
-  function ChangePrecaucao() {
-    if (viewprecaucao === 1) {
-      return (
-        <div className="menucover" style={{ zIndex: 9, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-          <div className="menucontainer" style={{ padding: 20 }}>
-            <label
-              className="title2center"
-              style={{ marginTop: 0, marginBottom: 15, width: 200 }}
-            >
-              ATUALIZAR TIPO DE PRECAUÇÃO/ISOLAMENTO
-            </label>
+  // componente para seleção das opções de precaução.
+  const [viewprecaucoesoptions, setviewprecaucoesoptions] = useState(0);
+  function ViewPrecaucoesOptions() {
+    return (
+      <div className="menucover"
+        onClick={() => setviewprecaucoesoptions(0)}
+        style={{ display: viewprecaucoesoptions == 1 ? 'flex' : 'none' }}>
+        <div
+          className="menucontainer" style={{ padding: 20 }}
+        >
+          {precaucoesoptions.map(item => (
             <div
-              id="PRECAUÇÃO."
+              className="blue-button"
+              onClick={() => {
+                setidprecaucao(item.id);
+                setnomeprecaucao(item.nome);
+                insertPrecaucaoGhap(item.id, item.nome);
+              }}
+              style={{ padding: 10, margin: 5, width: 200 }}
+            >
+              {item.nome}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // card alergias.
+  function CardAlergias() {
+    return (
+      <div
+        id="cardalergia"
+        className="pulsewidgetscroll"
+        title="ALERGIAS."
+        onClick={() => document.getElementById("cardalergia").classList.toggle("pulsewidgetscrollmax")}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          backgroundColor: ghapalergias.length > 0 ? '#ec7063' : '#52be80',
+          borderColor: ghapalergias.length > 0 ? '#ec7063' : '#52be80'
+        }}
+      >
+        <div className="pulsewidgettitle"
+          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16 }}>
+          {'ALERGIAS'}
+        </div>
+
+        <div style={{ display: ghapalergias.length > 0 ? 'none' : 'flex' }}>
+          <div className="pulsewidgetcontent">
+            <div
               style={{
                 display: 'flex',
-                flexDirection: window.innerWidth > 800 ? 'row' : 'column',
-                justifyContent: 'center',
-                margin: 5,
-              }}
-            >
-              <div
-                class="radio-toolbar"
-                style={{
-                  display: 'flex',
-                  flexDirection: window.innerWidth > 800 ? 'row' : 'column',
-                  marginTop: 0,
-                  marginBottom: 0,
-                }}
-              >
-                <input
-                  type="radio"
-                  id="radio1"
-                  name="status"
-                  value="PADRÃO"
-                  onClick={() => changePrecaucao(1)}
-                ></input>
-                <label for="radio1">PADRÃO</label>
-                <input
-                  type="radio"
-                  id="radio2"
-                  name="status"
-                  value="CONTATO"
-                  onClick={() => changePrecaucao(2)}
-                ></input>
-                <label for="radio2">CONTATO</label>
-                <input
-                  type="radio"
-                  id="radio3"
-                  name="status"
-                  value="GOTÍCULA"
-                  onClick={() => changePrecaucao(3)}
-                ></input>
-                <label for="radio3">GOTÍCULA</label>
-                <input
-                  type="radio"
-                  id="radio4"
-                  name="status"
-                  value="AEROSSOL"
-                  onClick={() => changePrecaucao(4)}
-                ></input>
-                <label for="radio4">AEROSSOL</label>
-              </div>
+                color: '#ffffff',
+                fontWeight: 'bold', textAlign: 'center', fontSize: 14,
+                marginBottom: 10
+              }}>
+              {'SEM REGISTROS DE ALERGIAS'}
             </div>
           </div>
         </div>
-      );
-    } else {
-      return null;
-    }
+
+        <div id="nivel1" style={{ display: ghapalergias.length < 1 ? 'none' : 'flex', width: '100%' }}>
+          <div id="nivel2" className="pulsewidgetcontent" >
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column', justifyContent: 'center',
+              marginBottom: 10,
+              paddingRight: 15,
+              width: '100%'
+            }}>
+              {ghapalergias.map(item => (
+                <div className="row"
+                  style={{
+                    display: 'flex', flexDirection: 'row',
+                    backgroundColor: '#F1948A',
+                    padding: 10,
+                    width: '100%',
+                    opacity: item.datatermino == null ? 1 : 0.5
+                  }}
+                  onMouseEnter={() => document.getElementById("btndeletealergia").style.opacity = 1}
+                  onMouseLeave={() => document.getElementById("btndeletealergia").style.opacity = 0}
+                >
+                  <div
+                    title={
+                      item.datatermino == null ?
+                        "REGISTRADO POR: " + item.idprofissional + ", EM " + moment(item.datainicio).format('DD/MM/YY') :
+                        "REGISTRADO POR: " + item.idprofissional + ", EM " + moment(item.datainicio).format('DD/MM/YY') +
+                        ". ENCERRADO POR " + item.idprofissional + ", EM " + moment(item.datatermino).format('DD/MM/YY') + '.'
+                    }
+                    className="title2center"
+                    style={{
+                      color: '#ffffff', opacity: item.datatermino == null ? 1 : 0.5,
+                      width: '100%'
+                    }}>
+                    {item.nome}
+                  </div>
+                  <button id="btndeletealergia" className="animated-red-button"
+                    style={{ display: item.datatermino == null ? 'flex' : 'none' }}
+                  >
+                    <img
+                      alt=""
+                      src={deletar}
+                      onClick={(e) => {
+                        updateAlergiaGhap(item);
+                        e.stopPropagation()
+                      }}
+                      style={{
+                        margin: 10,
+                        height: 30,
+                        width: 30,
+                      }}
+                    ></img>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="pulsewidgetcontent">
+          <button
+            className="blue-button" style={{ width: 50, height: 50, alignSelf: 'center' }}
+            onClick={(e) => { setalergiafield(1); e.stopPropagation() }}
+          >
+            +
+          </button>
+        </div>
+      </div>
+    )
+  }
+  // componente para descrição de alergia.
+  const [alergiafield, setalergiafield] = useState(0);
+  function AlergiaField() {
+    return (
+      <div
+        className="menucover"
+        onClick={() => setalergiafield(0)}
+        style={{
+          display: alergiafield == 1 ? 'flex' : 'none',
+          zIndex: 9, flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div>{'INSERIR ALERGIA'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setalergiafield(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+              <button className="green-button"
+                onClick={() => insertAlergiaGhap()}
+              >
+                <img
+                  alt=""
+                  src={salvar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div className="corpo" onClick={(e) => e.stopPropagation()}>
+            <input
+              className="input"
+              autoComplete="off"
+              placeholder="ALERGIA."
+              title="DESCREVA AQUI A ALERGIA DO PACIENTE."
+              onFocus={(e) => (e.target.placeholder = '')}
+              onBlur={(e) => (e.target.placeholder = 'ALERGIA.')}
+              style={{
+                height: 50,
+                width: '30vw',
+                margin: 0,
+                padding: 0,
+              }}
+              id="inputAlergia"
+              maxLength={200}
+            ></input>
+          </div>
+        </div>
+      </div>
+    )
   }
 
-  const showChangePrecaucao = () => {
-    window.scrollTo(0, 0);
-    setViewprecaucao(1);
+  // card alergias.
+  function CardDiagnosticos() {
+    return (
+      <div
+        id="carddiagnostico"
+        className="pulsewidgetscroll"
+        title="DIAGNÓSTICOS."
+        onClick={() => document.getElementById("carddiagnostico").classList.toggle("pulsewidgetscrollmax")}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          backgroundColor: listdiagnosticos.length > 0 ? '#ec7063' : '#52be80',
+          borderColor: listdiagnosticos.length > 0 ? '#ec7063' : '#52be80'
+        }}
+      >
+        <div className="pulsewidgettitle"
+          style={{ color: '#ffffff', fontWeight: 'bold', textAlign: 'center', fontSize: 16 }}>
+          {'DIAGNÓSTICOS'}
+        </div>
+
+        <div style={{ display: ghapalergias.length > 0 ? 'none' : 'flex' }}>
+          <div className="pulsewidgetcontent">
+            <div
+              style={{
+                display: 'flex',
+                color: '#ffffff',
+                fontWeight: 'bold', textAlign: 'center', fontSize: 14,
+                marginBottom: 10
+              }}>
+              {'SEM REGISTROS DE DIAGNÓSTICOS'}
+            </div>
+          </div>
+        </div>
+
+        <div id="nivel1" style={{ display: ghapalergias.length < 1 ? 'none' : 'flex', width: '100%' }}>
+          <div id="nivel2" className="pulsewidgetcontent" >
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column', justifyContent: 'center',
+              marginBottom: 10,
+              paddingRight: 15,
+              width: '100%'
+            }}>
+
+              {listdiagnosticos.map(item => (
+                <div className="row"
+                  style={{
+                    display: 'flex', flexDirection: 'row',
+                    backgroundColor: '#F1948A',
+                    padding: 10,
+                    width: '100%',
+                    opacity: item.datatermino == null ? 1 : 0.5
+                  }}
+                  onMouseEnter={() => document.getElementById("btndeletediagnostico").style.opacity = 1}
+                  onMouseLeave={() => document.getElementById("btndeletediagnostico").style.opacity = 0}
+                >
+                  <div
+                    title={
+                      item.datatermino == null ?
+                        "REGISTRADO POR: " + item.idprofissional + ", EM " + moment(item.datainicio).format('DD/MM/YY') :
+                        "REGISTRADO POR: " + item.idprofissional + ", EM " + moment(item.datainicio).format('DD/MM/YY') +
+                        ". ENCERRADO POR " + item.idprofissional + ", EM " + moment(item.datatermino).format('DD/MM/YY') + '.'
+                    }
+                    className="title2center"
+                    style={{
+                      color: '#ffffff', opacity: item.datatermino == null ? 1 : 0.5,
+                      width: '100%'
+                    }}>
+                    {item.cid + ' - ' + item.descricao.toString().toUpperCase()}
+                  </div>
+                  <button id="btndeletediagnostico" className="animated-red-button"
+                    style={{ display: item.datatermino == null ? 'flex' : 'none' }}
+                  >
+                    <img
+                      alt=""
+                      src={deletar}
+                      onClick={(e) => {
+                        updateDiagnosticoGhap(item);
+                        e.stopPropagation()
+                      }}
+                      style={{
+                        margin: 10,
+                        height: 30,
+                        width: 30,
+                      }}
+                    ></img>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="pulsewidgetcontent">
+          <button
+            className="blue-button" style={{ width: 50, height: 50, alignSelf: 'center' }}
+            onClick={(e) => { setcidselector(1); getListaDeDiagnosticos(); e.stopPropagation() }}
+          >
+            +
+          </button>
+        </div>
+      </div>
+    )
   }
 
-  var prec = precaucao;
-  const changePrecaucao = (value) => {
-    document.body.style.overflow = null;
-    setprecaucao(value);
-    prec = value;
-    updateAtendimento();
-    setViewprecaucao(0);
+  // componente para seleção do CID e diagnóstico.
+  // var cid10 = 'https://cid10-api.herokuapp.com/cid10'; // SE FOR USAR API DE TERCEIROS.
+  const [listacid, setlistacid] = useState([]);
+  const [arraycid, setarraycid] = useState([]);
+  const getListaDeDiagnosticos = () => {
+    axios.get(htmlghapcid).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setlistacid(x.rows);
+      setarraycid(x.rows);
+      // alert(listacid.length)
+    });
+  }
+  const [cidselector, setcidselector] = useState(0);
+  function ViewCidOptions() {
+    return (
+      <div
+        className="menucover"
+        onClick={() => setcidselector(0)}
+        style={{
+          display: cidselector == 1 ? 'flex' : 'none',
+          zIndex: 9, flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div>{'INSERIR DIAGNÓSTICO'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setcidselector(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div className="corpo" onClick={(e) => e.stopPropagation()}>
+            <input
+              className="input"
+              autoComplete="off"
+              placeholder="BUSCAR..."
+              title="BUSCAR DIAGNÓSTICO."
+              onFocus={(e) => (e.target.placeholder = '')}
+              onBlur={(e) => (e.target.placeholder = 'BUSCAR...')}
+              style={{
+                height: 50,
+                width: '40vw',
+                margin: 0,
+                padding: 0,
+              }}
+              id="inputDiagnostico"
+              maxLength={200}
+            ></input>
+            <div>
+            </div>
+            <div className="scroll" style={{ height: '30vh', width: '60vh', marginTop: 10 }}>
+              {arraycid.map(item => (
+                <div
+                  className="blue-button" style={{ width: '100%', minWidth: '100%' }}
+                  onClick={() => {
+                    insertDiagnosticoGhap(item.cid, item.descricao);
+                  }}
+                  style={{ padding: 10, margin: 5, width: '100%' }}
+                >
+                  {item.cid + ' - ' + item.descricao.toString().toUpperCase()}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // card dias de internação.
@@ -7849,7 +8075,7 @@ function Prontuario() {
       ativo: ativo,
       classificacao: classificacao,
       descritor: descritor,
-      precaucao: prec,
+      precaucao: null,
       assistente: assistente,
     };
     axios.post(html + '/updateatendimento/' + idatendimento, obj).then(() => {
@@ -13372,7 +13598,6 @@ function Prontuario() {
         <ShowInfoLesoes></ShowInfoLesoes>
         <ShowCurativosList></ShowCurativosList>
         <ChangeStatus></ChangeStatus>
-        <ChangePrecaucao></ChangePrecaucao>
         <ChangeCabeceira></ChangeCabeceira>
         <ChangeDieta></ChangeDieta>
         <Braden></Braden>
