@@ -20,10 +20,12 @@ function Propostas(
   var html = 'https://pulsarapp-server.herokuapp.com';
   // recuperando estados globais (Context.API).
   const {
+    idpaciente,
     idatendimento,
     setpickdate1,
     pickdate1,
     setlistpropostas,
+    listpropostas,
     setarraypropostas,
   } = useContext(Context)
   // history (react-router-dom).
@@ -37,71 +39,49 @@ function Propostas(
       setviewcomponent(viewproposta);
       setvalordatepicker(0);
       setpickdate1(moment().format('DD/MM/YYYY'));
-    } else if (viewproposta == 2) {
-      setviewcomponent(viewproposta);
-      setvalordatepicker(0);
-      setpickdate1(moment().format(inicio));
     } else {
     }
   }, [viewproposta])
 
-  const loadPropostas = () => {
-    // ROTA: SELECT * FROM propostas WHERE idatendimento = idatendimento.
-    axios.get(html + "/propostas/'" + idatendimento + "'").then((response) => {
-      var x = [0, 1];
+  // lista de propostas para o atendimento.
+  var htmlghappropostas = process.env.REACT_APP_API_CLONE_PROPOSTAS;
+  const getPropostasGhap = () => {
+    axios.get(htmlghappropostas + idatendimento).then((response) => {
+      var x = [];
       x = response.data;
-      setlistpropostas(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY') < moment(b.inicio, 'DD/MM/YYYY') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-      setarraypropostas(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY') < moment(b.inicio, 'DD/MM/YYYY') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      setlistpropostas(x.rows);
+      setarraypropostas(x.rows);
     });
   }
 
   // inserindo registro.
+  var htmlghapinsertproposta = process.env.REACT_APP_API_CLONE_INSERTPROPOSTA;
+  // inserir proposta.
   const insertData = () => {
-    var proposta = document.getElementById("inputProposta").value.toUpperCase();
-    if (pickdate1 != '' && proposta != '') {
+    var proposta = document.getElementById("inputProposta").value;
+    if (listpropostas.filter(item => item.proposta == proposta && item.datatermino == null).length > 0) {
+      toast(1, '#ec7063', 'PROPOSTA JÁ CADASTRADA', 3000);
+    } else {
       var obj = {
+        idpct: idpaciente,
         idatendimento: idatendimento,
-        inicio: pickdate1,
-        termino: '',
+        datainicio: moment(pickdate1, 'DD/MM/YYYY'),
+        datatermino: null,
         proposta: proposta,
-        registro: moment().format('DD/MM/YYYY') + ' ÀS ' + moment().format('HH:mm')
-      };
-      axios.post(html + '/insertprop', obj).then(() => {
+        idprofissional: 0,
+        status: 0 // 1 = concluído.
+      }
+      alert(JSON.stringify(obj))
+      axios.post(htmlghapinsertproposta, obj).then(() => {
         toast(1, '#52be80', 'PROPOSTA REGISTRADA COM SUCESSO.', 3000);
         setTimeout(() => {
-          loadPropostas();
+          getPropostasGhap();
           fechar();
         }, 3000);
       });
-    } else {
-      toast(1, '#ec7063', 'CAMPOS OBRIGATÓRIOS EM BRANCO.', 3000);
     }
-  };
-
-  // atualizando registro.
-  const updateData = () => {
-    var proposta = document.getElementById("inputProposta").value.toUpperCase();
-    if (pickdate1 != '' && proposta != '') {
-      var obj = {
-        id: idproposta,
-        idatendimento: idatendimento,
-        inicio: pickdate1,
-        termino: termino,
-        proposta: proposta,
-        registro: moment().format('DD/MM/YYYY') + ' ÀS ' + moment().format('HH:mm')
-      };
-      axios.post(html + '/updateprop/' + idproposta, obj).then(() => {
-        toast(1, '#52be80', 'PROPOSTA ATUALIZADA COM SUCESSO.', 3000);
-        setTimeout(() => {
-          loadPropostas();
-          fechar();
-        }, 3000);
-      });
-    } else {
-      toast(1, '#ec7063', 'CAMPOS OBRIGATÓRIOS EM BRANCO.', 3000);
-    }
-  };
-
+  }
+ 
   // exibição do datepicker.
   const [valordatepicker, setvalordatepicker] = useState(0);
   const [mododatepicker, setmododatepicker] = useState(0);
@@ -156,7 +136,7 @@ function Propostas(
                 ></img>
               </button>
               <button className="green-button"
-                onClick={viewcomponent == 1 ? () => insertData() : () => updateData()}
+                onClick={() => insertData()}
               >
                 <img
                   alt=""

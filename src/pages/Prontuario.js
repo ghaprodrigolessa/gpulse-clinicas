@@ -324,7 +324,6 @@ function Prontuario() {
       axios.post(html + '/insertprop', obj).then(() => {
         toast(1, '#52be80', 'PROPOSTA REGISTRADA COM SUCESSO.', 3000);
         resetTranscript();
-        loadPropostas();
       });
     } else {
     }
@@ -455,143 +454,88 @@ function Prontuario() {
   const [dataabd, setdataabd] = useState('');
   // carregando o registro de invasões.
 
+  const [listinvasoes, setlistinvasoes] = useState([]);
   const loadInvasoes = () => {
-    axios.get(html + "/getinvasoes/'" + idatendimento + "'").then((response) => {
+    axios.get(htmlghapinvasoes + idatendimento).then((response) => {
       var x = [0, 1];
       x = response.data;
-      if (x.length > 0) {
-        setidinv(x.map((item) => item.id));
-        setsnc(x.map((item) => item.snc));
-        setdatasnc(x.map((item) => item.datasnc));
-        setva(x.map((item) => item.va));
-        setdatava(x.map((item) => item.datava));
-        setjid(x.map((item) => item.jid));
-        setdatajid(x.map((item) => item.datajid));
-        setjie(x.map((item) => item.jie));
-        setdatajie(x.map((item) => item.datajie));
-        setsubcld(x.map((item) => item.subcld));
-        setdatasubcld(x.map((item) => item.datasubcld));
-        setsubcle(x.map((item) => item.subcle));
-        setdatasubcle(x.map((item) => item.datasubcle));
-        setpiard(x.map((item) => item.piard));
-        setdatapiard(x.map((item) => item.datapiard));
-        setpiare(x.map((item) => item.piare));
-        setdatapiare(x.map((item) => item.datapiare));
-        setvfemd(x.map((item) => item.vfemd));
-        setdatavfemd(x.map((item) => item.datavfemd));
-        setvfeme(x.map((item) => item.vfeme));
-        setdatavfeme(x.map((item) => item.datavfeme));
-        setafemd(x.map((item) => item.afemd));
-        setdataafemd(x.map((item) => item.dataafemd));
-        setafeme(x.map((item) => item.afeme));
-        setdataafeme(x.map((item) => item.dataafeme));
-        setsvd(x.map((item) => item.svd));
-        setdatasvd(x.map((item) => item.datasvd));
-        setabd(x.map((item) => item.abd));
-        setdataabd(x.map((item) => item.dataabd));
-        setpiapedd(x.map((item) => item.piapedd));
-        setdatapiapedd(x.map((item) => item.datapiapedd));
-        setpiapede(x.map((item) => item.piapede));
-        setdatapiapede(x.map((item) => item.datapiapede));
-        settorax(x.map((item) => item.torax));
-        setdatatorax(x.map((item) => item.datatorax));
-        loadAlertas();
-      } else {
-        // criando o registro de invasões para o atendimento.
-        insertInvasoes();
-        setTimeout(() => {
-          loadInvasoes();
-          loadAlertas();
-        }, 1000);
-      }
+      setlistinvasoes(x.rows);
+      console.log('INVASÕES ATIVAS: ' + x.length);
     });
   }
-  // atualizando as invasões.
-  const updateInvasoes = () => {
-    setloadprincipal(0);
-    console.log('ATUALIZANDO INVASÕES.');
-    var obj = {
-      idatendimento: idatendimento,
-      snc: snc,
-      datasnc: datasnc,
-      va: va,
-      datava: datava,
-      jid: jid,
-      datajid: datajid,
-      jie: jie,
-      datajie: datajie,
-      subcld: subcld,
-      datasubcld: datasubcld,
-      subcle: subcle,
-      datasubcle: datasubcle,
-      piard: piard,
-      datapiard: datapiard,
-      piare: piare,
-      datapiare: datapiare,
-      vfemd: vfemd,
-      datavfemd: datavfemd,
-      vfeme: vfeme,
-      datavfeme: datavfeme,
-      afemd: afemd,
-      dataafemd: dataafemd,
-      afeme: afeme,
-      dataafeme: dataafeme,
-      piapedd: piapedd,
-      datapiapedd: datapiapedd,
-      piapede: piapede,
-      datapiapede: datapiapede,
-      svd: svd,
-      datasvd: datasvd,
-      torax: torax,
-      datatorax: datatorax,
-      abd: abd,
-      dataabd: dataabd,
-    };
-    axios.post(html + '/updateinvasoes/' + idinv, obj).then(() => {
-      loadAlertas();
-      setloadprincipal(0);
-    });
-  };
-  // criando o registro de invasões para o atendimento.
-  const insertInvasoes = () => {
-    var obj = {
-      idatendimento: idatendimento,
-      snc: 0,
-      datasnc: '',
-      va: 4,
-      datava: '',
-      jid: 0,
-      datajid: '',
-      jie: 0,
-      datajie: '',
-      subcld: 0,
-      datasubcld: '',
-      subcle: 0,
-      datasubcle: '',
-      piard: 0,
-      datapiard: '',
-      piare: 0,
-      datapiare: '',
-      vfemd: 0,
-      datavfemd: '',
-      vfeme: 0,
-      datavfeme: '',
-      afemd: 0,
-      dataafemd: '',
-      afeme: 0,
-      dataafeme: '',
-      piapedd: 0,
-      datapiapedd: '',
-      piapede: 0,
-      datapiapede: '',
-      svd: 0,
-      datasvd: '',
-      torax: 0,
-      datatorax: '',
-      abd: 0,
-      dataabd: '',
-    };
-    axios.post(html + '/insertinvasoes', obj);
+
+  // LISTA DE DISPOSITIVOS:
+  const [dispositivo, setdispositivo] = useState('');
+  const arraydispositivossnc = ['PVC', 'PIC', 'DVE'];
+  const arraydispositivosva = ['CN', 'MF', 'TOT', 'TQT'];
+  const arraydispositivosvasc = ['CVC', 'CDL', 'CAT']; // CAT = permcath, intracath, outros cateteres incomuns.
+  const arraydispositivospia = ['PIA'];
+  const arraydispositivosuro = ['SVD', 'SVD3']; // SVD3 = svd de três vias.
+  const arraydispositivostorax = ['DRN', 'MCP']; // MAP = marcapasso epicárdico.
+  const arraydispositivosabd = ['DRN', 'PEN']; // DRN = dreno, PEN = penrose.
+
+  /* 
+  LOCALIZAÇÕES PARA DISPOSITIVOS:
+  SNC, 
+  VA, 
+  JID, JIE, SUBCLD, SUBCLE, VFEMD, VFEME, 
+  ARD, ARE, AFEMD, AFEME, APD, APE
+  TORAXD, TORAXE, TORAXMED,
+  ABD1, ABD2, ABD3, 
+  URO
+  */
+  const [localdispositivo, setlocaldispositivo] = useState('');
+
+  const updateInvasoes = (dispositivo) => {
+    let getinvasao = [];
+    getinvasao = listinvasoes.filter(item => item.local == localdispositivo && item.datatermino == null);
+    setTimeout(() => {
+      var idinvasao = getinvasao.map(item => item.id);
+      var datainicioinvasao = getinvasao.map(item => item.datainicio);
+      var dispositivoinvasao = getinvasao.map(item => item.dispositivo).toString(); // dispositivo que será modificado...
+      if (getinvasao.length > 0) {
+        // atualizar a invasão.
+        var obj = {
+          idpct: idpaciente,
+          idatendimento: idatendimento,
+          dispositivo: dispositivoinvasao, // dispositivo que será modificado!
+          local: localdispositivo,
+          datainicio: datainicioinvasao,
+          datatermino: moment(),
+          idprofissional: 0
+        };
+        axios.post(htmlghapupdateinvasao + idinvasao, obj).then(() => {
+          // inserir a invasão "atualizada".
+          var obj = {
+            idpct: idpaciente,
+            idatendimento: idatendimento,
+            dispositivo: dispositivo, // novo dispositivo!
+            local: localdispositivo,
+            datainicio: moment(),
+            datatermino: null,
+            idprofissional: 0
+          };
+          axios.post(htmlghapinsertinvasao, obj).then(() => {
+            loadInvasoes();
+          });
+        });
+
+      } else {
+        // inserir uma invasão.
+        var obj = {
+          idpct: idpaciente,
+          idatendimento: idatendimento,
+          dispositivo: dispositivo,
+          local: localdispositivo,
+          datainicio: moment(),
+          datatermino: null,
+          idprofissional: 0
+        };
+        axios.post(htmlghapinsertinvasao, obj).then(() => {
+          loadInvasoes();
+        });
+      }
+    }, 1000);
   };
 
   // estados relacionados aos parâmetros ventilatórios.
@@ -2683,23 +2627,6 @@ function Prontuario() {
   }, [stateprontuario])
 
   // LISTA DE PROPOSTAS.
-  const loadPropostas = () => {
-    // ROTA: SELECT * FROM propostas WHERE idatendimento = idatendimento.
-    axios.get(html + "/propostas/'" + idatendimento + "'").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setlistpropostas(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY HH:MM') < moment(b.inicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-      setarraypropostas(x.sort((a, b) => moment(a.inicio, 'DD/MM/YYYY HH:MM') < moment(b.inicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-    });
-  }
-  // excluindo uma proposta.
-  const deleteProposta = (item) => {
-    axios.get(html + "/deleteprop/'" + item.id + "'").then(() => {
-      loadPropostas();
-      // toast(1, '#52be80', 'PROPOSTA CANCELADA COM SUCESSO.', 3000);
-    });
-  }
-
   // filtro para as propostas.
   function ShowFilterProposta() {
     if (stateprontuario === 4) {
@@ -2784,41 +2711,34 @@ function Prontuario() {
               >
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
                   <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                    <div id="proposta" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                    <div id="proposta"
+                      disabled={item.status == 3 ? true : false}
+                      style={{
+                        display: 'flex',
+                        opacity: item.status == 3 ? 0.5 : 1,
+                        flexDirection: 'row', justifyContent: 'center'
+                      }}>
                       <button
-                        className={item.termino == '' ? "red-button" : "green-button"}
-                        onClick={(e) => { checkProposta(item); e.stopPropagation() }}
-                        title={item.termino == '' ? "CLIQUE PARA MARCAR A PROPOSTA COMO REALIZADA." : "CLIQUE PARA MARCAR A PROPOSTA COMO PENDENTE."}
+                        className={item.status == 0 ? "red-button" : "green-button"}
+                        onClick={(e) => { updatePropostaGhapChecar(item); e.stopPropagation() }}
+                        title={item.status == 0 ? "CLIQUE PARA MARCAR A PROPOSTA COMO REALIZADA." : "CLIQUE PARA MARCAR A PROPOSTA COMO PENDENTE."}
                         style={{
                           flexDirection: 'row',
                           padding: 10,
                         }}
                       >
-                        <div style={{ marginRight: item.termino == '' ? 0 : 5 }}>
-                          {item.termino == '' ? '!' : '✔ '}
+                        <div style={{ marginRight: item.datatermino == null ? 0 : 5 }}>
+                          {item.datatermino == null ? '!' : '✔ '}
                         </div>
-                        <div>{item.termino == '' ? '' : item.termino}</div>
+                        <div>{item.datatermino == null ? '' : moment(item.datatermino).format('DD/MM/YY')}</div>
                       </button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                      <button className="animated-yellow-button"
-                        onClick={() => selectProposta(item)}
-                      >
-                        <img
-                          alt=""
-                          src={editar}
-                          style={{
-                            margin: 10,
-                            height: 30,
-                            width: 30,
-                          }}
-                        ></img>
-                      </button>
                       <button
                         id={"deletekey 0 " + item.id}
-                        style={{ display: 'flex' }}
+                        style={{ display: item.status == 3 ? 'none' : 'flex' }}
                         className="animated-red-button"
-                        onClick={(e) => { deletetoast(deleteProposta, item); e.stopPropagation() }}
+                        onClick={(e) => { deletetoast(updatePropostaGhapInativar, item); e.stopPropagation() }}
                       >
                         <img
                           alt=""
@@ -2835,7 +2755,7 @@ function Prontuario() {
                         id={"deletekey 1 " + item.id}
                         style={{ display: 'none', width: 100 }}
                         className="animated-red-button"
-                        onClick={(e) => { deletetoast(deleteProposta, item); e.stopPropagation() }}
+                        onClick={(e) => { deletetoast(updatePropostaGhapInativar, item); e.stopPropagation() }}
                       >
                         <div>DESFAZER</div>
                         <div className="deletetoast"
@@ -2848,10 +2768,10 @@ function Prontuario() {
                     </div>
                   </div>
                   <div className="title2" style={{ marginBottom: 0, justifyContent: 'left' }}>
-                    {item.inicio + ' - ' + item.proposta}
+                    {moment(item.datainicio).format('DD/MM/YY') + ' - ' + item.proposta}
                   </div>
                   <div className="title2" style={{ marginTop: 0, justifyContent: 'left', opacity: 0.5 }}>
-                    {'REGISTRADO POR ' + nomeusuario + ' EM ' + item.registro + '.'}
+                    {'REGISTRADO POR ' + nomeusuario + ' EM ' + moment(item.datainicio).format('DD/MM/YY') + '.'}
                   </div>
                 </div>
               </p>
@@ -2880,41 +2800,6 @@ function Prontuario() {
     }
   }, [stateprontuario, arraypropostas]);
 
-  // checando proposta como concluída.
-  const checkProposta = (item) => {
-    var idproposta = item.id;
-    var inicio = item.inicio;
-    var termino = item.termino;
-    var proposta = item.proposta;
-    if (termino === '') {
-      termino = moment().format('DD/MM/YYYY');
-      var obj = {
-        id: idproposta,
-        idatendimento: idatendimento,
-        inicio: inicio,
-        termino: termino,
-        proposta: proposta,
-        registro: moment().format('DD/MM/YYYY') + ' ÀS ' + moment().format('HH:mm')
-      };
-      axios.post(html + '/updateprop/' + idproposta, obj).then(() => {
-        toast(1, '#52be80', 'PROPOSTA ATUALIZADA COM SUCESSO.', 3000);
-        loadPropostas();
-      });
-    } else {
-      termino = '';
-      var obj = {
-        id: idproposta,
-        idatendimento: idatendimento,
-        inicio: inicio,
-        termino: termino,
-        proposta: proposta,
-      };
-      axios.post(html + '/updateprop/' + idproposta, obj).then(() => {
-        toast(1, '#52be80', 'PROPOSTA ATUALIZADA COM SUCESSO.', 3000);
-        loadPropostas();
-      });
-    }
-  }
 
   // renderizando a tela INSERIR OU ATUALIZAR PROPOSTAS.
   const [viewproposta, setviewproposta] = useState(0);
@@ -4183,6 +4068,18 @@ function Prontuario() {
   var htmlghapinsertdiagnostico = process.env.REACT_APP_API_CLONE_INSERTDIAGNOSTICO;
   var htmlghapupdatediagnostico = process.env.REACT_APP_API_CLONE_UPDATEDIAGNOSTICO;
 
+  var htmlghappropostas = process.env.REACT_APP_API_CLONE_PROPOSTAS;
+  var htmlghapinsertproposta = process.env.REACT_APP_API_CLONE_INSERTPROPOSTA;
+  var htmlghapupdateproposta = process.env.REACT_APP_API_CLONE_UPDATEPROPOSTA;
+
+  var htmlghapdietas = process.env.REACT_APP_API_CLONE_DIETAS;
+  var htmlghapinsertdieta = process.env.REACT_APP_API_CLONE_INSERTPROPOSTA;
+  var htmlghapupdatedieta = process.env.REACT_APP_API_CLONE_UPDATEPROPOSTA;
+
+  var htmlghapinvasoes = process.env.REACT_APP_API_CLONE_INVASOES;
+  var htmlghapinsertinvasao = process.env.REACT_APP_API_CLONE_INSERTINVASAO;
+  var htmlghapupdateinvasao = process.env.REACT_APP_API_CLONE_UPDATEINVASAO;
+
   // ATENDIMENTO.
   // retornando atendimentos.
   const getAtendimentosGhap = () => {
@@ -4361,14 +4258,129 @@ function Prontuario() {
     });
   }
 
+  // PROPOSTAS (ATENDIMENTO).
+  // lista de propostas para o atendimento.
+  const getPropostasGhap = () => {
+    axios.get(htmlghappropostas + idatendimento).then((response) => {
+      var x = [];
+      x = response.data;
+      setlistpropostas(x.rows);
+      setarraypropostas(x.rows);
+    });
+  }
+  // inserir proposta.
+  const insertPropostaGhap = (datainicio, proposta) => {
+    if (listpropostas.filter(item => item.proposta == proposta && item.datatermino == null).length > 0) {
+      toast(1, '#ec7063', 'PROPOSTA JÁ CADASTRADA', 3000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        datainicio: moment(datainicio, 'DD/MM/YYYY'),
+        datatermino: null,
+        proposta: proposta,
+        idprofissional: 0,
+        status: 0 // 1 = concluído.
+      }
+      axios.post(htmlghapinsertproposta, obj).then(() => {
+        getPropostasGhap();
+      });
+    }
+  }
+  // atualizar proposta (checar como concluída).
+  const updatePropostaGhapChecar = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      datainicio: item.datainicio,
+      datatermino: moment(),
+      proposta: item.proposta,
+      idprofissional: item.idprofissional,
+      status: 1 // 1 = concluído.
+    }
+    alert(JSON.stringify(obj));
+    axios.post(htmlghapupdateproposta + item.id, obj).then(() => {
+      getPropostasGhap();
+    });
+  }
+
+  // excluir proposta (inativar).
+  const updatePropostaGhapInativar = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      datainicio: item.datainicio,
+      datatermino: moment(),
+      proposta: item.proposta,
+      idprofissional: item.idprofissional,
+      status: 3 // 3 = cancelada, inativada.
+    }
+    axios.post(htmlghapupdateproposta + item.id, obj).then(() => {
+      getPropostasGhap();
+    });
+  }
+
+  // PROPOSTAS (ATENDIMENTO).
+  // lista de propostas para o atendimento.
+  const [listdieta, setlistdieta] = useState([]);
+  const getDietaGhap = () => {
+    axios.get(htmlghapdietas + idatendimento).then((response) => {
+      var x = [];
+      x = response.data;
+      setlistdieta(x.rows);
+      setviadieta(listdieta.map(item => item.via));
+      setcabeceira(listdieta.map(item => item.cabeceira));
+    });
+  }
+  // inserir via da dieta e posição da cabeceira.
+  const insertDietaGhap = () => {
+    if (listdieta.filter(item => item.via == viadieta && item.cabeceira == cabeceira && item.datatermino == null).length > 0) {
+      toast(1, '#ec7063', 'VIA DE DIETA JÁ ATIVA', 3000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        datainicio: moment(),
+        datatermino: null,
+        idprofissional: 0,
+        via: viadieta,
+        cabeceira: cabeceira,
+        infusao: infusaodieta,
+        get: getdieta,
+      }
+      axios.post(htmlghapinsertdieta, obj).then(() => {
+        getDietaGhap();
+      });
+    }
+  }
+
+  // atualizar via da dieta e posição da cabeceira (inativa o registro).
+  const updateDietaGhap = (item) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      datainicio: item.datainicio,
+      datatermino: moment(),
+      idprofissional: 0,
+      via: item.via,
+      cabeceira: item.cabeceira,
+      infusao: item.infusao,
+      get: item.get,
+    }
+    axios.post(htmlghapupdatedieta + item.id, obj).then(() => {
+      getPropostasGhap();
+    });
+  }
+
   useEffect(() => {
     createAtendimentoGhap();
-    // API RODRIGO:
     // getAtendimentosGhap();
     getPrecaucoesGhap();
     getAlergiasGhap();
     // getListaDeDiagnosticos();
     getDiagnosticosGhap();
+    getPropostasGhap();
+    loadInvasoes();
 
     freezeScreen(3000);
     setrefreshatendimentos(0);
@@ -4516,7 +4528,6 @@ function Prontuario() {
     loadEvolucoes();
     // loadDiagnosticos(idpaciente);
     loadProblemas();
-    loadPropostas();
     loadInterconsultas(idpaciente);
     loadLaboratorio();
     loadImagem();
@@ -7279,9 +7290,7 @@ function Prontuario() {
   }, [arrayLastDadosClinicos, arrayDadosDataChart, valorDadosVitais]);
 
   // card para gerenciamento nutricional.
-  const [viadieta, setviadieta] = useState(0); // 0 = VO, 1 == SNE, 2 = GGT, 3 = NPT.
-  const [infusaodieta, setinfusaodieta] = useState(0);
-  const [getdieta, setgetdieta] = useState(0);
+  // FEATURE: acrescentar GET, infusão e tipo de dieta.
   function CardNutricao() {
     return (
       <div id="cardnutricao" className="pulsewidgetscroll"
@@ -7297,7 +7306,13 @@ function Prontuario() {
         <div className="pulsewidgettitle"
           style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignSelf: 'center' }}>
           <div style={{ display: 'flex', color: "#ffffff", flexDirection: 'column', justifyContent: 'center' }}>
-            {viadieta == 0 ? 'DIETA ORAL' : 'DIETA: ' + infusaodieta + ' ml/h'}
+            {viadieta == 0 ? 'DIETA ORAL' :
+              viadieta == 1 ? 'SONDA NASOENTÉRICA' :
+                viadieta == 2 ? 'SONDA OROGÁSTRICA' :
+                  viadieta == 3 ? 'GASTROSTOMIA' :
+                    viadieta == 4 ? 'JEJUNOSTOMIA' :
+                      'NUTRIÇÃO PARENTERAL TOTAL'
+            }
           </div>
           <img
             alt=""
@@ -7320,7 +7335,10 @@ function Prontuario() {
           }}
           onClick={(e) => { setchangedieta(1); e.stopPropagation() }}
         >
-          <div style={{ fontSize: 18 }}>{viadieta == 0 ? 'DIETA POR VIA ORAL' : viadieta == 1 ? 'DIETA POR SNE' : viadieta == 2 ? 'DIETA POR GASTRO/JEJUNOSTOMIA' : 'NUTRIÇÃO PARENTERAL TOTAL'}</div>
+          <div style={{ display: 'flex', color: "#ffffff", flexDirection: 'column', justifyContent: 'center' }}>
+            {viadieta == 0 ? 'DIETA ORAL' : viadieta == 1 ? 'SONDA NASOENTÉRICA' : viadieta == 2 ? 'SONDA OROGÁSTRICA' : viadieta == 3 ? 'GASTROSTOMIA' : 'JEJUNOSTOMIA'}
+          </div>
+
           <div style={{ display: viadieta != 0 ? 'flex' : 'none' }}>
             {'INFUSÃO: ' + infusaodieta + ' ml/h'}
           </div>
@@ -7333,7 +7351,6 @@ function Prontuario() {
               width: 65, minWidth: 65, height: 65, minHeight: 65,
               position: 'absolute', top: 5, right: 5
             }}
-            onClick={(e) => { setviewcabeceira(1); e.stopPropagation() }}
           >
             <img
               alt=""
@@ -7351,6 +7368,10 @@ function Prontuario() {
   }
 
   const [changedieta, setchangedieta] = useState(0);
+  const [viadieta, setviadieta] = useState(0);
+  const [infusaodieta, setinfusaodieta] = useState(0);
+  const [getdieta, setgetdieta] = useState(0); // get (objetivo) da dieta.
+  const [cabeceira, setcabeceira] = useState(0);
   function ChangeDieta() {
     if (changedieta == 1) {
       return (
@@ -7377,7 +7398,7 @@ function Prontuario() {
                   ></img>
                 </button>
                 <button className="green-button"
-                // onClick={viewcomponent == 1 ? () => insertData() : () => updateData()}
+                  onClick={insertDietaGhap()}
                 >
                   <img
                     alt=""
@@ -7422,16 +7443,28 @@ function Prontuario() {
                   className={viadieta == 2 ? "red-button" : "blue-button"} style={{ width: 150, minWidth: 100, height: 75, minHeight: 50, padding: 10 }}
                   onClick={(e) => { setviadieta(2); e.stopPropagation() }}
                 >
-                  GASTRO/ JEJUNOSTOMIA
+                  SONDA OROGÁSTRICA
                 </button>
                 <button
                   className={viadieta == 3 ? "red-button" : "blue-button"} style={{ width: 150, minWidth: 100, height: 75, minHeight: 50, padding: 10 }}
                   onClick={(e) => { setviadieta(3); e.stopPropagation() }}
                 >
+                  GASTROSTOMIA
+                </button>
+                <button
+                  className={viadieta == 4 ? "red-button" : "blue-button"} style={{ width: 150, minWidth: 100, height: 75, minHeight: 50, padding: 10 }}
+                  onClick={(e) => { setviadieta(4); e.stopPropagation() }}
+                >
+                  JEJUNOSTOMIA
+                </button>
+                <button
+                  className={viadieta == 5 ? "red-button" : "blue-button"} style={{ width: 150, minWidth: 100, height: 75, minHeight: 50, padding: 10 }}
+                  onClick={(e) => { setviadieta(5); e.stopPropagation() }}
+                >
                   NUTRIÇÃO PARENTERAL TOTAL
                 </button>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', width: '90%' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '90%' }}>
                 <div id="INFUSÃO"
                   style={{ display: viadieta != 0 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                   <div className="title2center">{'INFUSÃO (ml/h):'}</div>
@@ -7465,7 +7498,7 @@ function Prontuario() {
                     defaultValue={getdieta}
                     onFocus={(e) => (e.target.placeholder = '')}
                     onBlur={(e) => (e.target.placeholder = '?')}
-                    onChange={(e) => { validateInfusaoDieta(e.target.value); e.stopPropagation() }}
+                    onChange={(e) => { validateGetDieta(e.target.value); e.stopPropagation() }}
                     style={{
                       height: 50,
                       width: 100,
@@ -7476,6 +7509,78 @@ function Prontuario() {
                     maxLength={3}
                   ></input>
                 </div>
+              </div>
+              <label
+                className="title2center"
+                style={{ margin: 0, marginTop: 10 }}
+              >
+                ATUALIZAR POSIÇÃO DA CABECEIRA
+              </label>
+              <div
+                id="CABECEIRA."
+                style={{
+                  display: 'flex',
+                  flexDirection: window.innerWidth > 800 ? 'row' : 'column',
+                  justifyContent: 'space-between',
+                  margin: 5,
+                }}
+              >
+                <button
+                  className={cabeceira == 1 ? "red-button" : "blue-button"}
+                  style={{ width: 100, minWidth: 100, height: 100, minHeight: 100 }}
+                  onClick={(e) => { setcabeceira(1); e.stopPropagation() }}
+                >
+                  <img
+                    alt=""
+                    src={leito0}
+                    style={{
+                      height: '70%',
+                      borderRadius: 5,
+                    }}
+                  ></img>
+                </button>
+                <button
+                  className={cabeceira == 2 ? "red-button" : "blue-button"}
+                  style={{ width: 100, minWidth: 100, height: 100, minHeight: 100 }}
+                  onClick={(e) => { setcabeceira(2); e.stopPropagation() }}
+                >
+                  <img
+                    alt=""
+                    src={leito30}
+                    style={{
+                      height: '70%',
+                      borderRadius: 5,
+                    }}
+                  ></img>
+                </button>
+                <button
+                  className={cabeceira == 3 ? "red-button" : "blue-button"}
+                  style={{ width: 100, minWidth: 100, height: 100, minHeight: 100 }}
+                  onClick={(e) => { setcabeceira(3); e.stopPropagation() }}
+                >
+                  <img
+                    alt=""
+                    src={leito90}
+                    style={{
+                      height: '70%',
+                      borderRadius: 5,
+                    }}
+                  ></img>
+                </button>
+                <button
+                  className={cabeceira == 4 ? "red-button" : "blue-button"}
+                  style={{ width: 100, minWidth: 100, height: 100, minHeight: 100 }}
+                  onClick={(e) => { setcabeceira(4); e.stopPropagation() }}
+                >
+                  <img
+                    alt=""
+                    src={fowler}
+                    style={{
+                      height: '70%',
+                      borderRadius: 5,
+                    }}
+                  ></img>
+                </button>
               </div>
             </div>
           </div>
@@ -7488,17 +7593,40 @@ function Prontuario() {
 
   // validando input da infusão de dieta.
   const validateInfusaoDieta = (txt) => {
+    clearTimeout(timeout);
     var last = txt.slice(-1);
-    if (isNaN(last) === true) {
-      last = '';
-      document.getElementById('inputInfusaoDieta').value = '';
-    } else {
-    }
+    timeout = setTimeout(() => {
+      if (isNaN(last) === true) {
+        last = '';
+        document.getElementById('inputInfusaoDieta').value = '';
+      } else {
+        setinfusaodieta(document.getElementById('inputInfusaoDieta').value);
+        setTimeout(() => {
+          document.getElementById('inputInfusaoDieta').focus();
+        }, 100);
+      }
+    }, 1000);
+  };
+
+  // validando input da infusão de dieta.
+  const validateGetDieta = (txt) => {
+    clearTimeout(timeout);
+    var last = txt.slice(-1);
+    timeout = setTimeout(() => {
+      if (isNaN(last) === true) {
+        last = '';
+        document.getElementById('inputGet').value = '';
+      } else {
+        setgetdieta(document.getElementById('inputGet').value);
+        setTimeout(() => {
+          document.getElementById('inputGet').focus();
+        }, 100);
+      }
+    }, 1000);
   };
 
   const [viewcabeceira, setviewcabeceira] = useState(0);
   // 1 = cabeceira zero graus, 2 = cabeceira 30 graus, 3 = cabeceira a 90 graus, 4 = fowler.
-  const [cabeceira, setcabeceira] = useState(0);
   function ChangeCabeceira() {
     if (viewcabeceira == 1) {
       return (
@@ -8915,150 +9043,13 @@ function Prontuario() {
   );
 
   // INVASÕES.
-  // exibindo o fundo preto quando um menu de invasão é ativado.
-  function ShowMenuCover() {
-    if (
-      vaMenu === 1 ||
-      jidMenu === 1 ||
-      jieMenu === 1 ||
-      subcldMenu === 1 ||
-      subcleMenu === 1 ||
-      piardMenu === 1 ||
-      piareMenu === 1 ||
-      toraxMenu === 1 ||
-      svdMenu === 1 ||
-      abdMenu === 1 ||
-      vfemdMenu === 1 ||
-      vfemeMenu === 1 ||
-      afemdMenu === 1 ||
-      afemeMenu === 1 ||
-      sncMenu === 1 ||
-      piapeddMenu === 1 ||
-      piapedeMenu === 1
-    ) {
-      return (
-        <div className="menucover"
-          style={{
-            position: 'fixed',
-            top: window.innerWidth > 800 ? 0 : document.querySelector('html').scrollTop = window.innerHeight,
-            bottom: window.innerWidth > 800 ? 0 : 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          }}>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  // ocultando os menus seletores de invasões.
-  const hideInvasionsMenus = () => {
-    setSncMenu(0);
-    setVaMenu(0);
-    setJidMenu(0);
-    setJieMenu(0);
-    setSubcldMenu(0);
-    setSubcleMenu(0);
-    setPiardMenu(0);
-    setPiareMenu(0);
-    setToraxMenu(0);
-    setAbdMenu(0);
-    setVfemdMenu(0);
-    setVfemeMenu(0);
-    setAfemdMenu(0);
-    setAfemeMenu(0);
-    setSvdMenu(0);
-    setPiapeddMenu(0);
-    setPiapedeMenu(0);
-    document.body.style.overflow = null;
-  };
-
-  // INVASÕES.
-  // VIA AÉREA (VA).
-  const [vaMenu, setVaMenu] = useState(0);
-  function ShowVa() {
-    // TQT
-    if (va == 1) {
+  // MENU PARA SELEÇÃO DE DISPOSITIVOS INVASIVOS.
+  const [invasaomenu, setinvasaomenu] = useState(0);
+  function ShowInvasaoMenu() {
+    if (invasaomenu === 1) {
       return (
         <div
-          className="orange-invasion va"
-          title={'DATA DE INSERÇÃO: ' + datava}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVa()}
-        >
-          TQT
-        </div>
-      );
-      // TOT
-    } else if (va == 2) {
-      return (
-        <div
-          className="orange-invasion va"
-          title={'DATA DE INSERÇÃO: ' + datava + '\nDIAS DE TOT: ' + moment().diff(moment(datava, 'DD/MM/YYYY'), 'days')}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVa()}
-        >
-          TOT
-        </div>
-      );
-      // MF
-    } else if (va == 3) {
-      return (
-        <div
-          className="orange-invasion va"
-          title={'MÁSCARA FACIAL'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVa()}
-        >
-          MF
-        </div>
-      );
-      // CN
-    } else if (va == 4) {
-      return (
-        <div
-          className="orange-invasion va"
-          title={'CATETER NASAL'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVa()}
-        >
-          CN
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="orange-invasion va"
-          title={'AR AMBIENTE'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickVa()}
-        >
-          AA
-        </div>
-      );
-    }
-  }
-
-  function ShowMenuVa() {
-    if (vaMenu === 1) {
-      return (
-        <div
-          className="menuposition">
+          className="menuposition" onClick={() => setinvasaomenu(0)}>
           <div className="menucontainer" style={{ padding: 10 }}>
             <div className="title2center" style={{ width: 150, marginBottom: 10 }}>VIA AÉREA</div>
             <div
@@ -9069,7 +9060,7 @@ function Prontuario() {
                 height: 50,
                 marginBottom: 10,
               }}
-              onClick={() => showDatePicker(1, 1)}
+              onClick={(e) => { showDatePicker(1, 1); e.stopPropagation()}}
             >
               {pickdate1}
             </div>
@@ -9078,36 +9069,123 @@ function Prontuario() {
               flexDirection: window.innerWidth > 800 ? 'column' : 'row',
               justifyContent: 'center'
             }}>
+              <div id="OPÇÕES SNC" style={{
+                display: localdispositivo == 'SNC' ? 'flex' : 'none'
+              }}>
+                {arraydispositivossnc.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div id="OPÇÕES VA" style={{ display: localdispositivo == 'VA' ? 'flex' : 'none' }}>
+                {arraydispositivosva.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div id="OPÇÕES CVC" style={{
+                display:
+                  localdispositivo == 'JID' ||
+                    localdispositivo == 'JIE' ||
+                    localdispositivo == 'SUBCLD' ||
+                    localdispositivo == 'SUBCLE' ||
+                    localdispositivo == 'VFEMD' ||
+                    localdispositivo == 'VFEME'
+                    ? 'flex' : 'none'
+              }}>
+                {arraydispositivosvasc.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div id="OPÇÕES PIA"
+                style={{
+                  display:
+                    localdispositivo == 'ARD' || // artéria radial direita
+                      localdispositivo == 'ARE' || // artéria radial esquerda
+                      localdispositivo == 'AFEMD' || // artéria femoral direita
+                      localdispositivo == 'AFEME' || // artéria femoral esquerda
+                      localdispositivo == 'APD' || // artéria pediosa direita
+                      localdispositivo == 'APE' // artéria pediosa esquerda
+                      ? 'flex' : 'none'
+                }}>
+                {arraydispositivospia.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div id="OPÇÕES URO"
+                style={{
+                  display: localdispositivo == 'URO' ? 'flex' : 'none'
+                }}>
+                {arraydispositivosuro.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div id="OPÇÕES TORAX"
+                style={{
+                  display:
+                    localdispositivo == 'TORAXD' || // torax à direita
+                      localdispositivo == 'TORAXE' || // torax à esquerda
+                      localdispositivo == 'MED' // mediastino
+                      ? 'flex' : 'none'
+                }}>
+                {arraydispositivostorax.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+              <div id="OPÇÕES ABD"
+                style={{
+                  display:
+                    localdispositivo == 'ABD1' || // local aleatório no abdome
+                      localdispositivo == 'ABD2' || // local aleatório no abdome
+                      localdispositivo == 'ABD3' // local aleatório no abdome
+                      ? 'flex' : 'none'
+                }}>
+                {arraydispositivosabd.map((item) => (
+                  <button
+                    onClick={() => updateInvasoes(item)}
+                    className="blue-button"
+                    style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
               <button
-                onClick={() => setVaTqt()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                TQT
-              </button>
-              <button
-                onClick={() => setVaTot()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                TOT
-              </button>
-              <button
-                onClick={() => setVaMf()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                MF
-              </button>
-              <button
-                onClick={() => setVaCn()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CN
-              </button>
-              <button
-                onClick={() => setVaNone()}
+                onClick={() => updateInvasoes('')}
                 className="blue-button"
                 style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
               >
@@ -9121,1985 +9199,469 @@ function Prontuario() {
       return null;
     }
   }
-  const clickVa = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    setVaMenu(1);
-  };
-  const setVaTqt = () => {
-    setva(1);
-    setdatava(pickdate1);
-    if (datava === '') {
-      setdatava(moment().format('DD/MM/YYYY'));
-    }
-    document.body.style.overflow = null;
-    setVaMenu(0);
-    updateInvasoes();
-  };
-  const setVaTot = () => {
-    setva(2);
-    setdatava(pickdate1);
-    if (datava === '') {
-      setdatava(moment().format('DD/MM/YYYY'));
-    }
-    document.body.style.overflow = null;
-    setVaMenu(0);
-    updateInvasoes();
-  };
-  const setVaMf = () => {
-    setva(3);
-    setdatava(pickdate1);
-    if (datava === '') {
-      setdatava(moment().format('DD/MM/YYYY'));
-    }
-    document.body.style.overflow = null;
-    setVaMenu(0);
-    updateInvasoes();
-  };
-  const setVaCn = () => {
-    setva(4);
-    setdatava(pickdate1);
-    if (datava === '') {
-      setdatava(moment().format('DD/MM/YYYY'));
-    }
-    document.body.style.overflow = null;
-    setVaMenu(0);
-    updateInvasoes();
-  };
-  const setVaNone = () => {
-    setva(0);
-    setdatava('');
-    document.body.style.overflow = null;
-    setVaMenu(0);
-    updateInvasoes();
-  };
 
-  // JUGULAR INTERNA DIREITA (JID).
-  const [jidMenu, setJidMenu] = useState(0);
-  function ShowJid() {
-    if (jid == 1) {
-      return (
-        <div
-          id="clickjid"
-          className="blue-invasion jid"
-          title={'DATA DE INSERÇÃO: ' + datajid}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => {
-            clickJid()
-          }}
-        >
-          CVC
-        </div>
-      );
-    } else if (jid == 2) {
-      return (
-        <div
-          className="blue-invasion jid"
-          title={'DATA DE INSERÇÃO: ' + datajid}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickJid()}
-        >
-          CDL
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="blue-invasion jid"
-          title={'JUGULAR INTERNA DIREITA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickJid()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuJid() {
-    if (jidMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>JUGULAR INTERNA DIREITA</div>
-            <button
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </button>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setCvcJid()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CVC
-              </button>
-              <button
-                onClick={() => setCdlJid()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CDL
-              </button>
-              <button
-                onClick={() => setNoneJid()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickJid = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datajid == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datajid);
-    }
-    setJidMenu(1);
-  };
-  const setCvcJid = () => {
-    setjid(1);
-    setdatajid(pickdate1);
-    if (datajid === '') {
-      setdatajid(moment().format('DD/MM/YYYY'));
-    }
-    setJidMenu(0);
-    updateInvasoes();
-  };
-  const setCdlJid = () => {
-    setjid(2);
-    setdatajid(pickdate1);
-    if (datajid === '') {
-      setdatajid(moment().format('DD/MM/YYYY'));
-    }
-    setJidMenu(0);
-    updateInvasoes();
-  };
-  const setNoneJid = () => {
-    setjid(0);
-    setdatajid('');
-    setJidMenu(0);
-    updateInvasoes();
-  };
 
-  // JUGULAR INTERNA ESQUERDA (JIE).
-  const [jieMenu, setJieMenu] = useState(0);
-  function ShowJie() {
-    if (jie == 1) {
-      return (
-        <div
-          className="blue-invasion jie"
-          title={'DATA DE INSERÇÃO: ' + datajie}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickJie()}
-        >
-          CVC
-        </div>
-      );
-    } else if (jie == 2) {
-      return (
-        <div
-          className="blue-invasion jie"
-          title={'DATA DE INSERÇÃO: ' + datajie}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickJie()}
-        >
-          CDL
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="blue-invasion jie"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'JUGULAR INTERNA ESQUERDA'}
-          onClick={() => clickJie()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuJie() {
-    if (jieMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>JUGULAR INTERNA ESQUERDA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setCvcJie()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CVC
-              </button>
-              <button
-                onClick={() => setCdlJie()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CDL
-              </button>
-              <button
-                onClick={() => setNoneJie()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickJie = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datajie == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datajie);
-    }
-    setJieMenu(1);
-  };
-  const setCvcJie = () => {
-    setjie(1);
-    setdatajie(pickdate1);
-    if (datajie === '') {
-      setdatajie(moment().format('DD/MM/YYYY'));
-    }
-    setJieMenu(0);
-    updateInvasoes();
-  };
-  const setCdlJie = () => {
-    setjie(2);
-    setdatajie(pickdate1);
-    if (datajie === '') {
-      setdatajie(moment().format('DD/MM/YYYY'));
-    }
-    setJieMenu(0);
-    updateInvasoes();
-  };
-  const setNoneJie = () => {
-    setjie(0);
-    setdatajie('');
-    setJieMenu(0);
-    updateInvasoes();
-  };
-
-  // SUBCLÁVIA DIREITA (SUBCLD).
-  const [subcldMenu, setSubcldMenu] = useState(0);
-  function ShowSubcld() {
-    if (subcld == 1) {
-      return (
-        <div
-          className="blue-invasion subcld"
-          title={'DATA DE INSERÇÃO: ' + datasubcld}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickSubcld()}
-        >
-          CVC
-        </div>
-      );
-    } else if (subcld == 2) {
-      return (
-        <div
-          className="blue-invasion subcld"
-          title={'DATA DE INSERÇÃO: ' + datasubcld}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickSubcld()}
-        >
-          CDL
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="blue-invasion subcld"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'SUBCLÁVIA DIREITA'}
-          onClick={() => clickSubcld()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuSubcld() {
-    if (subcldMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>SUBCLÁVIA DIREITA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setCvcSubcld()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CVC
-              </button>
-              <button
-                onClick={() => setCdlSubcld()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CDL
-              </button>
-              <button
-                onClick={() => setNoneSubcld()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickSubcld = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datasubcld == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datasubcld);
-    }
-    setSubcldMenu(1);
-  };
-  const setCvcSubcld = () => {
-    setsubcld(1);
-    setdatasubcld(pickdate1);
-    if (datasubcld === '') {
-      setdatasubcld(moment().format('DD/MM/YYYY'));
-    }
-    setSubcldMenu(0);
-    updateInvasoes();
-  };
-  const setCdlSubcld = () => {
-    setsubcld(2);
-    setdatasubcld(pickdate1);
-    if (datasubcld === '') {
-      setdatasubcld(moment().format('DD/MM/YYYY'));
-    }
-    setSubcldMenu(0);
-    updateInvasoes();
-  };
-  const setNoneSubcld = () => {
-    setsubcld(0);
-    setdatasubcld('');
-    setSubcldMenu(0);
-    updateInvasoes();
-  };
-
-  // SUBCLÁVIA ESQUERDA (SUBCLE).
-  const [subcleMenu, setSubcleMenu] = useState(0);
-  function ShowSubcle() {
-    if (subcle == 1) {
-      return (
-        <div
-          className="blue-invasion subcle"
-          title={'DATA DE INSERÇÃO: ' + datasubcle}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickSubcle()}
-        >
-          CVC
-        </div>
-      );
-    } else if (subcle == 2) {
-      return (
-        <div
-          className="blue-invasion subcle"
-          title={'DATA DE INSERÇÃO: ' + datasubcle}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickSubcle()}
-        >
-          CDL
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="blue-invasion subcle"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'SUBCLÁVIA ESQUERDA'}
-          onClick={() => clickSubcle()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuSubcle() {
-    if (subcleMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>SUBCLÁVIA ESQUERDA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setCvcSubcle()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CVC
-              </button>
-              <button
-                onClick={() => setCdlSubcle()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CDL
-              </button>
-              <button
-                onClick={() => setNoneSubcle()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickSubcle = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datasubcle == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datasubcle);
-    }
-    setSubcleMenu(1);
-  };
-  const setCvcSubcle = () => {
-    setsubcle(1);
-    setdatasubcle(pickdate1);
-    if (datasubcle === '') {
-      setdatasubcle(moment().format('DD/MM/YYYY'));
-    }
-    setSubcleMenu(0);
-    updateInvasoes();
-  };
-  const setCdlSubcle = () => {
-    setsubcle(2);
-    setdatasubcle(pickdate1);
-    if (datasubcle === '') {
-      setdatasubcle(moment().format('DD/MM/YYYY'));
-    }
-    setSubcleMenu(0);
-    updateInvasoes();
-  };
-  const setNoneSubcle = () => {
-    setsubcle(0);
-    setdatasubcle('');
-    setSubcleMenu(0);
-    updateInvasoes();
-  };
-
-  // RADIAL DIREITA (PIARD).
-  const [piardMenu, setPiardMenu] = useState(0);
-  function ShowPiard() {
-    if (piard == 1) {
-      return (
-        <div
-          className="red-invasion piaard"
-          title={'DATA DE INSERÇÃO: ' + datapiard}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickPiard()}
-        >
-          PIA
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="red-invasion piaard"
-          title={'ARTÉRIA RADIAL DIREITA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickPiard()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuPiard() {
-    if (piardMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>RADIAL DIREITA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setPiard()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                PIA
-              </button>
-              <button
-                onClick={() => setNonePiard()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickPiard = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datapiard == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datapiard);
-    }
-    setPiardMenu(1);
-  };
-  const setPiard = () => {
-    setpiard(1);
-    setdatapiard(pickdate1);
-    if (datapiard === '') {
-      setdatapiard(moment().format('DD/MM/YYYY'));
-    }
-    setPiardMenu(0);
-    updateInvasoes();
-  };
-  const setNonePiard = () => {
-    setpiard(0);
-    setdatapiard('');
-    setPiardMenu(0);
-    updateInvasoes();
-  };
-
-  // RADIAL ESQUERDA (PIARE).
-  const [piareMenu, setPiareMenu] = useState(0);
-  function ShowPiare() {
-    if (piare == 1) {
-      return (
-        <div
-          className="red-invasion piaare"
-          title={'DATA DE INSERÇÃO: ' + datapiare}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickPiare()}
-        >
-          PIA
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="red-invasion piaare"
-          title={'ARTÉRIA RADIAL ESQUERDA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickPiare()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuPiare() {
-    if (piareMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>RADIAL ESQUERDA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setPiare()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                PIA
-              </button>
-              <button
-                onClick={() => setNonePiare()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickPiare = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datapiare == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datapiare);
-    }
-    setPiareMenu(1);
-  };
-  const setPiare = () => {
-    setpiare(1);
-    setdatapiare(pickdate1);
-    if (datapiare === '') {
-      setdatapiare(moment().format('DD/MM/YYYY'));
-    }
-    setPiareMenu(0);
-    updateInvasoes();
-  };
-  const setNonePiare = () => {
-    setpiare(0);
-    setdatapiare('');
-    setPiareMenu(0);
-    updateInvasoes();
-  };
-
-  // PEDIOSA DIREITA (PIAPEDD).
-  const [piapeddMenu, setPiapeddMenu] = useState(0);
-  function ShowPiapedd() {
-    if (piapedd == 1) {
-      return (
-        <div
-          className="red-invasion piapedd"
-          title={'DATA DE INSERÇÃO: ' + datapiapedd}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickPiapedd()}
-        >
-          PIA
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="red-invasion piapedd"
-          title={'ARTÉRIA PEDIOSA DIREITA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickPiapedd()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuPiapedd() {
-    if (piapeddMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>PEDIOSA DIREITA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setPiapedd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                PIA
-              </button>
-              <button
-                onClick={() => setNonePiapedd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickPiapedd = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datapiapedd == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datapiapedd);
-    }
-    setPiapeddMenu(1);
-  };
-  const setPiapedd = () => {
-    setpiapedd(1);
-    setdatapiapedd(pickdate1);
-    if (datapiapedd === '') {
-      setdatapiapedd(moment().format('DD/MM/YYYY'));
-    }
-    setPiapeddMenu(0);
-    updateInvasoes();
-  };
-  const setNonePiapedd = () => {
-    setpiapedd(0);
-    setdatapiapedd('');
-    setPiapeddMenu(0);
-    updateInvasoes();
-  };
-
-  // PEDIOSA ESQUERDA (PIAPEDE).
-  const [piapedeMenu, setPiapedeMenu] = useState(0);
-  function ShowPiapede() {
-    if (piapede == 1) {
-      return (
-        <div
-          className="red-invasion piapede"
-          title={'DATA DE INSERÇÃO: ' + datapiapede}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickPiapede()}
-        >
-          PIA
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="red-invasion piapede"
-          title={'ARTÉRIA PEDIOSA ESQUERDA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickPiapede()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuPiapede() {
-    if (piapedeMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>PEDIOSA ESQUERDA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setPiapede()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                PIA
-              </button>
-              <button
-                onClick={() => setNonePiapede()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickPiapede = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datapiapede == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datapiapede);
-    }
-    setPiapedeMenu(1);
-  };
-  const setPiapede = () => {
-    setpiapede(1);
-    setdatapiapede(pickdate1);
-    if (datapiapede === '') {
-      setdatapiapede(moment().format('DD/MM/YYYY'));
-    }
-    setPiapedeMenu(0);
-    updateInvasoes();
-  };
-  const setNonePiapede = () => {
-    setpiapede(0);
-    setdatapiapede('');
-    setPiapedeMenu(0);
-    updateInvasoes();
-  };
-
-  // DRENO DE TORAX.
-  const [toraxMenu, setToraxMenu] = useState(0);
-  function ShowTorax() {
-    // dreno torácico direito.
-    if (torax == 1) {
-      return (
-        <div
-          className="green-invasion toraxd"
-          title={'DATA DE INSERÇÃO: ' + datatorax}
-          style={{
-            height: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-          }}
-          onClick={() => clickTorax()}
-        >
-          DRENO TX
-        </div>
-      );
-      // dreno torácico esquerdo.
-    } else if (torax == 2) {
-      return (
-        <div
-          className="green-invasion toraxe"
-          title={'DATA DE INSERÇÃO: ' + datatorax}
-          style={{
-            height: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-          }}
-          onClick={() => clickTorax()}
-        >
-          DRENO TX
-        </div>
-      );
-      // dreno de mediastino.
-    } else if (torax == 3) {
-      return (
-        <div
-          className="green-invasion toraxm"
-          title={'DATA DE INSERÇÃO: ' + datatorax}
-          style={{
-            height: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-          }}
-          onClick={() => clickTorax()}
-        >
-          DRENO MED
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="green-invasion toraxm"
-          style={{
-            height: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'DRENO TORÁCICO'}
-          onClick={() => clickTorax()}
-        ></div>
-      );
-    }
-  }
-
-  function ShowMenuTorax() {
-    if (toraxMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>DRENO TORÁCICO</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setToraxD()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                DRENO TÓRAX D
-              </button>
-              <button
-                onClick={() => setToraxE()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                DRENO TÓRAX E
-              </button>
-              <button
-                onClick={() => setToraxM()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                DRENO TÓRAX M
-              </button>
-              <button
-                onClick={() => setToraxNone()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickTorax = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datatorax == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datatorax);
-    }
-    setToraxMenu(1);
-  };
-  const setToraxD = () => {
-    settorax(1);
-    setdatatorax(pickdate1);
-    if (datatorax === '') {
-      setdatatorax(moment().format('DD/MM/YYYY'));
-    }
-    setToraxMenu(0);
-    updateInvasoes();
-  };
-  const setToraxE = () => {
-    settorax(2);
-    setdatatorax(pickdate1);
-    if (datatorax === '') {
-      setdatatorax(moment().format('DD/MM/YYYY'));
-    }
-    setToraxMenu(0);
-    updateInvasoes();
-  };
-  const setToraxM = () => {
-    settorax(3);
-    setdatatorax(pickdate1);
-    if (datatorax === '') {
-      setdatatorax(moment().format('DD/MM/YYYY'));
-    }
-    setToraxMenu(0);
-    updateInvasoes();
-  };
-  const setToraxNone = () => {
-    settorax(0);
-    setdatatorax('');
-    setToraxMenu(0);
-    updateInvasoes();
-  };
-
-  // SONDA VESICAL DE DEMORA (SVD).
-  const [svdMenu, setSvdMenu] = useState(0);
-  function ShowSvd() {
-    if (svd == 1) {
-      return (
-        <div
-          className="yellow-invasion svd"
-          title={'DATA DE INSERÇÃO: ' + datasvd}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickSvd()}
-        >
-          SVD
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="yellow-invasion svd"
-          title={'SONDA VESICAL DE DEMORA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickSvd()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuSvd() {
-    if (svdMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>SONDA VESICAL</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setSvd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                SVD
-              </button>
-              <button
-                onClick={() => setNoneSvd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickSvd = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datasvd == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datasvd);
-    }
-    setSvdMenu(1);
-  };
-  const setSvd = () => {
-    setsvd(1);
-    setdatasvd(pickdate1);
-    if (datasvd === '') {
-      setdatasvd(moment().format('DD/MM/YYYY'));
-    }
-    setSvdMenu(0);
-    updateInvasoes();
-  };
-  const setNoneSvd = () => {
-    setsvd(0);
-    setdatasvd('');
-    setSvdMenu(0);
-    updateInvasoes();
-  };
-
-  // DRENO ABDOMINAL.
-  const [abdMenu, setAbdMenu] = useState(0);
-  function ShowAbd() {
-    if (abd == 1) {
-      return (
-        <div
-          className="green-invasion abd"
-          title={'DATA DE INSERÇÃO: ' + dataabd}
-          style={{
-            height: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-          }}
-          onClick={() => clickAbd()}
-        >
-          DRENO ABD
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="green-invasion abd"
-          style={{
-            height: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.03 * window.innerWidth : window.innerWidth > 600 ? 0.09 * window.innerWidth : 0.12 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'DRENO ABDOMINAL'}
-          onClick={() => clickAbd()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuAbd() {
-    if (abdMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>DRENO ABDOMINAL</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setAbd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                DRENO ABDOME
-              </button>
-              <button
-                onClick={() => setNoneAbd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickAbd = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (dataabd == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(dataabd);
-    }
-    setAbdMenu(1);
-  };
-  const setAbd = () => {
-    setabd(1);
-    setdataabd(pickdate1);
-    if (dataabd === '') {
-      setdataabd(moment().format('DD/MM/YYYY'));
-    }
-    setAbdMenu(0);
-    updateInvasoes();
-  };
-  const setNoneAbd = () => {
-    setabd(0);
-    setdataabd('');
-    setAbdMenu(0);
-    updateInvasoes();
-  };
-
-  // VEIA FEMORAL DIREITA (VFD).
-  const [vfemdMenu, setVfemdMenu] = useState(0);
-  function ShowVfemd() {
-    if (vfemd == 1) {
-      return (
-        <div
-          className="blue-invasion vfemd"
-          title={'DATA DE INSERÇÃO: ' + datavfemd}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVfemd()}
-        >
-          CVC
-        </div>
-      );
-    } else if (vfemd == 2) {
-      return (
-        <div
-          className="blue-invasion vfemd"
-          title={'DATA DE INSERÇÃO: ' + datavfemd}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVfemd()}
-        >
-          CDL
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="blue-invasion vfemd"
-          title={'VEIA FEMORAL DIREITA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickVfemd()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuVfemd() {
-    if (vfemdMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>VEIA FEMORAL DIREITA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setCvcVfemd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CVC
-              </button>
-              <button
-                onClick={() => setCdlVfemd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CDL
-              </button>
-              <button
-                onClick={() => setNoneVfemd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickVfemd = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datavfemd == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datavfemd);
-    }
-    setVfemdMenu(1);
-  };
-  const setCvcVfemd = () => {
-    setvfemd(1);
-    setdatavfemd(pickdate1);
-    if (datavfemd === '') {
-      setdatavfemd(moment().format('DD/MM/YYYY'));
-    }
-    setVfemdMenu(0);
-    updateInvasoes();
-  };
-  const setCdlVfemd = () => {
-    setvfemd(2);
-    setdatavfemd(pickdate1);
-    if (datavfemd === '') {
-      setdatavfemd(moment().format('DD/MM/YYYY'));
-    }
-    setVfemdMenu(0);
-    updateInvasoes();
-  };
-  const setNoneVfemd = () => {
-    setvfemd(0);
-    setdatavfemd('');
-    setVfemdMenu(0);
-    updateInvasoes();
-  };
-
-  // VEIA FEMORAL ESQUERDA (VFE).
-  const [vfemeMenu, setVfemeMenu] = useState(0);
-  function ShowVfeme() {
-    if (vfeme == 1) {
-      return (
-        <div
-          className="blue-invasion vfeme"
-          title={'DATA DE INSERÇÃO: ' + datavfeme}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVfeme()}
-        >
-          CVC
-        </div>
-      );
-    } else if (vfeme == 2) {
-      return (
-        <div
-          className="blue-invasion vfeme"
-          title={'DATA DE INSERÇÃO: ' + datavfeme}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickVfeme()}
-        >
-          CDL
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="blue-invasion vfeme"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'VEIA FEMORAL ESQUERDA'}
-          onClick={() => clickVfeme()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuVfeme() {
-    if (vfemeMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>VEIA FEMORAL ESQUERDA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setCvcVfeme()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CVC
-              </button>
-              <button
-                onClick={() => setCdlVfeme()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                CDL
-              </button>
-              <button
-                onClick={() => setNoneVfeme()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickVfeme = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datavfeme == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datavfeme);
-    }
-    setVfemeMenu(1);
-  };
-  const setCvcVfeme = () => {
-    setvfeme(1);
-    setdatavfeme(pickdate1);
-    if (datavfeme === '') {
-      setdatavfeme(moment().format('DD/MM/YYYY'));
-    }
-    setVfemeMenu(0);
-    updateInvasoes();
-  };
-  const setCdlVfeme = () => {
-    setvfeme(2);
-    setdatavfeme(pickdate1);
-    if (datavfeme === '') {
-      setdatavfeme(moment().format('DD/MM/YYYY'));
-    }
-    setVfemeMenu(0);
-    updateInvasoes();
-  };
-  const setNoneVfeme = () => {
-    setvfeme(0);
-    setdatavfeme('');
-    setVfemeMenu(0);
-    updateInvasoes();
-  };
-
-  // ARTÉRIA FEMORAL DIREITA (AFEMD).
-  const [afemdMenu, setAfemdMenu] = useState(0);
-  function ShowAfemd() {
-    if (afemd == 1) {
-      return (
-        <div
-          className="red-invasion afemd"
-          title={'DATA DE INSERÇÃO: ' + dataafemd}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickAfemd()}
-        >
-          PIA
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="red-invasion afemd"
-          title={'ARTÉRIA FEMORAL DIREITA'}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          onClick={() => clickAfemd()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuAfemd() {
-    if (afemdMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>ARTÉRIA FEMORAL DIREITA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setAfemd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                PIA
-              </button>
-              <button
-                onClick={() => setNoneAfemd()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickAfemd = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (dataafemd == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(dataafemd);
-    }
-    setAfemdMenu(1);
-  };
-  const setAfemd = () => {
-    setafemd(1);
-    setdataafemd(pickdate1);
-    if (dataafemd === '') {
-      setdataafemd(moment().format('DD/MM/YYYY'));
-    }
-    setAfemdMenu(0);
-    updateInvasoes();
-  };
-  const setNoneAfemd = () => {
-    setafemd(0);
-    setdataafemd('');
-    setAfemdMenu(0);
-    updateInvasoes();
-  };
-
-  // ARTÉRIA FEMORAL ESQUERDA (AFEME).
-  const [afemeMenu, setAfemeMenu] = useState(0);
-  function ShowAfeme() {
-    if (afeme == 1) {
-      return (
-        <div
-          className="red-invasion afeme"
-          title={'DATA DE INSERÇÃO: ' + dataafeme}
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          onClick={() => clickAfeme()}
-        >
-          PIA
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="red-invasion afeme"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'ARTÉRIA FEMORAL ESQUERDA'}
-          onClick={() => clickAfeme()}
-        ></div>
-      );
-    }
-  }
-  function ShowMenuAfeme() {
-    if (afemeMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>ARTÉRIA FEMORAL ESQUERDA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setAfeme()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                PIA
-              </button>
-              <button
-                onClick={() => setNoneAfeme()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
-  const clickAfeme = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (dataafeme == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(dataafeme);
-    }
-    setAfemeMenu(1);
-  };
-  const setAfeme = () => {
-    setafeme(1);
-    setdataafeme(pickdate1);
-    if (dataafeme === '') {
-      setdataafeme(moment().format('DD/MM/YYYY'));
-    }
-    setAfemeMenu(0);
-    updateInvasoes();
-  };
-  const setNoneAfeme = () => {
-    setafeme(0);
-    setdataafeme('');
-    setAfemeMenu(0);
-    updateInvasoes();
-  };
-
-  // SISTEMA NERVOSO CENTRAL (SNC - DVE, PIC).
-  const [sncMenu, setSncMenu] = useState(0);
+  // MARCADORES DE INVASÕES NO MANEQUIM.
+  // SISTEMA NERVOSO CENTRAL (SNC).
   function ShowSnc() {
-    if (snc == 1) {
-      return (
-        <div
-          className="green-invasion snc"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-          }}
-          title={'DATA DE INSERÇÃO: ' + datasnc}
-          onClick={() => clickSnc()}
-        >
-          DVE
-        </div>
-      );
-    } else {
-      return (
-        <div
-          className="green-invasion snc"
-          style={{
-            height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
-            opacity: 0.5,
-          }}
-          title={'SNC'}
-          onClick={() => clickSnc()}
-        ></div>
-      );
-    }
+    return (
+      <div
+        className="green-invasion snc"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'SNC' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('SNC');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'SNC' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
   }
-  function ShowMenuSnc() {
-    if (sncMenu === 1) {
-      return (
-        <div
-          className="menuposition">
-          <div className="menucontainer" style={{ padding: 10 }}>
-            <div className="title2center" style={{ width: 150, marginBottom: 10 }}>JUGULAR INTERNA DIREITA</div>
-            <div
-              id="datepicker"
-              className="grey-button"
-              style={{
-                width: 150,
-                height: 50,
-                marginBottom: 10,
-              }}
-              onClick={() => showDatePicker(1, 1)}
-            >
-              {pickdate1}
-            </div>
-            <div style={{
-              display: 'flex', flexWrap: 'wrap', width: window.innerWidth > 800 ? '' : 320,
-              flexDirection: window.innerWidth > 800 ? 'column' : 'row',
-              justifyContent: 'center'
-            }}>
-              <button
-                onClick={() => setSnc()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                DVE
-              </button>
-              <button
-                onClick={() => setNoneSnc()}
-                className="blue-button"
-                style={{ width: window.innerWidth > 800 ? 150 : 75, margin: 2.5 }}
-              >
-                LIMPAR
-              </button>
-            </div>
-          </div>
+  // VIA AÉREA (VA).
+  function ShowVa() {
+    return (
+      <div
+        className="orange-invasion va"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'VA' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('VA');
+          setinvasaomenu(1)
+        }}
+      >
+        <div className="title2center" style={{ color: '#ffffff', fontSize: 12 }}>
+          {listinvasoes.filter(item => item.local == 'VA' && item.datatermino == null).map(item => item.dispositivo)}
         </div>
-      );
-    } else {
-      return null;
-    }
+      </div>
+    );
   }
-  const clickSnc = () => {
-    document.querySelector('html').scrollTop = window.innerHeight;
-    hideInvasionsMenus();
-    // atualizando o datepcker com a data de implante do dispositivo.
-    if (datasnc == '') {
-      setpickdate1(moment().format('DD/MM/YYYY'))
-    } else {
-      setpickdate1(datasnc);
-    }
-    setSncMenu(1);
-  };
-  const setSnc = () => {
-    setsnc(1);
-    setdatasnc(pickdate1);
-    if (datasnc === '') {
-      setdatasnc(moment().format('DD/MM/YYYY'));
-    }
-    setSncMenu(0);
-    updateInvasoes();
-  };
-  const setNoneSnc = () => {
-    setsnc(0);
-    setdatasnc('');
-    setSncMenu(0);
-    updateInvasoes();
-  };
+  // JUGULAR INTERNA DIREITA (JID).
+  function ShowJid() {
+    return (
+      <div
+        className="blue-invasion jid"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'JID' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('JID');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'JID' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // JUGULAR INTERNA ESQUERDA (JIE).
+  function ShowJie() {
+    return (
+      <div
+        className="blue-invasion jie"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'JIE' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('JIE');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'JIE' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // SUBCLÁVIA DIREITA (SUBCLD).
+  function ShowSubcld() {
+    return (
+      <div
+        className="blue-invasion subcld"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'SUBCLD' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('SUBCLD');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'SUBCLD' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // SUBCLÁVIA ESQUERDA (SUBCLE).
+  function ShowSubcle() {
+    return (
+      <div
+        className="blue-invasion subcle"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'SUBCLE' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('SUBCLE');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'SUBCLE' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // FEMORAL DIREITA (VFEMD).
+  function ShowVfemd() {
+    return (
+      <div
+        className="blue-invasion vfemd"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'VFEMD' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('VFEMD');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'VFEMD' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // FEMORAL DIREITA (VFEMD).
+  function ShowVfeme() {
+    return (
+      <div
+        className="blue-invasion vfeme"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'VFEME' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('VFEME');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'VFEME' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // ARTÉRIA RADIAL DIREITA (ARD).
+  function ShowArd() {
+    return (
+      <div
+        className="red-invasion piaard"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'ARD' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('ARD');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'ARD' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // ARTÉRIA RADIAL ESQUERDA (ARE).
+  function ShowAre() {
+    return (
+      <div
+        className="red-invasion piaare"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'ARE' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('ARE');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'ARE' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // ARTÉRIA FEMORAL DIREITA (AFD).
+  function ShowAfd() {
+    return (
+      <div
+        className="red-invasion afemd"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'AFD' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('AFD');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'AFD' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // ARTÉRIA FEMORAL DIREITA (AFD).
+  function ShowAfe() {
+    return (
+      <div
+        className="red-invasion afeme"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'AFE' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('AFE');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'AFE' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // ARTÉRIA PEDIOSA DIREITA (APD).
+  function ShowApd() {
+    return (
+      <div
+        className="red-invasion piapedd"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'APD' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('APD');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'APD' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // ARTÉRIA PEDIOSA ESQUERDA (APE).
+  function ShowApe() {
+    return (
+      <div
+        className="red-invasion piapede"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'APE' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('APE');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'APE' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // SONDA VESICAL DE DEMORA (SVD).
+  function ShowSvd() {
+    return (
+      <div
+        className="yellow-invasion svd"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'URO' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('URO');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'URO' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // DRENOS TORÁCICOS.
+  function ShowToraxD() {
+    return (
+      <div
+        className="green-invasion toraxd"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'TORAXD' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('TORAXD');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'TORAXD' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  function ShowToraxE() {
+    return (
+      <div
+        className="green-invasion toraxe"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'TORAXE' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('TORAXE');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'TORAXE' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  function ShowToraxM() {
+    return (
+      <div
+        className="green-invasion toraxm"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'TORAXM' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('TORAXM');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'TORAXM' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  // DRENOS ABDOMINAIS.
+  function ShowAbd1() {
+    return (
+      <div
+        className="green-invasion abd1"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'ABD1' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('ABD1');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'ABD1' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  function ShowAbd2() {
+    return (
+      <div
+        className="green-invasion abd2"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'ABD2' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('ABD2');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'ABD2' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
+  function ShowAbd3() {
+    return (
+      <div
+        className="green-invasion abd3"
+        title={'DATA DE INSERÇÃO: ' +
+          listinvasoes.filter(item => item.local == 'ABD3' && item.datatermino == null).map(item => moment(item.datainicio).format('DD/MM/YY'))
+        }
+        style={{
+          height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+          width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
+        }}
+        onClick={() => {
+          setpickdate1(moment().format('DD/MM/YYYY'));
+          setlocaldispositivo('ABD3');
+          setinvasaomenu(1)
+        }}
+      >
+        {listinvasoes.filter(item => item.local == 'ABD3' && item.datatermino == null).map(item => item.dispositivo)}
+      </div>
+    );
+  }
 
   // RENDERIZAÇÃO DAS INVASÕES.
   const [showinvasoes, setshowinvasoes] = useState(1)
@@ -11138,23 +9700,27 @@ function Prontuario() {
               marginBottom: window.innerWidth > 800 ? 0 : 5,
             }}
           >
+            <ShowSnc></ShowSnc>
             <ShowVa></ShowVa>
             <ShowJid></ShowJid>
             <ShowJie></ShowJie>
             <ShowSubcld></ShowSubcld>
             <ShowSubcle></ShowSubcle>
-            <ShowPiard></ShowPiard>
-            <ShowPiare></ShowPiare>
-            <ShowTorax></ShowTorax>
-            <ShowAbd></ShowAbd>
             <ShowVfemd></ShowVfemd>
             <ShowVfeme></ShowVfeme>
+            <ShowArd></ShowArd>
+            <ShowAre></ShowAre>
+            <ShowAfd></ShowAfd>
+            <ShowAfe></ShowAfe>
+            <ShowApd></ShowApd>
+            <ShowApe></ShowApe>
+            <ShowToraxD></ShowToraxD>
+            <ShowToraxE></ShowToraxE>
+            <ShowToraxM></ShowToraxM>
+            <ShowAbd1></ShowAbd1>
+            <ShowAbd2></ShowAbd2>
+            <ShowAbd3></ShowAbd3>
             <ShowSvd></ShowSvd>
-            <ShowAfemd></ShowAfemd>
-            <ShowAfeme></ShowAfeme>
-            <ShowPiapedd></ShowPiapedd>
-            <ShowPiapede></ShowPiapede>
-            <ShowSnc></ShowSnc>
             <img
               alt=""
               src={body}
@@ -13578,23 +12144,7 @@ function Prontuario() {
       <div id="POPUPS">
         <Toast valortoast={valortoast} cor={cor} mensagem={mensagem} tempo={tempo} />
         <DatePicker valordatepicker={valordatepicker} mododatepicker={mododatepicker} />
-        <ShowMenuSnc></ShowMenuSnc>
-        <ShowMenuVa></ShowMenuVa>
-        <ShowMenuJid></ShowMenuJid>
-        <ShowMenuJie></ShowMenuJie>
-        <ShowMenuSubcld></ShowMenuSubcld>
-        <ShowMenuSubcle></ShowMenuSubcle>
-        <ShowMenuPiard></ShowMenuPiard>
-        <ShowMenuPiare></ShowMenuPiare>
-        <ShowMenuTorax></ShowMenuTorax>
-        <ShowMenuAbd></ShowMenuAbd>
-        <ShowMenuSvd></ShowMenuSvd>
-        <ShowMenuVfemd></ShowMenuVfemd>
-        <ShowMenuVfeme></ShowMenuVfeme>
-        <ShowMenuAfemd></ShowMenuAfemd>
-        <ShowMenuAfeme></ShowMenuAfeme>
-        <ShowMenuPiapedd></ShowMenuPiapedd>
-        <ShowMenuPiapede></ShowMenuPiapede>
+        <ShowInvasaoMenu></ShowInvasaoMenu>
         <ShowInfoLesoes></ShowInfoLesoes>
         <ShowCurativosList></ShowCurativosList>
         <ChangeStatus></ChangeStatus>

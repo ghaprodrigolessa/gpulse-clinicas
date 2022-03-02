@@ -3190,9 +3190,23 @@ input::-webkit-inner-spin-button {
   z-index: 1;
 }
 
-.abd {
+.abd1 {
   position: absolute;
   top: 40%;
+  z-index: 1;
+}
+
+.abd2 {
+  position: absolute;
+  top: 40%;
+  right: 30%;
+  z-index: 1;
+}
+
+.abd3 {
+  position: absolute;
+  top: 40%;
+  left: 30%;
   z-index: 1;
 }
 
