@@ -452,8 +452,8 @@ function Prontuario() {
   const [datatorax, setdatatorax] = useState('');
   const [abd, setabd] = useState(0);
   const [dataabd, setdataabd] = useState('');
-  // carregando o registro de invasões.
 
+  // carregando o registro de invasões.
   const [listinvasoes, setlistinvasoes] = useState([]);
   const loadInvasoes = () => {
     axios.get(htmlghapinvasoes + idatendimento).then((response) => {
@@ -4080,6 +4080,10 @@ function Prontuario() {
   var htmlghapinsertinvasao = process.env.REACT_APP_API_CLONE_INSERTINVASAO;
   var htmlghapupdateinvasao = process.env.REACT_APP_API_CLONE_UPDATEINVASAO;
 
+  var htmlghaplesoes = process.env.REACT_APP_API_CLONE_LESOES;
+  var htmlghapinsertlesao = process.env.REACT_APP_API_CLONE_INSERTLESAO;
+  var htmlghapupdatelesao = process.env.REACT_APP_API_CLONE_UPDATELESAO;
+
   // ATENDIMENTO.
   // retornando atendimentos.
   const getAtendimentosGhap = () => {
@@ -4381,6 +4385,7 @@ function Prontuario() {
     getDiagnosticosGhap();
     getPropostasGhap();
     loadInvasoes();
+    loadLesoes();
 
     freezeScreen(3000);
     setrefreshatendimentos(0);
@@ -9060,7 +9065,7 @@ function Prontuario() {
                 height: 50,
                 marginBottom: 10,
               }}
-              onClick={(e) => { showDatePicker(1, 1); e.stopPropagation()}}
+              onClick={(e) => { showDatePicker(1, 1); e.stopPropagation() }}
             >
               {pickdate1}
             </div>
@@ -10283,447 +10288,116 @@ function Prontuario() {
     );
   }
 
-  // carregando as lesões de pressão do paciente.
+  // LESÕES
+  // carregando o registro de lesoes.
   const [lesoes, setlesoes] = useState([]);
   const loadLesoes = () => {
-    axios.get(html + "/getlesoes/" + idatendimento).then((response) => {
+    axios.get(htmlghaplesoes + idatendimento).then((response) => {
       var x = [0, 1];
-      var y = [0, 1];
       x = response.data;
-      y = x.filter(item => item.termino == '');
-      setlesoes(y);
+      setlesoes(x.rows);
+      console.log('LESÕES ATIVAS: ' + lesoes.length);
     });
   }
 
   // limpando formulário que exibe as informaçoes das lesões de pressão.
-  const limpalesoes = () => {
+  const limpalesoes = (local) => {
     setidlesao(0);
+    setlocallesao(local);
+    setgraulesao(0);
+    setdescricaolesao('');
+    settratamentolesao('');
     setdatainiciolesao(moment().format('DD/MM/YYYY'));
     setdataterminolesao();
-    setestagiolesao();
-    setobservacoeslesao();
-    setcurativolesao();
   }
 
   // definindo e exibindo as informações sobre a lesão (estágio, observações e curativo/tratamento).
   const [idlesao, setidlesao] = useState(0);
   const [locallesao, setlocallesao] = useState('');
+  const [graulesao, setgraulesao] = useState('');
+  const [descricaolesao, setdescricaolesao] = useState('');
+  const [tratamentolesao, settratamentolesao] = useState('');
   const [datainiciolesao, setdatainiciolesao] = useState('');
   const [dataterminolesao, setdataterminolesao] = useState('');
-  const [estagiolesao, setestagiolesao] = useState(0);
-  const [observacoeslesao, setobservacoeslesao] = useState('');
-  const [curativolesao, setcurativolesao] = useState('');
-  const [showinfolesoes, setshowinfolesoes] = useState(0);
-  const clickLesaoOccipital = () => {
+  const clickLesao = (lesao) => {
     setpickdate1('');
     setpickdate2('');
-    setlocallesao('OCCIPITAL');
+    setlocallesao(lesao);
     // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'OCCIPITAL').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'OCCIPITAL').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'OCCIPITAL').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'OCCIPITAL').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'OCCIPITAL').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'OCCIPITAL').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'OCCIPITAL').map(item => item.curativo));
+    if (lesoes.filter((item) => item.lesao == lesao && item.datatermino == null).length > 0) {
+      let x = lesoes.filter((item) => item.lesao == lesao && item.datatermino == null);
+      console.log('LESÃO: ' + lesao + '. LENGHT: ' + x.length);
+      setTimeout(() => {
+        setidlesao(x.map(item => item.id));
+        setlocallesao(x.map(item => item.lesao));
+        setgraulesao(x.map(item => item.grau));
+        setdescricaolesao(x.map(item => item.descricao));
+        settratamentolesao(x.map(item => item.grau));
+        setdatainiciolesao(x.map(item => item.datainicio));
+        setdataterminolesao(x.map(item => item.datatermino));
+        setshowinfolesoes(1);
+      }, 100);
     } else {
-      limpalesoes();
+      setlocallesao(lesao);
+      setgraulesao(0);
+      setdescricaolesao('DESCREVA A LESÃO AQUI.');
+      settratamentolesao('SELECIONE');
+      setdatainiciolesao(moment());
+      setdataterminolesao(null);
+      setshowinfolesoes(1);
     }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoOmbroD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('OMBRO DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'OMBRO DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'OMBRO DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'OMBRO DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'OMBRO DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'OMBRO DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'OMBRO DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'OMBRO DIREITO').map(item => item.curativo));
-    } else {
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoOmbroE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('OMBRO ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'OMBRO ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'OMBRO ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'OMBRO ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'OMBRO ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'OMBRO ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'OMBRO ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'OMBRO ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoEscapulaD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('ESCAPULA DIREITA');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'ESCAPULA DIREITA').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'ESCAPULA DIREITA').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'ESCAPULA DIREITA').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'ESCAPULA DIREITA').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'ESCAPULA DIREITA').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'ESCAPULA DIREITA').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'ESCAPULA DIREITA').map(item => item.curativo));
-    } else {
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoEscapulaE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('ESCAPULA ESQUERDA');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'ESCAPULA ESQUERDA').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'ESCAPULA ESQUERDA').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'ESCAPULA ESQUERDA').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'ESCAPULA ESQUERDA').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'ESCAPULA ESQUERDA').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'ESCAPULA ESQUERDA').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'ESCAPULA ESQUERDA').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoCotoveloD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('COTOVELO DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'COTOVELO DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'COTOVELO DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'COTOVELO DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'COTOVELO DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'COTOVELO DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'COTOVELO DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'COTOVELO DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoCotoveloE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('COTOVELO ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'COTOVELO ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'COTOVELO ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'COTOVELO ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'COTOVELO ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'COTOVELO ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'COTOVELO ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'COTOVELO ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoSacro = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('SACRO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'SACRO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'SACRO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'SACRO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'SACRO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'SACRO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'SACRO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'SACRO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoIsquioD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('ISQUIO DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'ISQUIO DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'ISQUIO DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'ISQUIO DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'ISQUIO DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'ISQUIO DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'ISQUIO DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'ISQUIO DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoIsquioE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('ISQUIO ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'ISQUIO ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'ISQUIO ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'ISQUIO ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'ISQUIO ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'ISQUIO ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'ISQUIO ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'ISQUIO ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoTrocanterD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('TROCANTER DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'TROCANTER DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'TROCANTER DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'TROCANTER DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'TROCANTER DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'TROCANTER DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'TROCANTER DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'TROCANTER DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoTrocanterE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('TROCANTER ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'TROCANTER ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'TROCANTER ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'TROCANTER ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'TROCANTER ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'TROCANTER ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'TROCANTER ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'TROCANTER ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoJoelhoD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('JOELHO DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'JOELHO DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'JOELHO DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'JOELHO DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'JOELHO DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'JOELHO DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'JOELHO DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'JOELHO DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoJoelhoE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('JOELHO ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'JOELHO ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'JOELHO ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'JOELHO ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'JOELHO ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'JOELHO ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'JOELHO ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'JOELHO ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoMaleoloD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('MALEOLO DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'MALEOLO DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'MALEOLO DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'MALEOLO DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'MALEOLO DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'MALEOLO DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'MALEOLO DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'MALEOLO DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoMaleoloE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('MALEOLO ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'MALEOLO ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'MALEOLO ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'MALEOLO ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'MALEOLO ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'MALEOLO ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'MALEOLO ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'MALEOLO ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoCalcaneoD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('CALCANEO DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'CALCANEO DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'CALCANEO DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'CALCANEO DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'CALCANEO DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'CALCANEO DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'CALCANEO DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'CALCANEO DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoCalcaneoE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('CALCANEO ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'CALCANEO ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'CALCANEO ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'CALCANEO ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'CALCANEO ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'CALCANEO ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'CALCANEO ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'CALCANEO ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoHaluxD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('HALUX DIREITO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'HALUX DIREITO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'HALUX DIREITO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'HALUX DIREITO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'HALUX DIREITO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'HALUX DIREITO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'HALUX DIREITO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'HALUX DIREITO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-  const clickLesaoHaluxE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('HALUX ESQUERDO');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'HALUX ESQUERDO').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'HALUX ESQUERDO').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'HALUX ESQUERDO').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'HALUX ESQUERDO').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'HALUX ESQUERDO').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'HALUX ESQUERDO').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'HALUX ESQUERDO').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-
-  const clickLesaoOrelhaD = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('ORELHA DIREITA');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'ORELHA DIREITA').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'ORELHA DIREITA').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'ORELHA DIREITA').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'ORELHA DIREITA').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'ORELHA DIREITA').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'ORELHA DIREITA').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'ORELHA DIREITA').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
-  }
-
-  const clickLesaoOrelhaE = () => {
-    setpickdate1('');
-    setpickdate2('');
-    setlocallesao('ORELHA ESQUERDA');
-    // verificando se existe lesão ativa e mapeando suas informações.
-    if (lesoes.filter((item) => item.local === 'ORELHA ESQUERDA').length > 0) {
-      setidlesao(lesoes.filter(item => item.local === 'ORELHA ESQUERDA').map(item => item.id));
-      setdatainiciolesao(lesoes.filter(item => item.local === 'ORELHA ESQUERDA').map(item => item.inicio));
-      setdataterminolesao(lesoes.filter(item => item.local === 'ORELHA ESQUERDA').map(item => item.termino));
-      setestagiolesao(lesoes.filter(item => item.local === 'ORELHA ESQUERDA').map(item => item.estagio));
-      setobservacoeslesao(lesoes.filter(item => item.local === 'ORELHA ESQUERDA').map(item => item.observacoes));
-      setcurativolesao(lesoes.filter(item => item.local === 'ORELHA ESQUERDA').map(item => item.curativo));
-    } else {
-      limpalesoes();
-    }
-    setshowinfolesoes(1);
   }
 
   const updateLesoes = () => {
-    var inicio = '';
-    var termino = '';
-    if (pickdate1 == '') {
-      inicio = datainiciolesao
-    } else {
-      inicio = pickdate1
-    }
-    if (pickdate2 == '') {
-      termino = dataterminolesao
-    } else {
-      termino = pickdate2
-    }
-    var obj = {
-      idatendimento: idatendimento,
-      local: locallesao,
-      estagio: estagiolesao,
-      inicio: inicio,
-      termino: termino,
-      observacoes: observacoeslesao,
-      curativo: curativolesao,
-    };
-    if (lesoes.filter(item => item.local == locallesao).length < 1) {
-      // salvar nova lesão.
-      axios.post(html + '/insertlesao', obj).then(() => {
-        setshowinfolesoes(0);
-        toast(1, '#52be80', 'LESÃO REGISTRADA COM SUCESSO.', 3000);
-        loadLesoes();
+    var x = lesoes.filter(item => item.lesao == locallesao && item.datatermino == null);
+    var id = x.map(item => item.id);
+    if (x.lenght > 0) {
+      // atualizando o registro existente como encerrado.
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        lesao: locallesao,
+        grau: x.map(item => item.grau),
+        descricao: x.map(item => item.descricao),
+        tratamento: x.map(item => item.tratamento),
+        datainicio: x.map(item => item.datainicio),
+        datatermino: moment(),
+        idprofissional: 0,
+      };
+      axios.post(htmlghapupdatelesao + id, obj).then(() => {
+        // inserindo registro de lesão com os dados inputados.
+        var obj = {
+          idpct: idpaciente,
+          idatendimento: idatendimento,
+          lesao: locallesao,
+          grau: graulesao,
+          descricao: descricaolesao,
+          tratamento: tratamentolesao,
+          datainicio: datainiciolesao,
+          datatermino: moment(),
+          idprofissional: 0,
+        };
+        axios.post(htmlghapinsertlesao, obj).then(() => {
+          loadLesoes();
+          setshowinfolesoes(0);
+        });
       });
     } else {
-      // atualizar lesão.
-      axios.post(html + '/updatelesao/' + idlesao, obj).then(() => {
-        setshowinfolesoes(0);
-        toast(1, '#52be80', 'LESÃO ATUALIZADA COM SUCESSO.', 3000);
+      // inserindo o primeiro registro de lesão.
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        lesao: locallesao,
+        grau: graulesao,
+        descricao: descricaolesao,
+        tratamento: tratamentolesao,
+        datainicio: datainiciolesao,
+        datatermino: null,
+        idprofissional: 0,
+      };
+      axios.post(htmlghapinsertlesao, obj).then(() => {
         loadLesoes();
+        setshowinfolesoes(0);
       });
     }
   }
@@ -10745,7 +10419,7 @@ function Prontuario() {
   ]
 
   const selectCurativo = (item) => {
-    setcurativolesao(item);
+    settratamentolesao(item);
     setshowcurativoslist(0);
   }
 
@@ -10780,7 +10454,7 @@ function Prontuario() {
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
                       <button
-                        className={curativolesao == item ? "red-button" : "blue-button"}
+                        className={tratamentolesao == item ? "red-button" : "blue-button"}
                         onClick={() => selectCurativo(item)}
                         style={{
                           width: '100%',
@@ -10806,6 +10480,7 @@ function Prontuario() {
     }
   }
 
+  const [showinfolesoes, setshowinfolesoes] = useState(0);
   function ShowInfoLesoes() {
     if (showinfolesoes === 1) {
       return (
@@ -10854,7 +10529,7 @@ function Prontuario() {
                     }}
                     onClick={() => showDatePicker(1, 1)}
                   >
-                    {pickdate1 == '' ? datainiciolesao : pickdate1}
+                    {pickdate1 == '' ? moment(datainiciolesao).format('DD/MM/YYYY') : pickdate1}
                   </button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -10868,7 +10543,7 @@ function Prontuario() {
                     }}
                     onClick={() => showDatePicker(1, 2)}
                   >
-                    {pickdate2 == '' ? dataterminolesao : pickdate2}
+                    {pickdate2 == '' ? moment(dataterminolesao).format('DD/MM/YYY') : pickdate2}
                   </div>
                 </div>
               </div>
@@ -10877,36 +10552,36 @@ function Prontuario() {
               </label>
               <div style={{ display: 'flex', flexDirection: window.innerWidth > 800 ? 'row' : 'column', justifyContent: 'center' }}>
                 <button
-                  className={estagiolesao == 1 ? "red-button" : "blue-button"}
-                  onClick={() => setestagiolesao(1)}
+                  className={graulesao == 1 ? "red-button" : "blue-button"}
+                  onClick={() => setgraulesao(1)}
                   style={{ width: 150 }}
                 >
                   ESTÁGIO 1
                 </button>
                 <button
-                  className={estagiolesao == 2 ? "red-button" : "blue-button"}
-                  onClick={() => setestagiolesao(2)}
+                  className={graulesao == 2 ? "red-button" : "blue-button"}
+                  onClick={() => setgraulesao(2)}
                   style={{ width: 150 }}
                 >
                   ESTÁGIO 2
                 </button>
                 <button
-                  className={estagiolesao == 3 ? "red-button" : "blue-button"}
-                  onClick={() => setestagiolesao(3)}
+                  className={graulesao == 3 ? "red-button" : "blue-button"}
+                  onClick={() => setgraulesao(3)}
                   style={{ width: 150 }}
                 >
                   ESTÁGIO 3
                 </button>
                 <button
-                  className={estagiolesao == 4 ? "red-button" : "blue-button"}
-                  onClick={() => setestagiolesao(4)}
+                  className={graulesao == 4 ? "red-button" : "blue-button"}
+                  onClick={() => setgraulesao(4)}
                   style={{ width: 150 }}
                 >
                   ESTÁGIO 4
                 </button>
                 <button
-                  className={estagiolesao == 5 ? "red-button" : "blue-button"}
-                  onClick={() => setestagiolesao(5)}
+                  className={graulesao == 5 ? "red-button" : "blue-button"}
+                  onClick={() => setgraulesao(5)}
                   style={{ width: 150, padding: 10 }}
                 >
                   NÃO CLASSIFICÁVEL
@@ -10920,7 +10595,7 @@ function Prontuario() {
                 onClick={() => setshowcurativoslist(1)}
                 style={{ paddingLeft: 10, paddingRight: 10, width: '100%' }}
               >
-                {curativolesao}
+                {tratamentolesao}
               </button>
               <label className="title2" style={{ marginTop: 15 }}>
                 OBSERVAÇÕES:
@@ -10931,7 +10606,7 @@ function Prontuario() {
                 placeholder="OBSERVAÇÕES."
                 onFocus={(e) => (e.target.placeholder = '')}
                 onBlur={(e) => (e.target.placeholder = 'OBSERVAÇÕES.')}
-                onMouseLeave={(e) => setobservacoeslesao(e.target.value)}
+                onMouseLeave={(e) => setdescricaolesao(e.target.value)}
                 title="INFORMAR AQUI OBSERVAÇÕES E OUTROS DETALHES REFERENTES À LESÃO."
                 style={{
                   width: '100%',
@@ -10939,7 +10614,7 @@ function Prontuario() {
                 }}
                 type="text"
                 maxLength={200}
-                defaultValue={observacoeslesao}
+                defaultValue={descricaolesao}
                 id="inputObservacoesLesao"
               ></textarea>
             </div>
@@ -10953,20 +10628,21 @@ function Prontuario() {
 
   // exibição das lesões no boneco.
   function ShowOccipital() {
-    if (lesoes.filter(item => item.local == 'OCCIPITAL').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'OCCIPITAL' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={' LESÃO OCCIPITAL \nESTÁGIO: ' + lesoes.filter(item => item.local == 'OCCIPITAL').map(item => item.estagio)}
+          title={' LESÃO OCCIPITAL \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '4%',
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoOccipital()}
+          onClick={() => clickLesao('OCCIPITAL')}
         >
-          {lesoes.filter(item => item.local == 'OCCIPITAL').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -10981,7 +10657,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoOccipital()}
+          onClick={() => clickLesao('OCCIPITAL')}
         >
         </div>
       );
@@ -10989,11 +10665,12 @@ function Prontuario() {
   }
 
   function ShowOmbroD() {
-    if (lesoes.filter(item => item.local == 'OMBRO DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'OMBRO DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM OMBRO DIREITO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'OMBRO DIREITO').map(item => item.estagio)}
+          title={'LESÃO EM OMBRO DIREITO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '18%',
@@ -11001,9 +10678,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoOmbroD()}
+          onClick={() => clickLesao('OMBRO DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'OMBRO DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11019,7 +10696,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoOmbroD()}
+          onClick={() => clickLesao('OMBRO DIREITO')}
         >
         </div>
       );
@@ -11027,11 +10704,12 @@ function Prontuario() {
   }
 
   function ShowOmbroE() {
-    if (lesoes.filter(item => item.local == 'OMBRO ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'OMBRO ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM OMBRO ESQUERDO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'OMBRO ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO EM OMBRO ESQUERDO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '18%',
@@ -11039,9 +10717,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoOmbroE()}
+          onClick={() => clickLesao('OMBRO ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'OMBRO ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11057,7 +10735,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoOmbroE()}
+          onClick={() => clickLesao('OMBRO ESQUERDO')}
         >
         </div>
       );
@@ -11065,11 +10743,12 @@ function Prontuario() {
   }
 
   function ShowEscapulaD() {
-    if (lesoes.filter(item => item.local == 'ESCAPULA DIREITA').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'ESCAPULA DIREITA' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM ESCÁPULA DIREITA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'ESCAPULA DIREITA').map(item => item.estagio)}
+          title={'LESÃO EM ESCÁPULA DIREITA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '25%',
@@ -11077,16 +10756,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoEscapulaD()}
+          onClick={() => clickLesao('ESCAPULA DIREITA')}
         >
-          {lesoes.filter(item => item.local == 'ESCAPULA DIREITA').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'ESCAPULAR DIREITA'}
+          title={'ESCAPULA DIREITA'}
           style={{
             position: 'absolute',
             top: '25%',
@@ -11095,7 +10774,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoEscapulaD()}
+          onClick={() => clickLesao('ESCAPULA DIREITA')}
         >
         </div>
       );
@@ -11103,11 +10782,12 @@ function Prontuario() {
   }
 
   function ShowEscapulaE() {
-    if (lesoes.filter(item => item.local == 'ESCAPULA ESQUERDA').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'ESCAPULA ESQUERDA' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM ESCÁPULA ESQUERDA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'ESCAPULA ESQUERDA').map(item => item.estagio)}
+          title={'LESÃO EM ESCÁPULA ESQUERDA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '25%',
@@ -11115,16 +10795,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoEscapulaE()}
+          onClick={() => clickLesao('ESCAPULA ESQUERDA')}
         >
-          {lesoes.filter(item => item.local == 'ESCAPULA ESQUERDA').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'ESCAPULAR ESQUERDA'}
+          title={'ESCAPULA ESQUERDA'}
           style={{
             position: 'absolute',
             top: '25%',
@@ -11133,7 +10813,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoEscapulaE()}
+          onClick={() => clickLesao('ESCAPULA ESQUERDA')}
         >
         </div>
       );
@@ -11141,11 +10821,12 @@ function Prontuario() {
   }
 
   function ShowCotoveloD() {
-    if (lesoes.filter(item => item.local == 'COTOVELO DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'COTOVELO DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM COTOVELO DIREITO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'COTOVELO DIREITO').map(item => item.estagio)}
+          title={'LESÃO EM COTOVELO DIREITO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '35%',
@@ -11153,9 +10834,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoCotoveloD()}
+          onClick={() => clickLesao('COTOVELO DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'COTOVELO DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11171,7 +10852,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoCotoveloD()}
+          onClick={() => clickLesao('COTOVELO DIREITO')}
         >
         </div>
       );
@@ -11179,11 +10860,12 @@ function Prontuario() {
   }
 
   function ShowCotoveloE() {
-    if (lesoes.filter(item => item.local == 'COTOVELO ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'COTOVELO ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM COTOVELO ESQUERDO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'COTOVELO ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO EM COTOVELO ESQUERDO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '35%',
@@ -11191,9 +10873,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoCotoveloE()}
+          onClick={() => clickLesao('COTOVELO ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'COTOVELO ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11209,7 +10891,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoCotoveloE()}
+          onClick={() => clickLesao('COTOVELO ESQUERDO')}
         >
         </div>
       );
@@ -11217,20 +10899,21 @@ function Prontuario() {
   }
 
   function ShowSacral() {
-    if (lesoes.filter(item => item.local == 'SACRO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'SACRO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO SACRAL \nESTÁGIO: ' + lesoes.filter(item => item.local == 'SACRO').map(item => item.estagio)}
+          title={'LESÃO SACRAL \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '50%',
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoSacro()}
+          onClick={() => clickLesao('SACRO')}
         >
-          {lesoes.filter(item => item.local == 'SACRO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11245,7 +10928,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoSacro()}
+          onClick={() => clickLesao('SACRO')}
         >
         </div>
       );
@@ -11253,11 +10936,12 @@ function Prontuario() {
   }
 
   function ShowIsquioD() {
-    if (lesoes.filter(item => item.local == 'ISQUIO DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'ISQUIO DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO ISQUIÁTICA DIREITA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'ISQUIO DIREITO').map(item => item.estagio)}
+          title={'LESÃO ISQUIÁTICA DIREITA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '55%',
@@ -11265,16 +10949,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoIsquioD()}
+          onClick={() => clickLesao('ISQUIO DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'ISQUIO DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'ISQUIÁTICA DIREITA'}
+          title={'ISQUIO DIREITO'}
           style={{
             position: 'absolute',
             top: '55%',
@@ -11283,7 +10967,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoIsquioD()}
+          onClick={() => clickLesao('ISQUIO DIREITO')}
         >
         </div>
       );
@@ -11291,11 +10975,12 @@ function Prontuario() {
   }
 
   function ShowIsquioE() {
-    if (lesoes.filter(item => item.local == 'ISQUIO ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'ISQUIO ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO ISQUIÁTICA ESQUERDA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'ISQUIO ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO ISQUIÁTICA ESQUERDA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '55%',
@@ -11303,16 +10988,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoIsquioE()}
+          onClick={() => clickLesao('ISQUIO ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'ISQUIO ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'ISQUIÁTICA ESQUERDA'}
+          title={'ISQUIO ESQUERDO'}
           style={{
             position: 'absolute',
             top: '55%',
@@ -11321,7 +11006,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoIsquioE()}
+          onClick={() => clickLesao('ISQUIO ESQUERDO')}
         >
         </div>
       );
@@ -11329,11 +11014,12 @@ function Prontuario() {
   }
 
   function ShowTrocanterD() {
-    if (lesoes.filter(item => item.local == 'TROCANTER DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'TROCANTER DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO TROCANTÉRICA DIREITA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'TROCANTER DIREITO').map(item => item.estagio)}
+          title={'LESÃO TROCANTÉRICA DIREITA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '50%',
@@ -11341,16 +11027,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoTrocanterD()}
+          onClick={() => clickLesao('TROCANTER DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'TROCANTER DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'TROCANTÉRICA DIREITA'}
+          title={'TROCANTER DIREITO'}
           style={{
             position: 'absolute',
             top: '50%',
@@ -11359,7 +11045,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoTrocanterD()}
+          onClick={() => clickLesao('TROCANTER DIREITO')}
         >
         </div>
       );
@@ -11367,11 +11053,12 @@ function Prontuario() {
   }
 
   function ShowTrocanterE() {
-    if (lesoes.filter(item => item.local == 'TROCANTER ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'TROCANTER ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO TROCANTÉRICA ESQUERDA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'TROCANTER ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO TROCANTÉRICA ESQUERDA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '50%',
@@ -11379,16 +11066,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoTrocanterE()}
+          onClick={() => clickLesao('TROCANTER ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'TROCANTER ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'TROCANTÉRICA ESQUERDA'}
+          title={'TROCANTER ESQUERDO'}
           style={{
             position: 'absolute',
             top: '50%',
@@ -11397,7 +11084,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoTrocanterE()}
+          onClick={() => clickLesao('TROCANTER ESQUERDO')}
         >
         </div>
       );
@@ -11405,11 +11092,12 @@ function Prontuario() {
   }
 
   function ShowJoelhoD() {
-    if (lesoes.filter(item => item.local == 'JOELHO DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'JOELHO DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM JOELHO DIREITO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'JOELHO DIREITO').map(item => item.estagio)}
+          title={'LESÃO EM JOELHO DIREITO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '70%',
@@ -11417,9 +11105,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoJoelhoD()}
+          onClick={() => clickLesao('JOELHO DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'JOELHO DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11435,7 +11123,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoJoelhoD()}
+          onClick={() => clickLesao('JOELHO DIREITO')}
         >
         </div>
       );
@@ -11443,11 +11131,12 @@ function Prontuario() {
   }
 
   function ShowJoelhoE() {
-    if (lesoes.filter(item => item.local == 'JOELHO ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'JOELHO ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM JOELHO ESQUERDO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'JOELHO ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO EM JOELHO ESQUERDO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '80%',
@@ -11455,9 +11144,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
           }}
-          onClick={() => clickLesaoJoelhoE()}
+          onClick={() => clickLesao('JOELHO ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'JOELHO ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11473,7 +11162,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.02 * window.innerWidth : window.innerWidth > 600 ? 0.07 * window.innerWidth : 0.09 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoJoelhoE()}
+          onClick={() => clickLesao('JOELHO ESQUERDO')}
         >
         </div>
       );
@@ -11481,11 +11170,12 @@ function Prontuario() {
   }
 
   function ShowMaleoloD() {
-    if (lesoes.filter(item => item.local == 'MALEOLO DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'MALEOLO DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM MALÉOLO DIREITO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'MALEOLO DIREITO').map(item => item.estagio)}
+          title={'LESÃO EM MALÉOLO DIREITO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '88%',
@@ -11493,16 +11183,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.04 * window.innerWidth : 0.07 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.04 * window.innerWidth : 0.07 * window.innerWidth,
           }}
-          onClick={() => clickLesaoMaleoloD()}
+          onClick={() => clickLesao('MALEOLO DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'MALEOLO DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'MALEOLAR DIREITA'}
+          title={'MALEOLO DIREITO'}
           style={{
             position: 'absolute',
             top: '88%',
@@ -11511,7 +11201,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.04 * window.innerWidth : 0.07 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoMaleoloD()}
+          onClick={() => clickLesao('MALEOLO DIREITO')}
         >
         </div>
       );
@@ -11519,11 +11209,12 @@ function Prontuario() {
   }
 
   function ShowMaleoloE() {
-    if (lesoes.filter(item => item.local == 'MALEOLO ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'MALEOLO ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM MALÉOLO ESQUERDO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'MALEOLO ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO EM MALÉOLO ESQUERDO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '88%',
@@ -11531,16 +11222,16 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.04 * window.innerWidth : 0.07 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.04 * window.innerWidth : 0.07 * window.innerWidth,
           }}
-          onClick={() => clickLesaoMaleoloE()}
+          onClick={() => clickLesao('MALEOLO ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'MALEOLO ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
       return (
         <div
           className="green-invasion"
-          title={'MALEOLAR ESQUERDA'}
+          title={'MALEOLO ESQUERDO'}
           style={{
             position: 'absolute',
             top: '88%',
@@ -11549,7 +11240,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.04 * window.innerWidth : 0.07 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoMaleoloE()}
+          onClick={() => clickLesao('MALEOLO ESQUERDO')}
         >
         </div>
       );
@@ -11557,11 +11248,12 @@ function Prontuario() {
   }
 
   function ShowHaluxD() {
-    if (lesoes.filter(item => item.local == 'HALUX DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'HALUX DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM HÁLUX DIREITO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'HALUX DIREITO').map(item => item.estagio)}
+          title={'LESÃO EM HÁLUX DIREITO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '95%',
@@ -11569,9 +11261,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.01 * window.innerWidth : window.innerWidth > 600 ? 0.035 * window.innerWidth : 0.045 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.01 * window.innerWidth : window.innerWidth > 600 ? 0.035 * window.innerWidth : 0.045 * window.innerWidth,
           }}
-          onClick={() => clickLesaoHaluxD()}
+          onClick={() => clickLesao('HALUX DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'HALUX DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11587,7 +11279,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.01 * window.innerWidth : window.innerWidth > 600 ? 0.035 * window.innerWidth : 0.045 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoHaluxD()}
+          onClick={() => clickLesao('HALUX DIREITO')}
         >
         </div>
       );
@@ -11595,11 +11287,12 @@ function Prontuario() {
   }
 
   function ShowHaluxE() {
-    if (lesoes.filter(item => item.local == 'HALUX ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'HALUX ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM HÁLUX ESQUERDO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'HALUX ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO EM HÁLUX ESQUERDO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '95%',
@@ -11607,9 +11300,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.01 * window.innerWidth : window.innerWidth > 600 ? 0.035 * window.innerWidth : 0.045 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.01 * window.innerWidth : window.innerWidth > 600 ? 0.035 * window.innerWidth : 0.045 * window.innerWidth,
           }}
-          onClick={() => clickLesaoHaluxE()}
+          onClick={() => clickLesao('HALUX ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'HALUX ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11625,7 +11318,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.01 * window.innerWidth : window.innerWidth > 600 ? 0.035 * window.innerWidth : 0.045 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoHaluxE()}
+          onClick={() => clickLesao('HALUX ESQUERDO')}
         >
         </div>
       );
@@ -11633,11 +11326,12 @@ function Prontuario() {
   }
 
   function ShowCalcaneoD() {
-    if (lesoes.filter(item => item.local == 'CALCANEO DIREITO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'CALCANEO DIREITO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM CALCÂNEO DIREITO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'CALCANEO DIREITO').map(item => item.estagio)}
+          title={'LESÃO EM CALCÂNEO DIREITO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '91%',
@@ -11645,9 +11339,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
           }}
-          onClick={() => clickLesaoCalcaneoD()}
+          onClick={() => clickLesao('CALCANEO DIREITO')}
         >
-          {lesoes.filter(item => item.local == 'CALCANEO DIREITO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11663,7 +11357,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoCalcaneoD()}
+          onClick={() => clickLesao('CALCANEO DIREITO')}
         >
         </div>
       );
@@ -11671,11 +11365,12 @@ function Prontuario() {
   }
 
   function ShowCalcaneoE() {
-    if (lesoes.filter(item => item.local == 'CALCANEO ESQUERDO').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'CALCANEO ESQUERDO' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM CALCÂNEO ESQUERDO \nESTÁGIO: ' + lesoes.filter(item => item.local == 'CALCANEO ESQUERDO').map(item => item.estagio)}
+          title={'LESÃO EM CALCÂNEO ESQUERDO \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '91%',
@@ -11683,9 +11378,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
           }}
-          onClick={() => clickLesaoCalcaneoE()}
+          onClick={() => clickLesao('CALCANEO ESQUERDO')}
         >
-          {lesoes.filter(item => item.local == 'CALCANEO ESQUERDO').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11701,7 +11396,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoCalcaneoE()}
+          onClick={() => clickLesao('CALCANEO ESQUERDO')}
         >
         </div>
       );
@@ -11709,11 +11404,12 @@ function Prontuario() {
   }
 
   function ShowOrelhaD() {
-    if (lesoes.filter(item => item.local == 'ORELHA DIREITA').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'ORELHA DIREITA' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM ORELHA ESQUERDA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'ORELHA DIREITA').map(item => item.estagio)}
+          title={'LESÃO EM ORELHA ESQUERDA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '8%',
@@ -11721,9 +11417,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
           }}
-          onClick={() => clickLesaoOrelhaD()}
+          onClick={() => clickLesao('ORELHA DIREITA')}
         >
-          {lesoes.filter(item => item.local == 'ORELHA DIREITA').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11739,7 +11435,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoOrelhaD()}
+          onClick={() => clickLesao('ORELHA DIREITA')}
         >
         </div>
       );
@@ -11747,11 +11443,12 @@ function Prontuario() {
   }
 
   function ShowOrelhaE() {
-    if (lesoes.filter(item => item.local == 'ORELHA ESQUERDA').length > 0) {
+    var x = lesoes.filter(item => item.lesao == 'ORELHA ESQUERDA' && item.datatermino == null);
+    if (x.length > 0) {
       return (
         <div
           className="red-invasion"
-          title={'LESÃO EM ORELHA ESQUERDA \nESTÁGIO: ' + lesoes.filter(item => item.local == 'ORELHA ESQUERDA').map(item => item.estagio)}
+          title={'LESÃO EM ORELHA ESQUERDA \nESTÁGIO: ' + x.map(item => item.grau)}
           style={{
             position: 'absolute',
             top: '8%',
@@ -11759,9 +11456,9 @@ function Prontuario() {
             height: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
           }}
-          onClick={() => clickLesaoOrelhaE()}
+          onClick={() => clickLesao('ORELHA ESQUERDA')}
         >
-          {lesoes.filter(item => item.local == 'ORELHA ESQUERDA').map(item => item.estagio)}
+          {x.map(item => item.grau)}
         </div>
       );
     } else {
@@ -11777,7 +11474,7 @@ function Prontuario() {
             width: window.innerWidth > 800 ? 0.015 * window.innerWidth : window.innerWidth > 600 ? 0.05 * window.innerWidth : 0.07 * window.innerWidth,
             opacity: 0.5,
           }}
-          onClick={() => clickLesaoOrelhaE()}
+          onClick={() => clickLesao('ORELHA ESQUERDA')}
         >
         </div>
       );
