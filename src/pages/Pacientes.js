@@ -962,6 +962,8 @@ function Pacientes() {
     setdatainternacao(item.dt_hr_atendimento);
     setconvenio(item.nm_convenio);
     setdadospaciente(arrayPacientesEmAtendimento.filter(value => value.codigo_paciente == item.cd_paciente));
+    // alert(idpaciente);
+    alert(item.cd_paciente);
     history.push('/prontuario');
   };
 

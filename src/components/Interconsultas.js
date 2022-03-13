@@ -12,20 +12,22 @@ function Interconsultas(
   { viewinterconsulta,
     hospital,
     unidade,
-    idpaciente,
-    idatendimento,
+    
     idinterconsulta,
-    pedido,
     especialidade,
     motivo,
-    status,
     parecer,
+    datainicio,
+    datatermino,
+    idsolicitante,
+    idatendente,
+    status,
   }) {
-  //servidor.
-  var html = 'https://pulsarapp-server.herokuapp.com';
+
   const {
     setlistinterconsultas,
-    setarrayinterconsultas
+    setarrayinterconsultas,
+    idpaciente, idatendimento,
   } = useContext(Context)
 
   // chave para exibição do componente.
@@ -34,7 +36,6 @@ function Interconsultas(
   useEffect(() => {
     if (viewinterconsulta !== 0) {
       setviewcomponent(viewinterconsulta);
-      loadEspecialidades();
       if (viewinterconsulta === 1) {
         setselectedespecialidade('SELECIONE UMA ESPECIALIDADE');
       } else {
@@ -44,13 +45,12 @@ function Interconsultas(
     }
   }, [viewinterconsulta])
 
-  // carregando lista de especialidades.
-  const [especialidades, setespecialidades] = useState([]);
-  const loadEspecialidades = () => {
-    axios.get(html + "/especialidades").then((response) => {
-      setespecialidades(response.data);
-    });
-  }
+  let arrayespecialidades = [
+    'ANESTESIOLOGIA',
+    'CARDIOLOGIA',
+    'CIRURGIA GERAL',
+    'CIRURGIA TORÁCICA',
+    'GERIATRIA'];
 
   // tela para seleção da especialidade.
   const [showespecialidades, setshowespecialidades] = useState(0);
@@ -76,16 +76,16 @@ function Interconsultas(
               }}
             >
               <div style={{ width: '100%' }}>
-                {especialidades.map((item) => (
+                {arrayespecialidades.map((item) => (
                   <button
                     className="blue-button"
                     style={{
                       width: 0.3 * window.innerWidth,
                       margin: 10,
                     }}
-                    onClick={(e) => { selectEspecialidade(item.especialidade); e.stopPropagation() }}
+                    onClick={(e) => { selectEspecialidade(item); e.stopPropagation() }}
                   >
-                    {item.especialidade}
+                    {item}
                   </button>
                 ))}
               </div>
@@ -99,69 +99,74 @@ function Interconsultas(
   }
 
   // selecionando uma especialidade.
+  const [selectedespecialidade, setselectedespecialidade] = useState();
   const selectEspecialidade = (value) => {
     setselectedespecialidade(value);
     setshowespecialidades(0);
   }
 
-  const loadInterconsultas = (idpaciente) => {
-    axios.get(html + "/interconsultas/'" + idpaciente + "'").then((response) => {
+  var htmlghapinterconsultas = process.env.REACT_APP_API_CLONE_INTERCONSULTAS;
+  const loadInterconsultas = () => {
+    axios.get(htmlghapinterconsultas + idatendimento).then((response) => {
       var x = [0, 1];
+      var y = [0, 1];
       x = response.data;
-      setlistinterconsultas(x.sort((a, b) => moment(a.pedido, 'DD/MM/YYYY HH:MM') < moment(b.pedido, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-      setarrayinterconsultas(x.sort((a, b) => moment(a.pedido, 'DD/MM/YYYY HH:MM') < moment(b.pedido, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      y = x.rows;
+      setlistinterconsultas(y.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      setarrayinterconsultas(y.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
     });
   }
 
   // inserindo registro.
-  const [selectedespecialidade, setselectedespecialidade] = useState();
+  var htmlghapinsertinterconsulta = process.env.REACT_APP_API_CLONE_INSERTINTERCONSULTA;
   const insertData = () => {
     var motivo = document.getElementById("inputMotivo").value.toUpperCase();
-    if (motivo !== '' && selectedespecialidade !== 'SELECIONE UMA ESPECIALIDADE') {
+    // alert(selectedespecialidade)
+    if (motivo != '' && selectedespecialidade != 'SELECIONE UMA ESPECIALIDADE') {
       var obj = {
-        idpaciente: idpaciente,
-        hospital: hospital,
-        unidade: unidade,
+        idpct: idpaciente,
         idatendimento: idatendimento,
-        pedido: moment().format('DD/MM/YY HH:mm'),
         especialidade: selectedespecialidade,
         motivo: motivo,
-        status: 0,
-        parecer: ''
+        parecer: null,
+        datainicio: moment(),
+        datatermino: null,
+        idsolicitante: 0,
+        idatendente: null,
+        status: 0, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = suspensa.
       };
-      axios.post(html + '/insertinterconsulta', obj).then(() => {
-        toast(1, '#52be80', 'INTERCONSULTA REGISTRADA COM SUCESSO.', 5000);
-        setTimeout(() => {
-          loadInterconsultas(idpaciente);
-          fechar();
-        }, 3000);
+      axios.post(htmlghapinsertinterconsulta, obj).then(() => {
+        toast(1, '#52be80', 'INTERCONSULTA REGISTRADA COM SUCESSO.', 3000);
+        loadInterconsultas();
+        fechar();
       });
+
     } else {
       toast(1, '#ec7063', 'CAMPOS OBRIGATÓRIOS EM BRANCO.', 5000);
     }
   };
 
   // atualizando registro.
+  var htmlghapupdateinterconsulta = process.env.REACT_APP_API_CLONE_UPDATEINTERCONSULTA;
   const updateData = () => {
     var motivo = document.getElementById("inputMotivo").value.toUpperCase();
     if (motivo !== '' && selectedespecialidade !== '') {
       var obj = {
-        idpaciente: idpaciente,
-        hospital: hospital,
-        unidade: unidade,
+        idpct: idpaciente,
         idatendimento: idatendimento,
-        pedido: pedido,
         especialidade: selectedespecialidade,
         motivo: motivo,
-        status: status,
-        parecer: parecer,
+        parecer: null,
+        datainicio: moment(),
+        datatermino: null,
+        idsolicitante: 0,
+        idatendente: null,
+        status: 0, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = suspensa.
       };
-      axios.post(html + '/updateinterconsulta/' + idinterconsulta, obj).then(() => {
-        toast(1, '#52be80', 'INTERCONSULTA ATUALIZADA COM SUCESSO.', 5000);
-        setTimeout(() => {
-          loadInterconsultas(idpaciente);
-          fechar();
-        }, 3000);
+      axios.post(htmlghapupdateinterconsulta + idinterconsulta, obj).then(() => {
+        toast(1, '#52be80', 'INTERCONSULTA ATUALIZADA COM SUCESSO.', 3000);
+        loadInterconsultas();
+        fechar();
       });
     } else {
       toast(1, '#ec7063', 'CAMPOS OBRIGATÓRIOS EM BRANCO.', 5000);

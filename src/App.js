@@ -301,6 +301,9 @@ function App() {
 
   const [refreshatendimentos, setrefreshatendimentos] = useState(0);
 
+  // APT escalas.
+  const [showescala, setshowescala] = useState(0);
+
   var html = 'https://pulsarapp-server.herokuapp.com';
   const loadSettings = () => {
     axios.get(html + "/settings").then((response) => {
@@ -432,7 +435,10 @@ function App() {
         statusplanoterapeutico, setstatusplanoterapeutico,
         linhadecuidado, setlinhadecuidado,
 
-        refreshatendimentos, setrefreshatendimentos
+        refreshatendimentos, setrefreshatendimentos,
+
+        // APT escalas.
+        showescala, setshowescala,
       }}
     >
       <div className={schemecolor}>

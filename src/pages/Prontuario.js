@@ -174,6 +174,8 @@ function Prontuario() {
     ivcf, setivcf,
     setrefreshatendimentos, refreshatendimentos,
     linhadecuidado, setlinhadecuidado,
+    // escalas.
+    showescala, setshowescala,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -2350,6 +2352,51 @@ function Prontuario() {
     }
   }
 
+  // LISTA DE ESCALAS.
+  // carregando as opções de escalas.
+  const [opcoesescalas, setopcoesescalas] = useState(0);
+  const loadOpcoesEscalas = () => {
+    axios.get(htmlghapopcoesescalas).then((response) => {
+      var x = [0, 1];
+      var y = [0, 1];
+      x = response.data;
+      y = x.rows;
+      setopcoesescalas(x);
+    })
+  }
+
+  const [listescalas, setlistescalas] = useState([]);
+  const [arraylistescalas, setarraylistescalas] = useState([]);
+  const loadEscalas = () => {
+    axios.get(htmlghapescalas + idatendimento).then((response) => {
+      var x = [0, 1];
+      var y = [0, 1];
+      x = response.data;
+      y = x.rows
+      setlistescalas(y.filter(item => item.idatendimento == idatendimento));
+      setarraylistescalas(y.filter(item => item.idatendimento == idatendimento));
+    });
+  }
+
+  // atualizando ou suspendendo uma interconsulta.
+  const updateEscala = (item, valor) => {
+    var obj = {
+      idpct: item.idpct,
+      idatendimento: item.idatendimento,
+      data: item.data,
+      cd_escala: item.cd_escala,
+      ds_escala: item.ds_escala,
+      valor_resultado: item.valor_resultado,
+      ds_resultado: item.ds_resultado,
+      idprofissional: item.idprofissional,
+      status: valor, // 0 = registrada, 1 = assinada, 2 = cancelado.
+    };
+    axios.post(htmlghapupdateinterconsulta + item.id, obj).then(() => {
+      toast(1, '#52be80', 'INTERCONSULTA ASSINADA COM SUCESSO.', 3000);
+      loadInterconsultas();
+    });
+  }
+
   const [viewescalapps, setviewescalapps] = useState(0);
   const [viewescalamif, setviewescalamif] = useState(0);
   const [viewescalaivcf, setviewescalaivcf] = useState(0);
@@ -2357,268 +2404,61 @@ function Prontuario() {
     if (stateprontuario == 20) {
       return (
         <div className="scroll" style={{ height: '80vh', padding: 10, backgroundColor: 'transparent', borderColor: 'transparent' }}>
+          {opcoesescalas.map(item => (
+            <div className="row" style={{ display: 'flex', flexDirection: 'row' }}>
+              <button className="blue-button">{item.ds_escala}</button>
+              {arraylistescalas.filter(value => value.cd_escala == item.cd_escala).map(item => (
+                <div
+                  key={item.id}
+                  id="item da lista"
+                  className="card"
+                  title={item.ds_resultado}
+                  style={{ position: 'relative', opacity: item.status == 2 ? 0.5 : 1 }}
+                >
+                  <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                    <button
+                      id={"deletekey 0 " + item.id}
+                      style={{ display: item.status == 2 ? 'none' : 'flex' }}
+                      className="animated-red-button"
+                      onClick={(e) => { deletetoast(updateEscala, item, 2); e.stopPropagation() }}
+                    >
+                      <img
+                        alt=""
+                        src={deletar}
+                        style={{
+                          display: 'flex',
+                          margin: 10,
+                          height: 30,
+                          width: 30,
+                        }}
+                      ></img>
+                    </button>
+                    <button
+                      id={"deletekey 1 " + item.id}
+                      style={{ display: 'none', width: 100 }}
+                      className="animated-red-button"
+                      onClick={(e) => { deletetoast(updateEscala, item, 2); e.stopPropagation() }}
+                    >
+                      <div>DESFAZER</div>
+                      <div className="deletetoast"
+                        style={{
+                          height: 5, borderRadius: 5, backgroundColor: 'pink', alignSelf: 'flex-start',
+                          marginLeft: 5, marginRight: 5, maxWidth: 90,
+                        }}>
+                      </div>
+                    </button>
+                  </div>
+                  <div>{moment(item.data).format('DD/MM/YY')}</div>
+                  <div>{item.valor_resultado}</div>
+                </div>
+              ))}
+            </div>
+          ))}
 
-          <div id="escalaPPS" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-            <div className="card"
-              onClick={() => {
-                setviewescalapps(0);
-                setTimeout(() => {
-                  setviewescalapps(1);
-                }, 1000);
-              }}
-              style={{ flexDirection: 'column', justifyContent: 'center', width: '13vw', height: '13vw' }}>
-              <div className="title2center" style={{ margin: 0, padding: 0 }}>PPS</div>
-              <div className="title2center" style={{ fontSize: 10, margin: 0, padding: 0 }}>ESCALA DE PERFORMANCE PALIATIVA</div>
-              <div className="title2center" style={{ margin: 0, padding: 0, marginTop: 10 }}>60%</div>
-              <div className="title2center" style={{ margin: 0, padding: 0 }}>12/10/21</div>
-            </div>
-            <Line
-              data={dataChartPPS}
-              padding={10}
-              width={window.innerWidth > 400 ? 0.6 * window.innerWidth : 200}
-              height={0.13 * window.innerWidth}
-              plugins={ChartDataLabels}
-              options={{
-                scales: {
-                  xAxes: [
-                    {
-                      display: true,
-                      ticks: {
-                        padding: 10,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                  yAxes: [
-                    {
-                      display: false,
-                      ticks: {
-                        padding: 10,
-                        suggestedMin: 0,
-                        suggestedMax: 100,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                },
-                plugins: {
-                  datalabels: {
-                    display: false,
-                    color: '#ffffff',
-                    font: {
-                      weight: 'bold',
-                      size: 16,
-                    },
-                  },
-                },
-                tooltips: {
-                  enabled: true,
-                  displayColors: false,
-                },
-                hover: { mode: null },
-                elements: {},
-                animation: {
-                  duration: 500,
-                },
-                title: {
-                  display: false,
-                  text: 'PPS',
-                },
-                legend: {
-                  display: false,
-                  position: 'bottom',
-                },
-                maintainAspectRatio: true,
-                responsive: false,
-              }}
-            />
-          </div>
-          <div id="escalaMIF" style={{ marginTop: 20, marginBottom: 20, display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-            <div className="card"
-              onClick={() => {
-                setviewescalamif(0);
-                setTimeout(() => {
-                  setviewescalamif(1);
-                }, 1000);
-              }}
-              style={{ flexDirection: 'column', justifyContent: 'center', width: '13vw', height: '13vw' }}>
-              <div className="title2center" style={{ margin: 0, padding: 0 }}>MIF</div>
-              <div className="title2center" style={{ fontSize: 10, margin: 0, padding: 0 }}>MEDIDA DE INDEPENDÊNCIA FUNCIONAL</div>
-              <div className="title2center" style={{ margin: 0, padding: 0, marginTop: 10 }}>6 PONTOS</div>
-              <div className="title2center" style={{ margin: 0, padding: 0 }}>16/11/21</div>
-            </div>
-            <Line
-              data={dataChartMIF}
-              padding={10}
-              width={window.innerWidth > 400 ? 0.6 * window.innerWidth : 200}
-              height={0.13 * window.innerWidth}
-              plugins={ChartDataLabels}
-              options={{
-                scales: {
-                  xAxes: [
-                    {
-                      display: true,
-                      ticks: {
-                        padding: 10,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                  yAxes: [
-                    {
-                      display: false,
-                      ticks: {
-                        padding: 10,
-                        suggestedMin: 0,
-                        suggestedMax: 10,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                },
-                plugins: {
-                  datalabels: {
-                    display: false,
-                    color: '#ffffff',
-                    font: {
-                      weight: 'bold',
-                      size: 16,
-                    },
-                  },
-                },
-                tooltips: {
-                  enabled: true,
-                  displayColors: false,
-                },
-                hover: { mode: null },
-                elements: {},
-                animation: {
-                  duration: 500,
-                },
-                title: {
-                  display: false,
-                  text: 'PPS',
-                },
-                legend: {
-                  display: false,
-                  position: 'bottom',
-                },
-                maintainAspectRatio: true,
-                responsive: false,
-              }}
-            />
-          </div>
-          <div id="escalaIVCF" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-            <div className="card"
-              onClick={() => {
-                setviewescalaivcf(0);
-                setTimeout(() => {
-                  setviewescalaivcf(1);
-                }, 1000);
-              }}
-              style={{ flexDirection: 'column', justifyContent: 'center', width: '13vw', height: '13vw' }}>
-              <div className="title2center" style={{ margin: 0, padding: 0 }}>IVCF</div>
-              <div className="title2center" style={{ fontSize: 10, margin: 0, padding: 0 }}>ÍNDICE DE VULNERABILIDADE CLÍNICO-FUNCIONAL</div>
-              <div className="title2center" style={{ margin: 0, padding: 0, marginTop: 10 }}>10</div>
-              <div className="title2center" style={{ margin: 0, padding: 0 }}>18/11/21</div>
-            </div>
-            <Line
-              data={dataChartIVCF}
-              padding={10}
-              width={window.innerWidth > 400 ? 0.6 * window.innerWidth : 200}
-              height={0.13 * window.innerWidth}
-              plugins={ChartDataLabels}
-              options={{
-                scales: {
-                  xAxes: [
-                    {
-                      display: true,
-                      ticks: {
-                        padding: 10,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                  yAxes: [
-                    {
-                      display: false,
-                      ticks: {
-                        padding: 10,
-                        suggestedMin: 0,
-                        suggestedMax: 10,
-                        fontColor: '#61636e',
-                        fontWeight: 'bold',
-                      },
-                      gridLines: {
-                        zeroLineColor: 'transparent',
-                        lineWidth: 0,
-                        drawOnChartArea: true,
-                      },
-                    },
-                  ],
-                },
-                plugins: {
-                  datalabels: {
-                    display: false,
-                    color: '#ffffff',
-                    font: {
-                      weight: 'bold',
-                      size: 16,
-                    },
-                  },
-                },
-                tooltips: {
-                  enabled: true,
-                  displayColors: false,
-                },
-                hover: { mode: null },
-                elements: {},
-                animation: {
-                  duration: 500,
-                },
-                title: {
-                  display: false,
-                  text: 'PPS',
-                },
-                legend: {
-                  display: false,
-                  position: 'bottom',
-                },
-                maintainAspectRatio: true,
-                responsive: false,
-              }}
-            />
-          </div>
+
+
+
+
         </div>
       )
     } else {
@@ -2708,6 +2548,7 @@ function Prontuario() {
                 key={item.id}
                 id="item da lista"
                 className="row"
+                style={{ opacity: item.status == 3 ? 0.5 : 1 }}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
                   <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
@@ -2715,13 +2556,13 @@ function Prontuario() {
                       disabled={item.status == 3 ? true : false}
                       style={{
                         display: 'flex',
-                        opacity: item.status == 3 ? 0.5 : 1,
                         flexDirection: 'row', justifyContent: 'center'
                       }}>
                       <button
-                        className={item.status == 0 ? "red-button" : "green-button"}
+                        className={item.status == 0 ? "red-button" : item.status == 1 ? "green-button" : "grey-button"}
                         onClick={(e) => { updatePropostaGhapChecar(item); e.stopPropagation() }}
-                        title={item.status == 0 ? "CLIQUE PARA MARCAR A PROPOSTA COMO REALIZADA." : "CLIQUE PARA MARCAR A PROPOSTA COMO PENDENTE."}
+                        title={item.status == 0 ? "CLIQUE PARA MARCAR A PROPOSTA COMO REALIZADA." : item.status == 1 ? "CLIQUE PARA MARCAR A PROPOSTA COMO PENDENTE." : "PROPOSTA CANCELADA."}
+                        disabled={item.status == 3 ? true : false}
                         style={{
                           flexDirection: 'row',
                           padding: 10,
@@ -2826,12 +2667,15 @@ function Prontuario() {
   }
 
   // LISTA DE INTERCONSULTAS.
-  const loadInterconsultas = (idpaciente) => {
-    axios.get(html + "/interconsultas/'" + idpaciente + "'").then((response) => {
+
+  const loadInterconsultas = () => {
+    axios.get(htmlghapinterconsultas + idatendimento).then((response) => {
       var x = [0, 1];
+      var y = [0, 1];
       x = response.data;
-      setlistinterconsultas(x.sort((a, b) => moment(a.pedido, 'DD/MM/YYYY HH:MM') < moment(b.pedido, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-      setarrayinterconsultas(x.sort((a, b) => moment(a.pedido, 'DD/MM/YYYY HH:MM') < moment(b.pedido, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      y = x.rows
+      setlistinterconsultas(y.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      setarrayinterconsultas(y.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
     });
   }
 
@@ -2846,58 +2690,52 @@ function Prontuario() {
 
   // atualizando um pedido de interconsulta.
   const [idinterconsulta, setidinterconsulta] = useState(0);
-  const [pedidointerconsulta, setpedidointerconsulta] = useState('');
   const [especialidadeinterconsulta, setespecialidadeinterconsulta] = useState('');
   const [motivointerconsulta, setmotivointerconsulta] = useState('');
-  const [statusinterconsulta, setstatusinterconsulta] = useState(0);
   const [parecerinterconsulta, setparecerinterconsulta] = useState('');
-  const updateInterconsulta = (item) => {
+  const [datainiciointerconsulta, setdatainiciointerconsulta] = useState('');
+  const [dataterminointerconsulta, setdataterminointerconsulta] = useState('');
+  const [idsolicitanteinterconsulta, setidsolicitanteinterconsulta] = useState('');
+  const [idatendenteinterconsulta, setidatendenteinterconsulta] = useState('');
+  const [statusinterconsulta, setstatusinterconsulta] = useState(0);
+
+  const selectInterconsulta = (item) => {
     setidinterconsulta(item.id);
-    setpedidointerconsulta(item.pedido);
     setespecialidadeinterconsulta(item.especialidade);
     setmotivointerconsulta(item.motivo);
-    setstatusinterconsulta(item.status);
     setparecerinterconsulta(item.parecer);
+    setdatainiciointerconsulta(item.datainicio);
+    setdataterminointerconsulta(item.datatermino);
+    setidsolicitanteinterconsulta(item.idsolicitante);
+    setidatendenteinterconsulta(item.idatendente);
     viewInterconsulta(2);
   }
 
-  // assinando uma interconsulta.
-  const signInterconsulta = (item) => {
+  // atualizando ou suspendendo uma interconsulta.
+  const updateInterconsulta = (item, valor) => {
     var obj = {
-      idpaciente: idpaciente,
+      idpct: item.idpct,
       idatendimento: item.idatendimento,
-      pedido: item.pedido,
       especialidade: item.especialidade,
       motivo: item.motivo,
-      status: 1,
       parecer: item.parecer,
+      datainicio: moment(),
+      datatermino: item.datatermino,
+      idsolicitante: item.idsolicitante,
+      idatendente: item.idatendente,
+      status: valor, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = suspensa.
     };
-    axios.post(html + '/updateinterconsulta/' + item.id, obj).then(() => {
+    axios.post(htmlghapupdateinterconsulta + item.id, obj).then(() => {
       toast(1, '#52be80', 'INTERCONSULTA ASSINADA COM SUCESSO.', 3000);
-      loadInterconsultas(idpaciente);
+      loadInterconsultas();
     });
   }
-  // suspendendo uma interconsulta.
-  const suspendInterconsulta = (item) => {
-    var obj = {
-      idpaciente: idpaciente,
-      idatendimento: item.idatendimento,
-      pedido: item.pedido,
-      especialidade: item.especialidade,
-      motivo: item.motivo,
-      status: 2,
-      parecer: item.parecer,
-    };
-    axios.post(html + '/updateinterconsulta/' + idinterconsulta, obj).then(() => {
-      toast(1, '#52be80', 'INTERCONSULTA SUSPENSA COM SUCESSO.', 3000);
-    });
-  }
-  // excluindo uma interconsulta não assinada.
+
+  // deletando interconsulta ainda não assinada.
   const deleteInterconsulta = (item) => {
-    axios.get(html + "/deleteinterconsulta/" + item.id).then(() => {
-      loadInterconsultas(idpaciente);
-      // toast(1, '#52be80', 'INTERCONSULTA CANCELADA COM SUCESSO.', 3000);
-    });
+    axios.get(htmlghapdeleteinterconsulta + item.id).then(() => {
+      loadInterconsultas();
+    })
   }
 
   // filtro para as interconsultas.
@@ -2982,19 +2820,19 @@ function Prontuario() {
                       className="blue-button"
                       style={{
                         width: 250, padding: 10,
-                        backgroundColor: item.status === 0 ? '#ec7063' : item.status === 1 ? '#f5b041' : '#52be80',
+                        backgroundColor: item.status == 0 ? '#ec7063' : item.status == 1 ? '#f5b041' : '#52be80',
                       }}
                     >
-                      {item.status === 0 ? 'ASSINATURA PENDENTE' : item.status === 1 ? 'AGUARDANDO AVALIAÇÃO' : item.status === 2 ? 'ESPECIALISTA ACOMPANHA' : 'ENCERRADA PELO ESPECIALISTA'}
+                      {item.status == 0 ? 'ASSINATURA PENDENTE' : item.status == 1 ? 'AGUARDANDO AVALIAÇÃO' : item.status == 2 ? 'ESPECIALISTA ACOMPANHA' : item.status == 3 ? 'FINALIZADA' : 'CANCELADA'}
                     </button>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                       <button className="animated-green-button"
-                        onClick={() => signInterconsulta(item)}
-                        disabled={item.status !== 0 ? true : false}
+                        onClick={() => updateInterconsulta(item, 1)}
+                        disabled={item.status != 0 ? true : false}
                         title="ASSINAR PEDIDO DE INTERCONSULTA."
                         style={{
-                          marginRight: item.status === 0 ? 2.5 : -5,
-                          display: item.status !== 0 ? 'none' : 'flex',
+                          marginRight: item.status == 0 ? 2.5 : -5,
+                          display: item.status != 0 ? 'none' : 'flex',
                         }}
                       >
                         <img
@@ -3008,11 +2846,11 @@ function Prontuario() {
                         ></img>
                       </button>
                       <button className="animated-red-button"
-                        onClick={() => suspendInterconsulta(item)}
-                        disabled={item.status !== 1 ? true : false}
+                        onClick={() => updateInterconsulta(item, 4)}
+                        disabled={item.status != 1 ? true : false}
                         title="SUSPENDER PEDIDO DE INTERCONSULTA."
                         style={{
-                          display: item.status !== 1 ? 'none' : 'flex',
+                          display: item.status != 1 ? 'none' : 'flex',
                           maxWidth: 50,
                           marginRight: -2.5,
                         }}
@@ -3029,9 +2867,9 @@ function Prontuario() {
                       </button>
                       <button className="animated-yellow-button"
                         title="EDITAR PEDIDO DE INTERCONSULTA."
-                        onClick={() => updateInterconsulta(item)}
+                        onClick={() => selectInterconsulta(item)}
                         style={{
-                          display: item.status === 0 ? 'flex' : 'none',
+                          display: item.status == 0 ? 'flex' : 'none',
                           marginRight: 2.5,
                         }}
                       >
@@ -3051,7 +2889,7 @@ function Prontuario() {
                         onClick={(e) => { deletetoast(deleteInterconsulta, item); e.stopPropagation() }}
                         title="EXCLUIR PEDIDO DE INTERCONSULTA."
                         style={{
-                          display: item.status === 0 ? 'flex' : 'none',
+                          display: item.status == 0 ? 'flex' : 'none',
                           marginRight: -2.5,
                         }}
                       >
@@ -3081,7 +2919,7 @@ function Prontuario() {
                       </button>
                     </div>
                   </div>
-                  <div className="title2" style={{ alignSelf: 'flex-start' }}> {item.pedido.substring(0, 10) + ' - ' + item.especialidade} </div>
+                  <div className="title2" style={{ alignSelf: 'flex-start' }}> {moment(item.datainicio).format('DD/MM/YY') + ' - ' + item.especialidade} </div>
                   <div className="title2" style={{ alignSelf: 'flex-start', marginTop: 0, paddingTop: 0 }}> {'MOTIVO: ' + item.motivo} </div>
                   <div
                     className="hover-button"
@@ -3103,8 +2941,6 @@ function Prontuario() {
                     style={{ display: 'none', marginLeft: 5, marginTop: 10, alignSelf: 'flex-start' }}
                   > {item.parecer}
                   </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: 5, marginRight: 0 }}>
                 </div>
               </div>
             ))}
@@ -4084,6 +3920,17 @@ function Prontuario() {
   var htmlghapinsertlesao = process.env.REACT_APP_API_CLONE_INSERTLESAO;
   var htmlghapupdatelesao = process.env.REACT_APP_API_CLONE_UPDATELESAO;
 
+  var htmlghapinterconsultas = process.env.REACT_APP_API_CLONE_INTERCONSULTAS;
+  var htmlghapinsertinterconsulta = process.env.REACT_APP_API_CLONE_INSERTINTERCONSULTA;
+  var htmlghapupdateinterconsulta = process.env.REACT_APP_API_CLONE_UPDATEINTERCONSULTA;
+  var htmlghapdeleteinterconsulta = process.env.REACT_APP_API_CLONE_DELETEINTERCONSULTA;
+
+  var htmlghapescalas = process.env.REACT_APP_API_CLONE_ESCALAS;
+  var htmlghapopcoesescalas = process.env.REACT_APP_API_CLONE_OPCOES_ESCALAS;
+  var htmlghapinsertescala = process.env.REACT_APP_API_CLONE_INSERTESCALA;
+  var htmlghapupdateescala = process.env.REACT_APP_API_CLONE_UPDATEESCALA;
+  var htmlghapdeleteescala = process.env.REACT_APP_API_CLONE_DELETEESCALA;
+
   // ATENDIMENTO.
   // retornando atendimentos.
   const getAtendimentosGhap = () => {
@@ -4300,9 +4147,8 @@ function Prontuario() {
       datatermino: moment(),
       proposta: item.proposta,
       idprofissional: item.idprofissional,
-      status: 1 // 1 = concluído.
+      status: item.status == 1 ? 0 : 1 // 1 = concluído.
     }
-    alert(JSON.stringify(obj));
     axios.post(htmlghapupdateproposta + item.id, obj).then(() => {
       getPropostasGhap();
     });
@@ -4386,6 +4232,8 @@ function Prontuario() {
     getPropostasGhap();
     loadInvasoes();
     loadLesoes();
+    loadInterconsultas();
+    loadOpcoesEscalas();
 
     freezeScreen(3000);
     setrefreshatendimentos(0);
@@ -4533,7 +4381,7 @@ function Prontuario() {
     loadEvolucoes();
     // loadDiagnosticos(idpaciente);
     loadProblemas();
-    loadInterconsultas(idpaciente);
+    loadInterconsultas();
     loadLaboratorio();
     loadImagem();
     loadBalancos();
@@ -7842,7 +7690,7 @@ function Prontuario() {
                   ></img>
                 </button>
                 <button className="green-button"
-                  onClick={() => setMorse()}
+                  onClick={() => setBraden()}
                 >
                   <img
                     alt=""
@@ -11788,11 +11636,14 @@ function Prontuario() {
         idpaciente={idpaciente}
         idatendimento={idatendimento}
         idinterconsulta={idinterconsulta}
-        pedido={pedidointerconsulta}
         especialidade={especialidadeinterconsulta}
         motivo={motivointerconsulta}
-        status={statusinterconsulta}
         parecer={parecerinterconsulta}
+        datainicio={datainiciointerconsulta}
+        datatermino={dataterminointerconsulta}
+        idsolicitante={idsolicitanteinterconsulta}
+        idatendente={idatendenteinterconsulta}
+        status={statusinterconsulta}
       />
       <Laboratorio
         // variáveis da corrida.

@@ -37,14 +37,17 @@ function Unidades() {
     setidunidade,
     settipounidade,
     setnomeunidade,
+    nomeunidade,
     especialidadeusuario,
     idhospital,
     nomehospital,
-    setidatendimento,
+    setidatendimento, idatendimento,
     settodosleitos,
     todosleitos,
     settodosatendimentos,
     todosatendimentos,
+    listinterconsultas, setlistinterconsultas,
+    setidpaciente, idpaciente, setdatainternacao, datainternacao, setconvenio, convenio, setdadospaciente,
   } = useContext(Context)
   // history (react-router-dom).
   let history = useHistory()
@@ -64,12 +67,25 @@ function Unidades() {
       })
   }
 
+  // carregando interconsultas para exibição dos gráficos das unidades.
+  var htmlghapinterconsultasall = process.env.REACT_APP_API_CLONE_INTERCONSULTASALL;
+  const [listinterconsultasall, setlistinterconsultasall] = useState([]);
+  const loadInterconsultas = () => {
+    axios.get(htmlghapinterconsultasall).then((response) => {
+      var x = [0, 1];
+      var y = [0, 1];
+      x = response.data;
+      y = x.rows
+      setlistinterconsultasall(y);
+    });
+  }
+
   // carregando da lista de cirurgias no bloco cirúrgico.
   const [agendabloco, setagendabloco] = useState([])
   const loadAgendaBloco = () => {
     axios.get(htmlrodrigo + '/agendabloco').then((response) => {
       var x = [0, 1]
-      x = response.data
+      x = response.dataF
       // filtrando as cirurgias agendadas para a data atual.
       setagendabloco(
         x.filter(
@@ -87,16 +103,40 @@ function Unidades() {
   // carregando regitro de atendimentos.
   var htmlatendimentos = process.env.REACT_APP_API_ATENDIMENTOS;
   const loadAtendimentos = () => {
+    // captura registros de atendimentos.
     axios.get(htmlatendimentos).then((response) => {
       var x = [0, 1]
       x = response.data;
-      settodosatendimentos(x.filter((value) => value.ativo != 0));
+      settodosatendimentos(x);
+    });
+  }
+
+  const loadAtendimentosInicial = () => {
+    // captura registros de atendimentos.
+    axios.get(htmlatendimentos).then((response) => {
+      var x = [0, 1]
+      x = response.data;
+      settodosatendimentos(x);
+      // captura registros de interconsultas.
+      axios.get(htmlghapinterconsultasall).then((response) => {
+        var z = [0, 1];
+        var h = [0, 1];
+        z = response.data;
+        h = z.rows
+        setlistinterconsultasall(h);
+        // criando uma array elaborada de interconsultas.
+        x.map(item => addInterconsulta(item, h));
+      });
     })
   }
   // atualizando resgistro de atendimentos.
   useInterval(() => {
     console.log('ATUALIZANDO ATENDIMENTOS EM UNIDADES');
-    loadAtendimentos();
+    loadAtendimentosInicial();
+    setTimeout(() => {
+      // setstateinterconsultas(arrayinterconsultas);
+      // alert(stateinterconsultas.length)
+    }, 2000);
   }, 60000);
 
   // TIPOS DE UNIDADES: 1 = pronto-socorro; 2 = demais unidades de internação (CTIs, enfermarias); 3 = bloco cirúrgico; 4 = ambulatórios.
@@ -149,17 +189,23 @@ function Unidades() {
   }
 
   useEffect(() => {
-    // alert('ATENDIMENTOS: ' + todosatendimentos.map(item => item.Leito.unidade.id));
+    // alert('ATENDIMENTOS: ' + todosatendimentos.map(item => item.Leito.descricao));
     // carregando a lista de unidades.
-    loadUnidades()
+    loadUnidades();
+    // carregando a lista de atendimentos.
+    loadAtendimentosInicial();
+    setTimeout(() => {
+      // setstateinterconsultas(arrayinterconsultas);
+      // alert(stateinterconsultas.map(item => item.datainicio));
+    }, 2000);
+    // carregando a lista de interconsultas.
+    // loadInterconsultas();
     // carregando a lista de cirurgias.
-    loadAgendaBloco()
+    // loadAgendaBloco();
     // carregando a lista de consultas ambulatoriais.
-    loadAmbulatorio()
-    // carregando as interconsultas.
-    loadInterconsultas()
+    loadAmbulatorio();
     // preparando os gráficos das unidades.
-    mountDataChart()
+    mountDataChart();
     // atraso para renderização dos cards com os gráficos (evita o glitch das animações dos doughnuts).
     setTimeout(() => {
       setrenderchart(1);
@@ -172,15 +218,15 @@ function Unidades() {
   }
 
   // abrindo a lista de interconsultas.
-  function showInterconsultas(e) {
-    loadPacientes()
-    loadInterconsultas()
-    setviewinterconsultas(1)
-    e.stopPropagation()
+  function showInterconsultas(item, e) {
+    setnomeunidade(item.descricao)
+    setidunidade(item.id);
+    setviewinterconsultas(1);
+    e.stopPropagation();
   }
 
   // botão para acesso a solicitação de INTERCONSULTAS, para a especialidade do usuário.
-  function BtnInterconsultas(hosp, setor) {
+  function BtnInterconsultas(item) {
     return (
       <button
         className="yellow-button"
@@ -192,8 +238,8 @@ function Unidades() {
         }
         style={{
           position: 'absolute',
-          bottom: 10,
-          right: 10,
+          bottom: -5,
+          right: -10,
           borderStyle: 'solid',
           borderWidth: 5,
           borderColor: '#ffffff',
@@ -205,40 +251,15 @@ function Unidades() {
           opacity: 1,
           boxShadow: 'none',
           display:
-            listinterconsultas.filter(
-              (item) =>
-                item.status != 0 &&
-                item.especialidade == especialidadeusuario &&
-                item.hospital == hosp &&
-                item.unidade == setor,
-            ).length > 0
-              ? 'flex'
-              : 'none',
+            stateinterconsultas.filter(valor => parseInt(valor.unidade) == parseInt(item.id)).length > 0 ? 'flex' : 'none'
         }}
-        onClick={(e) => showInterconsultas(e)}
+        onClick={(e) => showInterconsultas(item, e)}
       >
-        {
-          listinterconsultas.filter(
-            (item) =>
-              item.status !== 0 &&
-              item.especialidade == especialidadeusuario &&
-              item.hospital === hosp &&
-              item.unidade === setor,
-          ).length
-        }
+        {stateinterconsultas.filter(valor => parseInt(valor.unidade) == parseInt(item.id)).length}
       </button>
     )
   }
 
-  // lista de interconsultas não atendidas para a especialidade do usuário.
-  const [listinterconsultas, setlistinterconsultas] = useState([])
-  const loadInterconsultas = () => {
-    axios.get(htmlrodrigo + '/interconsultasall').then((response) => {
-      var x = [0, 1]
-      x = response.data
-      setlistinterconsultas(x)
-    })
-  }
   // lista de pacientes.
   const [listpacientes, setlistpacientes] = useState([])
   const loadPacientes = () => {
@@ -263,28 +284,40 @@ function Unidades() {
     newparecer = value
   }
 
-  // atualizando um pedido de interconsulta.
-  const updateInterconsulta = (item, value) => {
+  // atualizando ou suspendendo uma interconsulta.
+  var htmlghapupdateinterconsulta = process.env.REACT_APP_API_CLONE_UPDATEINTERCONSULTA;
+  const updateInterconsulta = (item, valor) => {
     var obj = {
-      idpaciente: item.idpaciente,
+      idpct: item.idpct,
       idatendimento: item.idatendimento,
-      pedido: item.pedido,
       especialidade: item.especialidade,
       motivo: item.motivo,
-      status: value,
-      parecer: value == 2 ? newparecer : item.parecer,
-    }
-    axios.post(htmlrodrigo + '/updateinterconsulta/' + item.id, obj).then(() => {
-      toast(1, '#52be80', 'INTERCONSULTA RESPONDIDA COM SUCESSO.', 3000)
-      loadInterconsultas()
-    })
+      parecer: valor == 2 ? document.getElementById("inputParecer").value : item.parecer,
+      datainicio: moment(),
+      datatermino: valor == 3 ? moment() : null,
+      idsolicitante: item.idsolicitante,
+      idatendente: item.idatendente,
+      status: valor, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = alta.
+    };
+    alert(JSON.stringify(obj));
+    axios.post(htmlghapupdateinterconsulta + item.id, obj).then(() => {
+      toast(1, '#52be80', 'INTERCONSULTA ASSINADA COM SUCESSO.', 3000);
+      loadInterconsultas();
+    });
   }
 
   // acessando o prontuário do paciente com interconsulta.
+  var htmlpacientes = process.env.REACT_APP_API_FILTRAPACIENTES;
   const gotoProntuario = (item) => {
-    setviewinterconsultas(0)
-    setidatendimento(item.idatendimento)
-    history.push('/pacientes')
+    // var x = todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento);
+    setidpaciente(todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento).map(item => item.cd_paciente));
+    setidatendimento(todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento).map(item => item.cd_atendimento));
+    setdatainternacao(todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento).map(item => item.dt_hr_atendimento));
+    setconvenio(todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento).map(item => item.nm_convenio));
+    setdadospaciente(todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento));
+    // setviewinterconsultas(0);
+    alert(todosatendimentos.filter(value => value.cd_atendimento == item.idatendimento).map(item => item.cd_paciente));
+    history.push('/prontuario');
   }
 
   // memorizando a posição da scroll nas listas.
@@ -314,175 +347,291 @@ function Unidades() {
       return (
         <div
           className="menucover"
+          onClick={(e) => { setviewinterconsultas(0); e.stopPropagation() }}
           style={{
-            zIndex: 3,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+            zIndex: 9, display: 'flex', flexDirection: 'column',
+            justifyContent: 'center', alignItems: 'center'
+          }}>
           <div className="menucontainer">
-            <div className="title2">
-              {'INTERCONSULTAS: ' + especialidadeusuario + ' / ' + nomehospital}
-            </div>
-            <div
-              className="scroll"
-              id="LISTA DE INTERCONSULTAS"
-              onScroll={() => scrollPosition('LISTA DE INTERCONSULTAS')}
-              onLoad={() => keepScroll('LISTA DE INTERCONSULTAS')}
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                margin: 5,
-                padding: 2.5,
-                height: 0.7 * window.innerHeight,
-                width: 0.8 * window.innerWidth,
-              }}
-            >
-              {listinterconsultas
-                .filter((item) => item.status !== 0)
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    id="item da lista"
-                    className="row"
+            <div id="cabeçalho" className="cabecalho">
+              <div>{'INTERCONSULTAS: ' + especialidadeusuario + ' - ' + nomeunidade}</div>
+              <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                <button className="red-button" onClick={() => setviewinterconsultas(0)}>
+                  <img
+                    alt=""
+                    src={deletar}
                     style={{
-                      margin: 2.5,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      paddingRight: 10,
+                      margin: 10,
+                      height: 30,
+                      width: 30,
                     }}
-                  >
+                  ></img>
+                </button>
+              </div>
+            </div>
+            <div className="corpo" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="scroll"
+                id="LISTA DE INTERCONSULTAS"
+                onScroll={() => scrollPosition('LISTA DE INTERCONSULTAS')}
+                onLoad={() => keepScroll('LISTA DE INTERCONSULTAS')}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  margin: 5,
+                  padding: 2.5,
+                  height: 0.7 * window.innerHeight,
+                  // width: 0.8 * window.innerWidth,
+                }}
+              >
+                {stateinterconsultas
+                  .filter((item) => item.status != 0)
+                  .map((item) => (
                     <div
+                      key={item.id}
+                      id="item da lista"
+                      className="row"
                       style={{
+                        margin: 2.5,
                         display: 'flex',
-                        flexDirection:
-                          window.innerWidth < 800 ? 'column' : 'row',
+                        flexDirection: 'column',
                         justifyContent: 'center',
-                        padding: 0,
+                        paddingRight: 10,
+                        width: 0.7 * window.innerWidth,
                       }}
                     >
                       <div
                         style={{
                           display: 'flex',
-                          flexDirection: 'row',
+                          flexDirection:
+                            window.innerWidth < 800 ? 'column' : 'row',
                           justifyContent: 'center',
-                          width: '100%',
-                          margin: 2.5,
-                          marginBottom: 0,
+                          padding: 0,
                         }}
                       >
-                        <button
-                          className="blue-button"
+                        <div
                           style={{
-                            width:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 75,
-                            maxWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 75,
-                            minWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 75,
-                            margin: 2.5,
-                            marginLeft: 0,
-                            padding: 5,
-                            flexDirection: 'column',
-                            backgroundColor: '#1f7a8c',
-                          }}
-                        >
-                          {item.pedido.substring(0, 8)}
-                        </button>
-                        <button
-                          className="blue-button"
-                          style={{
-                            width:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 200,
-                            maxWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 200,
-                            minWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 200,
-                            height: 50,
-                            margin: 2.5,
-                            padding: 5,
-                            flexDirection: 'column',
-                            backgroundColor: '#1f7a8c',
-                          }}
-                        >
-                          {item.unidade +
-                            ' BOX ' +
-                            todosatendimentos
-                              .filter(
-                                (value) => value.id === item.idatendimento,
-                              )
-                              .map((value) => value.box)}
-                        </button>
-                        <button
-                          className="blue-button"
-                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
                             width: '100%',
                             margin: 2.5,
-                            padding: 5,
-                            flexDirection: 'column',
-                            backgroundColor: '#1f7a8c',
+                            marginBottom: 0,
                           }}
                         >
-                          {listpacientes
-                            .filter((value) => value.id === item.idpaciente)
-                            .map((value) => value.nome)}
-                        </button>
+                          <button
+                            className="blue-button"
+                            style={{
+                              width:
+                                window.innerWidth < 800
+                                  ? 0.15 * window.innerWidth
+                                  : 100,
+                              maxWidth:
+                                window.innerWidth < 800
+                                  ? 0.15 * window.innerWidth
+                                  : 100,
+                              minWidth:
+                                window.innerWidth < 800
+                                  ? 0.15 * window.innerWidth
+                                  : 100,
+                              margin: 2.5,
+                              marginLeft: 0,
+                              padding: 5,
+                              flexDirection: 'column',
+                            }}
+                          >
+                            {moment(item.datainicio).format('DD/MM/YYYY')}
+                          </button>
+                          <button
+                            className="grey-button"
+                            style={{
+                              width: 100,
+                              maxWidth: 100,
+                              minWidth: 100,
+                              height: 50,
+                              maxHeight: 50,
+                              minHeight: 50,
+                              margin: 2.5,
+                              padding: 5,
+                              flexDirection: 'column',
+                            }}
+                          >
+                            {
+                              todosatendimentos
+                                .filter(
+                                  (value) => value.cd_atendimento == item.idatendimento,
+                                )
+                                .map((value) => value.Leito.descricao)
+                            }
+                          </button>
+                          <div
+                            className="text2"
+                            style={{
+                              verticalAlign: 'center',
+                              width: '100%',
+                              margin: 2.5,
+                              padding: 5,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              height: 50,
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {todosatendimentos
+                              .filter((value) => value.cd_atendimento == item.idatendimento)
+                              .map((value) => value.nm_paciente)}
+                          </div>
+                          <div
+                            id="OCULTA PARA MOBILE"
+                            style={{
+                              display: window.innerWidth < 800 ? 'none' : 'flex',
+                            }}
+                          >
+                            <button
+                              className="blue-button"
+                              title="STATUS DA INTERCONSULTA. CLIQUE PARA ACESSAR O PRONTUÁRIO."
+                              onClick={
+                                item.status == 2
+                                  ? () => {
+                                    gotoProntuario(item)
+                                  }
+                                  : ''
+                              }
+                              style={{
+                                width:
+                                  window.innerWidth < 800
+                                    ? 0.4 * window.innerWidth
+                                    : 0.15 * window.innerWidth,
+                                maxWidth:
+                                  window.innerWidth < 800
+                                    ? 0.4 * window.innerWidth
+                                    : 0.15 * window.innerWidth,
+                                minWidth:
+                                  window.innerWidth < 800
+                                    ? 0.4 * window.innerWidth
+                                    : 0.15 * window.innerWidth,
+                                margin: 2.5,
+                                padding: 5,
+                                flexDirection: 'column',
+                                backgroundColor:
+                                  item.status == 1
+                                    ? '#ec7063'
+                                    : item.status == 2
+                                      ? '#f5b041'
+                                      : '#52be80',
+                              }}
+                            >
+                              {item.status == 1 ? 'PENDENTE' : item.status == 2 ? 'ACOMPANHANDO' : 'ENCERRADO'}
+                            </button>
+                            <button
+                              className="green-button"
+                              onClick={() => updateInterconsulta(item, 2)}
+                              title={
+                                item.status == 1
+                                  ? 'SALVAR PARECER E ACOMPANHAR PACIENTE.'
+                                  : 'INTERCONSULTA JÁ RESPONDIDA.'
+                              }
+                              style={{
+                                display: item.status == 2 ? 'none' : 'flex',
+                                opacity:
+                                  item.status != 0 && item.status != 1
+                                    ? 0.5
+                                    : 1,
+                                width:
+                                  window.innerWidth < 800
+                                    ? 0.15 * window.innerWidth
+                                    : 50,
+                                maxWidth:
+                                  window.innerWidth < 800
+                                    ? 0.15 * window.innerWidth
+                                    : 50,
+                                minWidth:
+                                  window.innerWidth < 800
+                                    ? 0.15 * window.innerWidth
+                                    : 50,
+                              }}
+                            >
+                              <img
+                                alt=""
+                                src={salvar}
+                                style={{
+                                  margin: 10,
+                                  height: 30,
+                                  width: 30,
+                                }}
+                              ></img>
+                            </button>
+                            <button
+                              className="red-button"
+                              onClick={() => updateInterconsulta(item, 3)}
+                              title="ENCERRAR A INTERCONSULTA (ALTA)."
+                              style={{
+                                opacity: item.status == 2 ? 1 : 0.5,
+                                width:
+                                  window.innerWidth < 800
+                                    ? 0.15 * window.innerWidth
+                                    : 50,
+                                maxWidth:
+                                  window.innerWidth < 800
+                                    ? 0.15 * window.innerWidth
+                                    : 50,
+                                minWidth:
+                                  window.innerWidth < 800
+                                    ? 0.15 * window.innerWidth
+                                    : 50,
+                                marginRight: -5,
+                              }}
+                            >
+                              <img
+                                alt=""
+                                src={deletar}
+                                style={{
+                                  margin: 10,
+                                  height: 30,
+                                  width: 30,
+                                }}
+                              ></img>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          width: '100%',
+                        }}
+                      >
                         <div
-                          id="OCULTA PARA MOBILE"
+                          id="EXIBE PARA MOBILE"
                           style={{
-                            display: window.innerWidth < 800 ? 'none' : 'flex',
+                            display: window.innerWidth < 800 ? 'flex' : 'none',
                           }}
                         >
                           <button
                             className="blue-button"
                             title="STATUS DA INTERCONSULTA. CLIQUE PARA ACESSAR O PRONTUÁRIO."
                             onClick={
-                              item.status === 1
-                                ? () => gotoProntuario(item)
-                                : ''
+                              item.status > 1 ? () => gotoProntuario(item) : ''
                             }
                             style={{
-                              width:
-                                window.innerWidth < 800
-                                  ? 0.4 * window.innerWidth
-                                  : 0.15 * window.innerWidth,
-                              maxWidth:
-                                window.innerWidth < 800
-                                  ? 0.4 * window.innerWidth
-                                  : 0.15 * window.innerWidth,
-                              minWidth:
-                                window.innerWidth < 800
-                                  ? 0.4 * window.innerWidth
-                                  : 0.15 * window.innerWidth,
+                              width: '100%',
                               margin: 2.5,
                               padding: 5,
                               flexDirection: 'column',
                               backgroundColor:
-                                item.status === 0 || item.status === 1
+                                item.status == 1
                                   ? '#ec7063'
-                                  : item.status === 2
+                                  : item.status == 2
                                     ? '#f5b041'
                                     : '#52be80',
                             }}
                           >
-                            {item.status === 0 || item.status === 1
+                            {item.status == 1
                               ? 'PENDENTE'
-                              : item.status === 2
+                              : item.status == 2
                                 ? 'ACOMPANHANDO'
                                 : 'ENCERRADO'}
                           </button>
@@ -490,16 +639,13 @@ function Unidades() {
                             className="green-button"
                             onClick={() => updateInterconsulta(item, 2)}
                             title={
-                              item.status === 1
+                              item.status == 1
                                 ? 'SALVAR PARECER E ACOMPANHAR PACIENTE.'
                                 : 'INTERCONSULTA JÁ RESPONDIDA.'
                             }
                             style={{
-                              display: item.status == 2 ? 'none' : 'flex',
                               opacity:
-                                item.status !== 0 && item.status !== 1
-                                  ? 0.5
-                                  : 1,
+                                item.status != 0 && item.status != 1 ? 0.5 : 1,
                               width:
                                 window.innerWidth < 800
                                   ? 0.15 * window.innerWidth
@@ -529,7 +675,7 @@ function Unidades() {
                             onClick={() => updateInterconsulta(item, 3)}
                             title="ENCERRAR A INTERCONSULTA (ALTA)."
                             style={{
-                              opacity: item.status === 2 ? 1 : 0.5,
+                              opacity: item.status == 2 ? 1 : 0.5,
                               width:
                                 window.innerWidth < 800
                                   ? 0.15 * window.innerWidth
@@ -542,7 +688,7 @@ function Unidades() {
                                 window.innerWidth < 800
                                   ? 0.15 * window.innerWidth
                                   : 50,
-                              marginRight: -5,
+                              marginRight: -2.5,
                             }}
                           >
                             <img
@@ -556,161 +702,40 @@ function Unidades() {
                             ></img>
                           </button>
                         </div>
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        width: '100%',
-                      }}
-                    >
-                      <div
-                        id="EXIBE PARA MOBILE"
-                        style={{
-                          display: window.innerWidth < 800 ? 'flex' : 'none',
-                        }}
-                      >
                         <button
                           className="blue-button"
-                          title="STATUS DA INTERCONSULTA. CLIQUE PARA ACESSAR O PRONTUÁRIO."
-                          onClick={
-                            item.status === 1 ? () => gotoProntuario(item) : ''
-                          }
                           style={{
+                            flexDirection: 'row',
+                            justifyContent: 'left',
                             width: '100%',
+                            padding: 10,
                             margin: 2.5,
-                            padding: 5,
-                            flexDirection: 'column',
-                            backgroundColor:
-                              item.status === 0 || item.status === 1
-                                ? '#ec7063'
-                                : item.status === 2
-                                  ? '#f5b041'
-                                  : '#52be80',
                           }}
                         >
-                          {item.status === 0 || item.status === 1
-                            ? 'PENDENTE'
-                            : item.status === 2
-                              ? 'ACOMPANHANDO'
-                              : 'ENCERRADO'}
+                          {'MOTIVO: ' + item.motivo}
                         </button>
-                        <button
-                          className="green-button"
-                          onClick={() => updateInterconsulta(item, 2)}
-                          title={
-                            item.status === 1
-                              ? 'SALVAR PARECER E ACOMPANHAR PACIENTE.'
-                              : 'INTERCONSULTA JÁ RESPONDIDA.'
-                          }
+                        <textarea
+                          className="textarea"
+                          title="PARECER DO ESPECIALISTA."
+                          id="inputParecer"
+                          // onKeyUp={(e) => updateParecer(e.target.value)}
+                          disabled={item.status != 1 ? true : false}
                           style={{
-                            opacity:
-                              item.status !== 0 && item.status !== 1 ? 0.5 : 1,
-                            width:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 50,
-                            maxWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 50,
-                            minWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 50,
+                            flexDirection: 'row',
+                            justifyContent: 'left',
+                            width: '100%',
+                            padding: 10,
+                            margin: 2.5,
                           }}
-                        >
-                          <img
-                            alt=""
-                            src={salvar}
-                            style={{
-                              margin: 10,
-                              height: 30,
-                              width: 30,
-                            }}
-                          ></img>
-                        </button>
-                        <button
-                          className="red-button"
-                          onClick={() => updateInterconsulta(item, 3)}
-                          title="ENCERRAR A INTERCONSULTA (ALTA)."
-                          style={{
-                            opacity: item.status === 2 ? 1 : 0.5,
-                            width:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 50,
-                            maxWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 50,
-                            minWidth:
-                              window.innerWidth < 800
-                                ? 0.15 * window.innerWidth
-                                : 50,
-                            marginRight: -2.5,
-                          }}
-                        >
-                          <img
-                            alt=""
-                            src={deletar}
-                            style={{
-                              margin: 10,
-                              height: 30,
-                              width: 30,
-                            }}
-                          ></img>
-                        </button>
+                          type="text"
+                          maxLength={200}
+                          defaultValue={item.parecer}
+                        ></textarea>
                       </div>
-                      <button
-                        className="blue-button"
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'left',
-                          width: '100%',
-                          padding: 10,
-                          margin: 2.5,
-                        }}
-                      >
-                        {'MOTIVO: ' + item.motivo}
-                      </button>
-                      <textarea
-                        className="textarea"
-                        title="PARECER DO ESPECIALISTA."
-                        id="inputParecer"
-                        onKeyUp={(e) => updateParecer(e.target.value)}
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'left',
-                          width: '100%',
-                          padding: 10,
-                          margin: 2.5,
-                        }}
-                        type="text"
-                        maxLength={200}
-                        defaultValue={item.parecer}
-                      ></textarea>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
             </div>
-            <button
-              className="red-button"
-              onClick={() => setviewinterconsultas(0)}
-              style={{ marginTop: 20 }}
-            >
-              <img
-                alt=""
-                src={deletar}
-                style={{
-                  margin: 10,
-                  height: 30,
-                  width: 30,
-                }}
-              ></img>
-            </button>
           </div>
         </div>
       )
@@ -826,11 +851,38 @@ function Unidades() {
     )
   }
 
+  // obtendo o número de interconsultas
+  let arrayinterconsultas = [];
+  const [stateinterconsultas, setstateinterconsultas] = useState([]);
+  const addInterconsulta = (valor, interconsultas) => {
+    if (interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).length > 0) {
+      arrayinterconsultas.push(
+        {
+          id: interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.id),
+          idpct: parseInt(interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.idpct)),
+          idatendimento: parseInt(valor.cd_atendimento),
+          especialidade: interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.especialidade).toString(),
+          motivo: interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.motivo).toString(),
+          parecer: interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.parecer).toString(),
+          datainicio: interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => moment(item.datainicio).format('DD/MM/YYYY')),
+          datatermino: valor == 3 ? interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => moment(item.datatermino).format('DD/MM/YYYY')) : null,
+          idsolicitante: parseInt(interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.idsolicitante)),
+          idatendente: parseInt(interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.idatendente)),
+          status: interconsultas.filter(item => item.idatendimento == valor.cd_atendimento).map(item => item.status).toString(),
+          unidade: valor.Leito.unidade.id,
+        }
+      );
+      setstateinterconsultas(arrayinterconsultas);
+    }
+    // console.log(arrayinterconsultas)
+    // setstateinterconsultas(arrayinterconsultas);
+  }
+
+  var atendimentos = [0, 1]
   function GetData(item) {
     // gerando os dados dos gráficos.
     var leitos = [0, 1]
     leitos = todosleitos
-    var atendimentos = [0, 1]
     atendimentos = todosatendimentos
     dataChart = {
       labels: [' LIVRES', ' OCUPADOS'],
@@ -1008,7 +1060,7 @@ function Unidades() {
                 responsive: false,
               }}
             />
-            {BtnInterconsultas(item.id, item.id)}
+            {BtnInterconsultas(item)}
             <div id="OCUPAÇÃO">
               <div
                 id="OCUPAÇÃO"
@@ -1185,7 +1237,7 @@ function Unidades() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div>{'PACIENTES NO SETOR: ' + todosatendimentos.filter(valor => valor.radar == item.unidade).length}</div>
-        <div className="scroll" STYLE={{ height: 200 }}>
+        <div className="scroll" style={{ height: 200 }}>
           {todosatendimentos.filter(valor => valor.radar == item.unidade).map(item => (
             <div className="row">
               <button className="green-button" style={{ padding: 10, width: '100%' }}>{item.nome}</button>
