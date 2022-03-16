@@ -5,6 +5,10 @@ import moment from 'moment';
 import Context from '../Context';
 import { useHistory } from "react-router-dom";
 import useInterval from 'react-useinterval';
+import deletar from '../images/deletar.svg';
+import suspender from '../images/suspender.svg';
+import editar from '../images/editar.svg';
+import salvar from '../images/salvar.svg';
 
 function EscalasAssistenciais() {
 
@@ -22,7 +26,6 @@ function EscalasAssistenciais() {
   const [mobilidade, setmobilidade] = useState(4);
   const [nutricao, setnutricao] = useState(4);
   const [friccao, setfriccao] = useState(3);
-
   const insertBraden = () => {
     var valor = percepcao + umidade + atividade + mobilidade + nutricao + friccao;
     var significado = '';
@@ -48,7 +51,6 @@ function EscalasAssistenciais() {
       setshowescala(0);
     })
   }
-
   function Braden() {
     return (
       <div className="menucover" style={{ zIndex: 9, display: showescala == 1 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -254,7 +256,6 @@ function EscalasAssistenciais() {
   const [endovenosa, setendovenosa] = useState(0);
   const [marcha, setmarcha] = useState(0);
   const [mental, setmental] = useState(0);
-
   const insertMorse = () => {
     var valor = quedas + diagsec + auxilio + endovenosa + marcha + mental;
     var significado = '';
@@ -558,7 +559,7 @@ function EscalasAssistenciais() {
       idpct: idpaciente,
       idatendimento: idatendimento,
       data: moment(),
-      cd_escala: 3,
+      cd_escala: 4,
       ds_escala: 'FOIS',
       valor_resultado: nivel,
       ds_resultado: significado,
@@ -655,13 +656,1054 @@ function EscalasAssistenciais() {
     );
   }
 
+  // ESCALA DE FUGULIN (showescala = 5).
+  const [estadomental, setestadomental] = useState(1);
+  const [oxigenacao, setoxigenacao] = useState(1);
+  const [sinaisvitais, setsinaisvitais] = useState(1);
+  const [motilidade, setmotilidade] = useState(1);
+  const [deambulacaofugulin, setdeambulacaofugulin] = useState(1);
+  const [alimentacao, setalimentacao] = useState(1);
+  const [cuidadocorporal, setcuidadocorporal] = useState(1);
+  const [eliminacao, seteliminacao] = useState(1);
+  const [terapeutica, setterapeutica] = useState(0);
+  const insertFugulin = () => {
+    var valor = estadomental + oxigenacao + sinaisvitais + motilidade + deambulacao + alimentacao + cuidadocorporal + eliminacao + terapeutica;
+    var significado = '';
+    if (valor < 18) {
+      significado = 'CUIDADO MÍNIMO';
+    } else if (valor > 17 && valor < 23) {
+      significado = 'CUIDADO INTERMEDIÁRIO';
+    } else if (valor > 22 && valor < 28) {
+      significado = 'ALTA DEPENDÊNCIA';
+    } else {
+      significado = 'CUIDADO SEMI-INTENSIVO';
+    }
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      data: moment(),
+      cd_escala: 5,
+      ds_escala: 'FUGULIN',
+      valor_resultado: valor,
+      ds_resultado: significado,
+      idprofissional: 0,
+      status: 1,
+    }
+    axios.post(htmlghapinsertescala, obj).then(() => {
+      setshowescala(0);
+    })
+  }
+  function Fugulin() {
+    return (
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div className="title5">{'ESCALA DE FUGULIN'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setshowescala(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+              <button className="green-button"
+                onClick={() => insertFugulin()}
+              >
+                <img
+                  alt=""
+                  src={salvar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div
+            className="corpo">
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
+              <button
+                onClick={() => { setestadomental(4) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                INCONSCIENTE
+              </button>
+              <button
+                onClick={() => { setestadomental(3) }}
+                className={estadomental === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                PERÍODOS DE INCONSCIÊNCIA
+              </button>
+              <button
+                onClick={() => { setestadomental(2) }}
+                className={estadomental === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
+              </button>
+              <button
+                onClick={() => { setestadomental(1) }}
+                className={estadomental === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ORIENTADO NO TEMPO E NO ESPAÇO
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>OXIGENAÇÃO:</div>
+              <button
+                onClick={() => { setoxigenacao(4) }}
+                className={oxigenacao === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                VENTILAÇÃO MECÂNICA
+              </button>
+              <button
+                onClick={() => { setoxigenacao(3) }}
+                className={oxigenacao === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO CONTÍNUO DE MÁSCARA OU CN
+              </button>
+              <button
+                onClick={() => { setoxigenacao(2) }}
+                className={oxigenacao === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO INTERMITENTE DE MÁSCARA OU CN
+              </button>
+              <button
+                onClick={() => { setoxigenacao(1) }}
+                className={oxigenacao === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                NÃO DEPENDE DE OXIGÊNIO
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>SINAIS VITAIS:</div>
+              <button
+                onClick={() => { setsinaisvitais(4) }}
+                className={sinaisvitais === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 2H OU MENOS
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(3) }}
+                className={sinaisvitais === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 4H
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(2) }}
+                className={sinaisvitais === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 6H
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(1) }}
+                className={sinaisvitais === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
+              </button>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOTILIDADE:</div>
+                <button
+                  onClick={() => { setmotilidade(4) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  INCAPAZ DE SE MOVIMENTAR
+                </button>
+                <button
+                  onClick={() => { setmotilidade(3) }}
+                  className={mobilidade === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  DIFICULDADE PARA MOVIMENTAR
+                </button>
+                <button
+                  onClick={() => { setmotilidade(2) }}
+                  className={mobilidade === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LIMITAÇÃO DE MOVIMENTOS
+                </button>
+                <button
+                  onClick={() => { setmotilidade(1) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MOVIMENTA TODOS OS SEGMENTOS CORPORAIS
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DEAMBULAÇÃO:</div>
+                <button
+                  onClick={() => { setdeambulacaofugulin(4) }}
+                  className={deambulacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  RESTRITO AO LEITO
+                </button>
+                <button
+                  onClick={() => { setdeambulacaofugulin(3) }}
+                  className={deambulacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LOCOMOÇÃO ATRAVÉS DE CADEIRA DE RODAS
+                </button>
+                <button
+                  onClick={() => { setdeambulacaofugulin(2) }}
+                  className={deambulacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO PARA DEAMBULAR
+                </button>
+                <button
+                  onClick={() => { setdeambulacaofugulin(1) }}
+                  className={deambulacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AMBULANTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ALIMENTAÇÃO:</div>
+                <button
+                  onClick={() => { setalimentacao(4) }}
+                  className={alimentacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ATRAVÉS DE CATETER CENTRAL (NPT)
+                </button>
+                <button
+                  onClick={() => { setalimentacao(3) }}
+                  className={alimentacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ATRAVÉS DE SONDA NASOGÁSTRICA
+                </button>
+                <button
+                  onClick={() => { setalimentacao(2) }}
+                  className={alimentacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  POR BOCA COM AUXÍLIO
+                </button>
+                <button
+                  onClick={() => { setalimentacao(1) }}
+                  className={alimentacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>CUIDADO CORPORAL:</div>
+                <button
+                  onClick={() => { setcuidadocorporal(4) }}
+                  className={cuidadocorporal === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO NO LEITO
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(3) }}
+                  className={cuidadocorporal === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(2) }}
+                  className={cuidadocorporal === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(1) }}
+                  className={cuidadocorporal === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ELIMINAÇÃO:</div>
+                <button
+                  onClick={() => { seteliminacao(4) }}
+                  className={eliminacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO NO LEITO
+                </button>
+                <button
+                  onClick={() => { seteliminacao(3) }}
+                  className={eliminacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
+                </button>
+                <button
+                  onClick={() => { seteliminacao(2) }}
+                  className={eliminacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
+                </button>
+                <button
+                  onClick={() => { seteliminacao(1) }}
+                  className={eliminacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPÊUTICA:</div>
+              <button
+                onClick={() => { setterapeutica(4) }}
+                className={terapeutica === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO DE DROGAS VASOATIVAS
+              </button>
+              <button
+                onClick={() => { setterapeutica(3) }}
+                className={terapeutica === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
+              </button>
+              <button
+                onClick={() => { setterapeutica(2) }}
+                className={terapeutica === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                EV INTERMITENTE
+              </button>
+              <button
+                onClick={() => { setterapeutica(1) }}
+                className={terapeutica === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                INTRAMUSCULAR OU VIA ORAL
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  function Fugulin() {
+    return (
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div className="title5">{'ESCALA DE FUGULIN'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setshowescala(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+              <button className="green-button"
+                onClick={() => insertFugulin()}
+              >
+                <img
+                  alt=""
+                  src={salvar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div
+            className="corpo">
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
+              <button
+                onClick={() => { setestadomental(4) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                INCONSCIENTE
+              </button>
+              <button
+                onClick={() => { setestadomental(3) }}
+                className={estadomental === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                PERÍODOS DE INCONSCIÊNCIA
+              </button>
+              <button
+                onClick={() => { setestadomental(2) }}
+                className={estadomental === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
+              </button>
+              <button
+                onClick={() => { setestadomental(1) }}
+                className={estadomental === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ORIENTADO NO TEMPO E NO ESPAÇO
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>OXIGENAÇÃO:</div>
+              <button
+                onClick={() => { setoxigenacao(4) }}
+                className={oxigenacao === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                VENTILAÇÃO MECÂNICA
+              </button>
+              <button
+                onClick={() => { setoxigenacao(3) }}
+                className={oxigenacao === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO CONTÍNUO DE MÁSCARA OU CN
+              </button>
+              <button
+                onClick={() => { setoxigenacao(2) }}
+                className={oxigenacao === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO INTERMITENTE DE MÁSCARA OU CN
+              </button>
+              <button
+                onClick={() => { setoxigenacao(1) }}
+                className={oxigenacao === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                NÃO DEPENDE DE OXIGÊNIO
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>SINAIS VITAIS:</div>
+              <button
+                onClick={() => { setsinaisvitais(4) }}
+                className={sinaisvitais === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 2H OU MENOS
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(3) }}
+                className={sinaisvitais === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 4H
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(2) }}
+                className={sinaisvitais === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 6H
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(1) }}
+                className={sinaisvitais === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
+              </button>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOTILIDADE:</div>
+                <button
+                  onClick={() => { setmotilidade(4) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  INCAPAZ DE SE MOVIMENTAR
+                </button>
+                <button
+                  onClick={() => { setmotilidade(3) }}
+                  className={mobilidade === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  DIFICULDADE PARA MOVIMENTAR
+                </button>
+                <button
+                  onClick={() => { setmotilidade(2) }}
+                  className={mobilidade === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LIMITAÇÃO DE MOVIMENTOS
+                </button>
+                <button
+                  onClick={() => { setmotilidade(1) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MOVIMENTA TODOS OS SEGMENTOS CORPORAIS
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DEAMBULAÇÃO:</div>
+                <button
+                  onClick={() => { setdeambulacao(4) }}
+                  className={deambulacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  RESTRITO AO LEITO
+                </button>
+                <button
+                  onClick={() => { setdeambulacao(3) }}
+                  className={deambulacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LOCOMOÇÃO ATRAVÉS DE CADEIRA DE RODAS
+                </button>
+                <button
+                  onClick={() => { setdeambulacao(2) }}
+                  className={deambulacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO PARA DEAMBULAR
+                </button>
+                <button
+                  onClick={() => { setdeambulacao(1) }}
+                  className={deambulacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AMBULANTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ALIMENTAÇÃO:</div>
+                <button
+                  onClick={() => { setalimentacao(4) }}
+                  className={alimentacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ATRAVÉS DE CATETER CENTRAL (NPT)
+                </button>
+                <button
+                  onClick={() => { setalimentacao(3) }}
+                  className={alimentacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ATRAVÉS DE SONDA NASOGÁSTRICA
+                </button>
+                <button
+                  onClick={() => { setalimentacao(2) }}
+                  className={alimentacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  POR BOCA COM AUXÍLIO
+                </button>
+                <button
+                  onClick={() => { setalimentacao(1) }}
+                  className={alimentacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>CUIDADO CORPORAL:</div>
+                <button
+                  onClick={() => { setcuidadocorporal(4) }}
+                  className={cuidadocorporal === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO NO LEITO
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(3) }}
+                  className={cuidadocorporal === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(2) }}
+                  className={cuidadocorporal === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(1) }}
+                  className={cuidadocorporal === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ELIMINAÇÃO:</div>
+                <button
+                  onClick={() => { seteliminacao(4) }}
+                  className={eliminacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO NO LEITO
+                </button>
+                <button
+                  onClick={() => { seteliminacao(3) }}
+                  className={eliminacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
+                </button>
+                <button
+                  onClick={() => { seteliminacao(2) }}
+                  className={eliminacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
+                </button>
+                <button
+                  onClick={() => { seteliminacao(1) }}
+                  className={eliminacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPÊUTICA:</div>
+              <button
+                onClick={() => { setterapeutica(4) }}
+                className={terapeutica === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO DE DROGAS VASOATIVAS
+              </button>
+              <button
+                onClick={() => { setterapeutica(3) }}
+                className={terapeutica === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
+              </button>
+              <button
+                onClick={() => { setterapeutica(2) }}
+                className={terapeutica === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                EV INTERMITENTE
+              </button>
+              <button
+                onClick={() => { setterapeutica(1) }}
+                className={terapeutica === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                INTRAMUSCULAR OU VIA ORAL
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ESCALA DE BARTHEL (showescala = 6).
+  
+  const [higienepessoal, sethigienepessoal] = useState(0);
+  const [banho, setbanho] = useState(0);
+  const [alimentacaobarthel, setalimentacaobarthel] = useState(0);
+  const [toalete, settoalete] = useState(0);
+  const [escadas, setescadas] = useState(0);
+  const [vestir, setvestir] = useState(0);
+  const [urina, seturina] = useState(0);
+  const [intestino, setintestino] = useState(0);
+  const [deambulacao, setdeambulacao] = useState(0);
+  const [cadeiraderodas, setcadeiraderodas] = useState(0);
+  const [transferencia, settransferencia] = useState(0);
+  
+  const insertBarthel = () => {
+    var valor = higienepessoal + banho + alimentacaobarthel + toalete + 
+    escadas + vestir + urina + intestino + deambulacao + cadeiraderodas + transferencia;
+    var significado = '';
+    if (valor < 20) {
+      significado = 'DEPENDÊNCIA TOTAL';
+    } else if (valor > 19 && valor < 36) {
+      significado = 'DEPENDÊNCIA GRAVE';
+    } else if (valor > 39 && valor < 56) {
+      significado = 'DEPENDÊNCIA MODERADA';
+    } else {
+      significado = 'DEPENDÊNCIA LEVE';
+    }
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      data: moment(),
+      cd_escala: 5,
+      ds_escala: 'BARTHEL',
+      valor_resultado: valor,
+      ds_resultado: significado,
+      idprofissional: 0,
+      status: 1,
+    }
+    axios.post(htmlghapinsertescala, obj).then(() => {
+      setshowescala(0);
+    })
+  }
+  
+  function Barthel() {
+    return (
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div className="title5">{'ÍNDICE DE BARTHEL'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setshowescala(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+              <button className="green-button"
+                onClick={() => insertBarthel()}
+              >
+                <img
+                  alt=""
+                  src={salvar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div
+            className="corpo">
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>HIGIENE PESSOAL:</div>
+              <button
+                onClick={() => { sethigienepessoal(1) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                TOTALMENTE DEPENDENTE
+              </button>
+              <button
+                onClick={() => { sethigienepessoal(2) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ASSISTÊNCIA EM TODOS OS PASSOS
+              </button>
+              <button
+                onClick={() => { sethigienepessoal(3) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ASSISTÊNCIA EM UM OU MAIS PASSOS
+              </button>
+              <button
+                onClick={() => { sethigienepessoal(4) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                MÍNIMA ASSISTÊNCIA
+              </button>
+              <button
+                onClick={() => { sethigienepessoal(5) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                SEM ASSISTÊNCIA
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>BANHO:</div>
+              <button
+                onClick={() => { setbanho(1) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                TOTALMENTE DEPENDENTE.
+              </button>
+              <button
+                onClick={() => { setbanho(2) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ASSISTÊNCIA EM TODOS OS ASPECTOS DO BANHO
+              </button>
+              <button
+                onClick={() => { setbanho(3) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ASSISTÊNCIA PARA TRANSFERÊNCIA, LAVAR-SE OU SECAR-SE
+              </button>
+              <button
+                onClick={() => { setbanho(4) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                SUPERVISÃO POR SEGURANÇA
+              </button>
+              <button
+                onClick={() => { setbanho(5) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                SEM ASSISTÊNCIA
+              </button>
+            </div> 
+          
+          </div>
+        </div>
+      </div>
+    );
+  }
+  function Fugulin() {
+    return (
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div className="title5">{'ESCALA DE FUGULIN'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setshowescala(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+              <button className="green-button"
+                onClick={() => insertFugulin()}
+              >
+                <img
+                  alt=""
+                  src={salvar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div
+            className="corpo">
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
+              <button
+                onClick={() => { setestadomental(4) }}
+                className={estadomental === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                INCONSCIENTE
+              </button>
+              <button
+                onClick={() => { setestadomental(3) }}
+                className={estadomental === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                PERÍODOS DE INCONSCIÊNCIA
+              </button>
+              <button
+                onClick={() => { setestadomental(2) }}
+                className={estadomental === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
+              </button>
+              <button
+                onClick={() => { setestadomental(1) }}
+                className={estadomental === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                ORIENTADO NO TEMPO E NO ESPAÇO
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>OXIGENAÇÃO:</div>
+              <button
+                onClick={() => { setoxigenacao(4) }}
+                className={oxigenacao === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                VENTILAÇÃO MECÂNICA
+              </button>
+              <button
+                onClick={() => { setoxigenacao(3) }}
+                className={oxigenacao === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO CONTÍNUO DE MÁSCARA OU CN
+              </button>
+              <button
+                onClick={() => { setoxigenacao(2) }}
+                className={oxigenacao === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO INTERMITENTE DE MÁSCARA OU CN
+              </button>
+              <button
+                onClick={() => { setoxigenacao(1) }}
+                className={oxigenacao === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                NÃO DEPENDE DE OXIGÊNIO
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>SINAIS VITAIS:</div>
+              <button
+                onClick={() => { setsinaisvitais(4) }}
+                className={sinaisvitais === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 2H OU MENOS
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(3) }}
+                className={sinaisvitais === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 4H
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(2) }}
+                className={sinaisvitais === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS DE 6H
+              </button>
+              <button
+                onClick={() => { setsinaisvitais(1) }}
+                className={sinaisvitais === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
+              </button>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOTILIDADE:</div>
+                <button
+                  onClick={() => { setmotilidade(4) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  INCAPAZ DE SE MOVIMENTAR
+                </button>
+                <button
+                  onClick={() => { setmotilidade(3) }}
+                  className={mobilidade === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  DIFICULDADE PARA MOVIMENTAR
+                </button>
+                <button
+                  onClick={() => { setmotilidade(2) }}
+                  className={mobilidade === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LIMITAÇÃO DE MOVIMENTOS
+                </button>
+                <button
+                  onClick={() => { setmotilidade(1) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MOVIMENTA TODOS OS SEGMENTOS CORPORAIS
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DEAMBULAÇÃO:</div>
+                <button
+                  onClick={() => { setdeambulacao(4) }}
+                  className={deambulacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  RESTRITO AO LEITO
+                </button>
+                <button
+                  onClick={() => { setdeambulacao(3) }}
+                  className={deambulacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LOCOMOÇÃO ATRAVÉS DE CADEIRA DE RODAS
+                </button>
+                <button
+                  onClick={() => { setdeambulacao(2) }}
+                  className={deambulacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO PARA DEAMBULAR
+                </button>
+                <button
+                  onClick={() => { setdeambulacao(1) }}
+                  className={deambulacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AMBULANTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ALIMENTAÇÃO:</div>
+                <button
+                  onClick={() => { setalimentacao(4) }}
+                  className={alimentacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ATRAVÉS DE CATETER CENTRAL (NPT)
+                </button>
+                <button
+                  onClick={() => { setalimentacao(3) }}
+                  className={alimentacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ATRAVÉS DE SONDA NASOGÁSTRICA
+                </button>
+                <button
+                  onClick={() => { setalimentacao(2) }}
+                  className={alimentacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  POR BOCA COM AUXÍLIO
+                </button>
+                <button
+                  onClick={() => { setalimentacao(1) }}
+                  className={alimentacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>CUIDADO CORPORAL:</div>
+                <button
+                  onClick={() => { setcuidadocorporal(4) }}
+                  className={cuidadocorporal === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO NO LEITO
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(3) }}
+                  className={cuidadocorporal === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(2) }}
+                  className={cuidadocorporal === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
+                </button>
+                <button
+                  onClick={() => { setcuidadocorporal(1) }}
+                  className={cuidadocorporal === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ELIMINAÇÃO:</div>
+                <button
+                  onClick={() => { seteliminacao(4) }}
+                  className={eliminacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO NO LEITO
+                </button>
+                <button
+                  onClick={() => { seteliminacao(3) }}
+                  className={eliminacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
+                </button>
+                <button
+                  onClick={() => { seteliminacao(2) }}
+                  className={eliminacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
+                </button>
+                <button
+                  onClick={() => { seteliminacao(1) }}
+                  className={eliminacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  AUTO-SUFICIENTE
+                </button>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPÊUTICA:</div>
+              <button
+                onClick={() => { setterapeutica(4) }}
+                className={terapeutica === 4 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                USO DE DROGAS VASOATIVAS
+              </button>
+              <button
+                onClick={() => { setterapeutica(3) }}
+                className={terapeutica === 3 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
+              </button>
+              <button
+                onClick={() => { setterapeutica(2) }}
+                className={terapeutica === 2 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                EV INTERMITENTE
+              </button>
+              <button
+                onClick={() => { setterapeutica(1) }}
+                className={terapeutica === 1 ? "red-button" : "blue-button"}
+                style={{ width: 150, padding: 10 }}>
+                INTRAMUSCULAR OU VIA ORAL
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Braden></Braden>
       <Morse></Morse>
       <Oxford></Oxford>
+      <Fois></Fois>
+      <Fugulin></Fugulin>
     </div>
   )
 }
 
-export default Prontuario;
+export default EscalasAssistenciais;

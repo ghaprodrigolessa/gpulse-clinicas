@@ -52,6 +52,7 @@ import UpdateAtendimento from '../components/UpdateAtendimento';
 import Settings from '../components/Settings';
 import Evolucao from '../components/Evolucao';
 import Diagnostico from '../components/Diagnosticos';
+import EscalasAssistenciais from '../pages/EscalasAssistenciais';
 import Problemas from '../components/Problemas';
 import Propostas from '../components/Propostas';
 import Interconsultas from '../components/Interconsultas';
@@ -2354,14 +2355,15 @@ function Prontuario() {
 
   // LISTA DE ESCALAS.
   // carregando as opções de escalas.
-  const [opcoesescalas, setopcoesescalas] = useState(0);
+  const [opcoesescalas, setopcoesescalas] = useState([]);
   const loadOpcoesEscalas = () => {
     axios.get(htmlghapopcoesescalas).then((response) => {
       var x = [0, 1];
       var y = [0, 1];
       x = response.data;
       y = x.rows;
-      setopcoesescalas(x);
+      setopcoesescalas(y);
+      alert(opcoesescalas.map(item => item.ds_escala));
     })
   }
 
@@ -2400,13 +2402,121 @@ function Prontuario() {
   const [viewescalapps, setviewescalapps] = useState(0);
   const [viewescalamif, setviewescalamif] = useState(0);
   const [viewescalaivcf, setviewescalaivcf] = useState(0);
+
   const ShowEscalas = useCallback(() => {
     if (stateprontuario == 20) {
       return (
         <div className="scroll" style={{ height: '80vh', padding: 10, backgroundColor: 'transparent', borderColor: 'transparent' }}>
           {opcoesescalas.map(item => (
-            <div className="row" style={{ display: 'flex', flexDirection: 'row' }}>
-              <button className="blue-button">{item.ds_escala}</button>
+            <div className="row" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
+              <button
+                className="blue-button"
+                style={{ width: 120, minWidth: 120, height: 120, minHeight: 120 }}
+                onClick={() => setshowescala(item.cd_escala)}
+              >
+                {item.ds_escala}
+              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', padding: 10 }}>
+                <Line
+                  ref={myChartRef}
+                  data={{
+                    labels: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => moment(item.data).format('DD/MM/YY')),
+                    datasets: [
+                      {
+                        data: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => item.valor_resultado),
+                        label: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => moment(item.data).format('DD/MM/YY')),
+                        borderColor: '#BB8FCE',
+                        pointBackgroundColor: '#BB8FCE',
+                        fill: 'false'
+                      },
+                    ],
+                  }}
+                  plugins={ChartDataLabels}
+                  width="400"
+                  height="100"
+                  options={{
+                    layout: {
+                      padding: {
+                        left: 0,
+                        right: 4,
+                        top: 0,
+                        bottom: 0
+                      }
+                    },
+                    scales: {
+                      xAxes: [
+                        {
+                          display: true,
+                          ticks: {
+                            fontSize: 10,
+                            width: 50,
+                            padding: 10,
+                            display: true,
+                            fontColor: '#61636e',
+                            fontWeight: 'bold',
+                          },
+                          gridLines: {
+                            tickMarkLength: false,
+                            zeroLineColor: 'transparent',
+                            lineWidth: 1,
+                            drawOnChartArea: true,
+                          },
+                        },
+                      ],
+                      yAxes: [
+                        {
+                          display: true,
+                          ticks: {
+                            padding: 10,
+                            fontSize: 10,
+                            display: true,
+                            suggestedMin: 0,
+                            suggestedMax: item.cd_escala == 1 ? 23 : item.cd_escala == 2 ? 125 : item.cd_escala == 3 ? 5 : item.cd_escala == 4 ? 7 : 100,
+                            fontColor: '#61636e',
+                            fontWeight: 'bold',
+                          },
+                          gridLines: {
+                            tickMarkLength: false,
+                            zeroLineColor: 'transparent',
+                            lineWidth: 1,
+                            drawOnChartArea: true,
+                          },
+                        },
+                      ],
+                    },
+                    plugins: {
+                      datalabels: {
+                        display: false,
+                        color: '#ffffff',
+                        font: {
+                          weight: 'bold',
+                          size: 16,
+                        },
+                      },
+                    },
+                    tooltips: {
+                      enabled: true,
+                      displayColors: false,
+                    },
+                    hover: { mode: null },
+                    elements: {},
+                    animation: {
+                      duration: 500,
+                    },
+                    title: {
+                      display: false,
+                      text: 'PPS',
+                    },
+                    legend: {
+                      display: false,
+                      position: 'bottom',
+                      align: 'start'
+                    },
+                    maintainAspectRatio: true,
+                    responsive: true,
+                  }}
+                />
+              </div>
               {arraylistescalas.filter(value => value.cd_escala == item.cd_escala).map(item => (
                 <div
                   key={item.id}
@@ -4234,6 +4344,7 @@ function Prontuario() {
     loadLesoes();
     loadInterconsultas();
     loadOpcoesEscalas();
+    loadEscalas();
 
     freezeScreen(3000);
     setrefreshatendimentos(0);
@@ -11730,6 +11841,7 @@ function Prontuario() {
           <ShowPlanoTerapeutico></ShowPlanoTerapeutico>
           <ShowEvolucoes></ShowEvolucoes>
           <ShowEscalas></ShowEscalas>
+          <EscalasAssistenciais></EscalasAssistenciais>
           <ShowDiagnosticos></ShowDiagnosticos>
           <ShowProblemas></ShowProblemas>
           <ShowPropostas></ShowPropostas>
