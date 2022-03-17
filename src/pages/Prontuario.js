@@ -2792,8 +2792,8 @@ function Prontuario() {
     axios.get(htmlghapinterconsultas + idatendimento).then((response) => {
       var x = [];
       x = response.data;
-      setlistinterconsultas(x.rows.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-      setarrayinterconsultas(x.rows.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      setlistinterconsultas(x.rows.filter(item => item.idatendimento == idatendimento).sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1));
+      setarrayinterconsultas(x.rows.filter(item => item.idatendimento == idatendimento).sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1));
     });
   }
 
