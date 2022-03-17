@@ -2358,11 +2358,9 @@ function Prontuario() {
   const [opcoesescalas, setopcoesescalas] = useState([]);
   const loadOpcoesEscalas = () => {
     axios.get(htmlghapopcoesescalas).then((response) => {
-      var x = [0, 1];
-      var y = [0, 1];
+      var x = [];
       x = response.data;
-      y = x.rows;
-      setopcoesescalas(y);
+      setopcoesescalas(x.rows);
     })
   }
 
@@ -2370,12 +2368,10 @@ function Prontuario() {
   const [arraylistescalas, setarraylistescalas] = useState([]);
   const loadEscalas = () => {
     axios.get(htmlghapescalas + idatendimento).then((response) => {
-      var x = [0, 1];
-      var y = [0, 1];
+      var x = [];
       x = response.data;
-      y = x.rows
-      setlistescalas(y.filter(item => item.idatendimento == idatendimento));
-      setarraylistescalas(y.filter(item => item.idatendimento == idatendimento));
+      setlistescalas(x.rows.filter(item => item.idatendimento == idatendimento));
+      setarraylistescalas(x.rows.filter(item => item.idatendimento == idatendimento));
     });
   }
 
@@ -2407,10 +2403,10 @@ function Prontuario() {
       return (
         <div className="scroll" style={{ height: '80vh', padding: 10, backgroundColor: 'transparent', borderColor: 'transparent' }}>
           {opcoesescalas.map(item => (
-            <div className="row" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
+            <div className="card" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left' }}>
               <button
                 className="blue-button"
-                style={{ width: 120, minWidth: 120, height: 120, minHeight: 120 }}
+                style={{ width: 120, minWidth: 120, height: 120, minHeight: 120, alignSelf: 'flex-start' }}
                 onClick={() => setshowescala(item.cd_escala)}
               >
                 {item.ds_escala}
@@ -2420,11 +2416,15 @@ function Prontuario() {
                   <Line
                     ref={myChartRef}
                     data={{
-                      labels: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => moment(item.data).format('DD/MM/YY')),
+                      labels: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala)
+                      .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
+                      .map(item => moment(item.data).format('DD/MM/YY')),
                       datasets: [
                         {
-                          data: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => item.valor_resultado),
-                          label: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => moment(item.data).format('DD/MM/YY')),
+                          data: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala)
+                          .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
+                          .map(item => item.valor_resultado),
+                          // label: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => moment(item.data).format('DD/MM/YY')),
                           borderColor: '#BB8FCE',
                           pointBackgroundColor: '#BB8FCE',
                           fill: 'false'
@@ -2518,19 +2518,27 @@ function Prontuario() {
                   />
                 </div>
                 <div className="scroll" style={{ overflowX: 'scroll', overflowY: 'hidden', flexDirection: 'row', justifyContent: 'flex-start' }}>
-                  {arraylistescalas.filter(value => value.cd_escala == item.cd_escala).map(item => (
+                  {arraylistescalas.filter(value => value.cd_escala == item.cd_escala)
+                  .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
+                  .map(item => (
                     <div
                       key={item.id}
                       id="item da lista"
-                      className="widget"
+                      className="row"
                       title={item.ds_resultado}
-                      style={{ position: 'relative', opacity: item.status == 2 ? 0.5 : 1, width: 100, height: 100 }}
+                      style={{
+                        flexDirection: 'column',
+                        position: 'relative', opacity: item.status == 2 ? 0.5 : 1,
+                        width: 120, height: 120,
+                        backgroundColor: 'lightgray'
+                      }}
                     >
-                      <div style={{
-                        position: 'absolute', top: 10, right: 10, display: 'flex',
-                        flexDirection: 'row', justifyContent: 'center',
-                        display: item.status == 2 ? 'none' : 'flex'
-                      }}>
+                      <div
+                        style={{
+                          position: 'absolute', bottom: 5, right: 5, display: 'flex',
+                          flexDirection: 'row', justifyContent: 'center',
+                          display: item.status == 2 ? 'none' : 'flex'
+                        }}>
                         <button
                           id={"deletekey 0 " + item.id}
                           className="animated-red-button"
@@ -2563,7 +2571,7 @@ function Prontuario() {
                           </div>
                         </button>
                       </div>
-                      <div style={{ marginTop: 20 }}>{moment(item.data).format('DD/MM/YY')}</div>
+                      <div className="title2center" style={{ fontWeight: 'bold' }}>{moment(item.data).format('DD/MM/YY')}</div>
                       <div className="title2center" style={{ fontSize: 22 }}>{item.valor_resultado}</div>
                     </div>
                   ))}
@@ -2576,7 +2584,7 @@ function Prontuario() {
     } else {
       return null;
     }
-  }, [stateprontuario, listescalas])
+  }, [stateprontuario, listescalas, arraylistescalas])
 
   // LISTA DE PROPOSTAS.
   // filtro para as propostas.
@@ -2782,12 +2790,10 @@ function Prontuario() {
 
   const loadInterconsultas = () => {
     axios.get(htmlghapinterconsultas + idatendimento).then((response) => {
-      var x = [0, 1];
-      var y = [0, 1];
+      var x = [];
       x = response.data;
-      y = x.rows
-      setlistinterconsultas(y.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
-      setarrayinterconsultas(y.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      setlistinterconsultas(x.rows.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
+      setarrayinterconsultas(x.rows.sort((a, b) => moment(a.datainicio, 'DD/MM/YYYY HH:MM') < moment(b.datainicio, 'DD/MM/YYYY HH:MM') ? 1 : -1).filter(item => item.idatendimento == idatendimento));
     });
   }
 
@@ -4435,6 +4441,7 @@ function Prontuario() {
 
   useEffect(() => {
     setTimeout(() => {
+      loadOpcoesEscalas();
       loadEscalas();
     }, 2000);
   }, [showescala])
