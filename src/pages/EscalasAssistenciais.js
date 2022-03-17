@@ -15,8 +15,8 @@ function EscalasAssistenciais() {
   var htmlghapinsertescala = process.env.REACT_APP_API_CLONE_INSERTESCALA;
   // recuperando estados globais (Context.API).
   const {
-    showescala, setshowescala,
     idatendimento, idpaciente,
+    showescala, setshowescala,
   } = useContext(Context)
 
   // ESCALA DE BRADEN (showescala = 1).
@@ -85,163 +85,164 @@ function EscalasAssistenciais() {
             </div>
           </div>
           <div
-            className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>PERCEPÇÃO SENSORIAL:</div>
-              <button
-                onClick={() => { setpercepcao(1) }}
-                className={percepcao === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                TOTALMENTE LIMITADO
-              </button>
-              <button
-                onClick={() => { setpercepcao(2) }}
-                className={percepcao === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                MUITO LIMITADO
-              </button>
-              <button
-                onClick={() => { setpercepcao(3) }}
-                className={percepcao === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                LEVEMENTE LIMITADO
-              </button>
-              <button
-                onClick={() => { setpercepcao(4) }}
-                className={percepcao === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                NENHUMA LIMITAÇÃO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>UMIDADE:</div>
-              <button
-                onClick={() => { setumidade(1) }}
-                className={umidade === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                COMPLETAMENTE MOLHADO
-              </button>
-              <button
-                onClick={() => { setumidade(2) }}
-                className={umidade === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                MUITO MOLHADO
-              </button>
-              <button
-                onClick={() => { setumidade(3) }}
-                className={umidade === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                OCASIONALMENTE MOLHADO
-              </button>
-              <button
-                onClick={() => { setumidade(4) }}
-                className={umidade === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                RARAMENTE MOLHADO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ATIVIDADE:</div>
-              <button
-                onClick={() => { setatividade(1) }}
-                className={atividade === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                ACAMADO
-              </button>
-              <button
-                onClick={() => { setatividade(2) }}
-                className={atividade === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                CONFINADO À CADEIRA
-              </button>
-              <button
-                onClick={() => { setatividade(3) }}
-                className={atividade === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                ANDA OCASIONALMENTE
-              </button>
-              <button
-                onClick={() => { setatividade(4) }}
-                className={atividade === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                ANDA FREQUENTEMENTE
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOBILIDADE:</div>
-              <button
-                onClick={() => { setmobilidade(1) }}
-                className={mobilidade === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                TOTALMENTE LIMITADO
-              </button>
-              <button
-                onClick={() => { setmobilidade(2) }}
-                className={mobilidade === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                BASTANTE LIMITADO
-              </button>
-              <button
-                onClick={() => { setmobilidade(3) }}
-                className={mobilidade === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                LEVEMENTE LIMITADO
-              </button>
-              <button
-                onClick={() => { setmobilidade(4) }}
-                className={mobilidade === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                NÃO APRESENTA LIMITAÇÕES
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>NUTRIÇÃO:</div>
-              <button
-                onClick={() => { setnutricao(1) }}
-                className={nutricao === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                MUITO POBRE
-              </button>
-              <button
-                onClick={() => { setnutricao(2) }}
-                className={nutricao === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                PROVAVELMENTE INADEQUADA
-              </button>
-              <button
-                onClick={() => { setnutricao(3) }}
-                className={nutricao === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                ADEQUADA
-              </button>
-              <button
-                onClick={() => { setnutricao(4) }}
-                className={nutricao === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                EXCELENTE
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>FRICÇÃO E CISALHAMENTO:</div>
-              <button
-                onClick={() => { setfriccao(1) }}
-                className={friccao === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                PROBLEMA
-              </button>
-              <button
-                onClick={() => { setfriccao(2) }}
-                className={friccao === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                PROBLEMA POTENCIAL
-              </button>
-              <button
-                onClick={() => { setfriccao(3) }}
-                className={friccao === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150 }}>
-                NENHUM PROBLEMA
-              </button>
-              <button className="blue-button" disabled="true" style={{ width: 150, opacity: 0.5 }}></button>
+            className="corpo" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'left', alignItems: 'flex-start' }}>
+            <div className="scroll">
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>PERCEPÇÃO SENSORIAL:</div>
+                <button
+                  onClick={() => { setpercepcao(1) }}
+                  className={percepcao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  TOTALMENTE LIMITADO
+                </button>
+                <button
+                  onClick={() => { setpercepcao(2) }}
+                  className={percepcao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MUITO LIMITADO
+                </button>
+                <button
+                  onClick={() => { setpercepcao(3) }}
+                  className={percepcao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LEVEMENTE LIMITADO
+                </button>
+                <button
+                  onClick={() => { setpercepcao(4) }}
+                  className={percepcao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NENHUMA LIMITAÇÃO
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>UMIDADE:</div>
+                <button
+                  onClick={() => { setumidade(1) }}
+                  className={umidade === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  COMPLETAMENTE MOLHADO
+                </button>
+                <button
+                  onClick={() => { setumidade(2) }}
+                  className={umidade === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MUITO MOLHADO
+                </button>
+                <button
+                  onClick={() => { setumidade(3) }}
+                  className={umidade === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  OCASIONALMENTE MOLHADO
+                </button>
+                <button
+                  onClick={() => { setumidade(4) }}
+                  className={umidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  RARAMENTE MOLHADO
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>ATIVIDADE:</div>
+                <button
+                  onClick={() => { setatividade(1) }}
+                  className={atividade === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ACAMADO
+                </button>
+                <button
+                  onClick={() => { setatividade(2) }}
+                  className={atividade === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  CONFINADO À CADEIRA
+                </button>
+                <button
+                  onClick={() => { setatividade(3) }}
+                  className={atividade === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ANDA OCASIONALMENTE
+                </button>
+                <button
+                  onClick={() => { setatividade(4) }}
+                  className={atividade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ANDA FREQUENTEMENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>MOBILIDADE:</div>
+                <button
+                  onClick={() => { setmobilidade(1) }}
+                  className={mobilidade === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  TOTALMENTE LIMITADO
+                </button>
+                <button
+                  onClick={() => { setmobilidade(2) }}
+                  className={mobilidade === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  BASTANTE LIMITADO
+                </button>
+                <button
+                  onClick={() => { setmobilidade(3) }}
+                  className={mobilidade === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  LEVEMENTE LIMITADO
+                </button>
+                <button
+                  onClick={() => { setmobilidade(4) }}
+                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NÃO APRESENTA LIMITAÇÕES
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>NUTRIÇÃO:</div>
+                <button
+                  onClick={() => { setnutricao(1) }}
+                  className={nutricao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150 }}>
+                  MUITO POBRE
+                </button>
+                <button
+                  onClick={() => { setnutricao(2) }}
+                  className={nutricao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  PROVAVELMENTE INADEQUADA
+                </button>
+                <button
+                  onClick={() => { setnutricao(3) }}
+                  className={nutricao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ADEQUADA
+                </button>
+                <button
+                  onClick={() => { setnutricao(4) }}
+                  className={nutricao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  EXCELENTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>FRICÇÃO E CISALHAMENTO:</div>
+                <button
+                  onClick={() => { setfriccao(1) }}
+                  className={friccao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  PROBLEMA
+                </button>
+                <button
+                  onClick={() => { setfriccao(2) }}
+                  className={friccao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  PROBLEMA POTENCIAL
+                </button>
+                <button
+                  onClick={() => { setfriccao(3) }}
+                  className={friccao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NENHUM PROBLEMA
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -316,107 +317,109 @@ function EscalasAssistenciais() {
           </div>
           <div
             className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>HISTÓRICO DE QUEDAS:</div>
-              <button
-                onClick={() => { setquedas(0) }}
-                className={quedas === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NÃO
-              </button>
-              <button
-                onClick={() => { setquedas(25) }}
-                className={quedas === 25 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                SIM
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DIAGNÓSTICO SECUNDÁRIO:</div>
-              <button
-                onClick={() => { setdiagsec(0) }}
-                className={diagsec === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NÃO
-              </button>
-              <button
-                onClick={() => { setdiagsec(15) }}
-                className={diagsec === 15 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                SIM
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>AUXÍLIO NA DEAMBULAÇÃO:</div>
-              <button
-                onClick={() => { setauxilio(0) }}
-                className={auxilio === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NENHUM, ACAMADO OU AUXILIADO POR PROFISSIONAL DE SAÚDE
-              </button>
-              <button
-                onClick={() => { setauxilio(15) }}
-                className={auxilio === 15 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                MULETAS, BENGALA OU ANDADOR
-              </button>
-              <button
-                onClick={() => { setauxilio(30) }}
-                className={auxilio === 30 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                MOBILIÁRIO OU PAREDE
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPIA ENDOVENOSA OU CATETER VENOSO:</div>
-              <button
-                onClick={() => { setendovenosa(0) }}
-                className={endovenosa === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NÃO
-              </button>
-              <button
-                onClick={() => { setendovenosa(20) }}
-                className={endovenosa === 20 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                SIM
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MARCHA:</div>
-              <button
-                onClick={() => { setmarcha(0) }}
-                className={marcha === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NORMAL, CADEIRANTE OU ACAMADO
-              </button>
-              <button
-                onClick={() => { setmarcha(10) }}
-                className={marcha === 10 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                FRACA
-              </button>
-              <button
-                onClick={() => { setmarcha(20) }}
-                className={marcha === 20 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                COMPROMETIDA, CAMBALEANTE
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
-              <button
-                onClick={() => { setmental(0) }}
-                className={mental === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                ORIENTADO E CAPAZ QUANTO A SUA LIMITAÇÃO
-              </button>
-              <button
-                onClick={() => { setmental(15) }}
-                className={mental === 15 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                SUPERESTIMA CAPACIDADES E ESQUECE LIMITAÇÕES
-              </button>
+            <div className="scroll" style={{ height: '60vh' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>HISTÓRICO DE QUEDAS:</div>
+                <button
+                  onClick={() => { setquedas(0) }}
+                  className={quedas === 0 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NÃO
+                </button>
+                <button
+                  onClick={() => { setquedas(25) }}
+                  className={quedas === 25 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  SIM
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>DIAGNÓSTICO SECUNDÁRIO:</div>
+                <button
+                  onClick={() => { setdiagsec(0) }}
+                  className={diagsec === 0 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NÃO
+                </button>
+                <button
+                  onClick={() => { setdiagsec(15) }}
+                  className={diagsec === 15 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  SIM
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>AUXÍLIO NA DEAMBULAÇÃO:</div>
+                <button
+                  onClick={() => { setauxilio(0) }}
+                  className={auxilio === 0 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NENHUM, ACAMADO OU AUXILIADO POR PROFISSIONAL DE SAÚDE
+                </button>
+                <button
+                  onClick={() => { setauxilio(15) }}
+                  className={auxilio === 15 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MULETAS, BENGALA OU ANDADOR
+                </button>
+                <button
+                  onClick={() => { setauxilio(30) }}
+                  className={auxilio === 30 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  MOBILIÁRIO OU PAREDE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>TERAPIA ENDOVENOSA OU CATETER VENOSO:</div>
+                <button
+                  onClick={() => { setendovenosa(0) }}
+                  className={endovenosa === 0 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NÃO
+                </button>
+                <button
+                  onClick={() => { setendovenosa(20) }}
+                  className={endovenosa === 20 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  SIM
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>MARCHA:</div>
+                <button
+                  onClick={() => { setmarcha(0) }}
+                  className={marcha === 0 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NORMAL, CADEIRANTE OU ACAMADO
+                </button>
+                <button
+                  onClick={() => { setmarcha(10) }}
+                  className={marcha === 10 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  FRACA
+                </button>
+                <button
+                  onClick={() => { setmarcha(20) }}
+                  className={marcha === 20 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  COMPROMETIDA, CAMBALEANTE
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>ESTADO MENTAL:</div>
+                <button
+                  onClick={() => { setmental(0) }}
+                  className={mental === 0 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ORIENTADO E CAPAZ QUANTO A SUA LIMITAÇÃO
+                </button>
+                <button
+                  onClick={() => { setmental(15) }}
+                  className={mental === 15 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  SUPERESTIMA CAPACIDADES E ESQUECE LIMITAÇÕES
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -458,7 +461,7 @@ function EscalasAssistenciais() {
   }
   function Oxford() {
     return (
-      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 3 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <div className="menucontainer">
           <div id="cabeçalho" className="cabecalho">
             <div className="title5">{'ESCALA DE OXFORD'}</div>
@@ -491,44 +494,46 @@ function EscalasAssistenciais() {
           </div>
           <div
             className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>FORÇA MUSCULAR:</div>
-              <button
-                onClick={() => { setgrau(5) }}
-                className={grau === 5 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NORMAL
-              </button>
-              <button
-                onClick={() => { setgrau(4) }}
-                className={grau === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                BOA
-              </button>
-              <button
-                onClick={() => { setgrau(3) }}
-                className={grau === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                REGULAR
-              </button>
-              <button
-                onClick={() => { setgrau(2) }}
-                className={grau === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                FRACA
-              </button>
-              <button
-                onClick={() => { setgrau(1) }}
-                className={grau === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                MÍNIMA
-              </button>
-              <button
-                onClick={() => { setgrau(0) }}
-                className={grau === 0 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                AUSENTE
-              </button>
+            <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>FORÇA MUSCULAR:</div>
+            <div className="scroll" style={{ height: '60vh', paddingRight: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginBottom: 5 }}>
+                <button
+                  onClick={() => { setgrau(5) }}
+                  className={grau === 5 ? "red-button" : "blue-button"}
+                  style={{ padding: 10 }}>
+                  NORMAL
+                </button>
+                <button
+                  onClick={() => { setgrau(4) }}
+                  className={grau === 4 ? "red-button" : "blue-button"}
+                  style={{ padding: 10 }}>
+                  BOA
+                </button>
+                <button
+                  onClick={() => { setgrau(3) }}
+                  className={grau === 3 ? "red-button" : "blue-button"}
+                  style={{ padding: 10 }}>
+                  REGULAR
+                </button>
+                <button
+                  onClick={() => { setgrau(2) }}
+                  className={grau === 2 ? "red-button" : "blue-button"}
+                  style={{ padding: 10 }}>
+                  FRACA
+                </button>
+                <button
+                  onClick={() => { setgrau(1) }}
+                  className={grau === 1 ? "red-button" : "blue-button"}
+                  style={{ padding: 10 }}>
+                  MÍNIMA
+                </button>
+                <button
+                  onClick={() => { setgrau(0) }}
+                  className={grau === 0 ? "red-button" : "blue-button"}
+                  style={{ padding: 10 }}>
+                  AUSENTE
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -572,7 +577,7 @@ function EscalasAssistenciais() {
   }
   function Fois() {
     return (
-      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 4 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <div className="menucontainer">
           <div id="cabeçalho" className="cabecalho">
             <div className="title5">{'ESCALA DE FOIS'}</div>
@@ -603,52 +608,59 @@ function EscalasAssistenciais() {
               </button>
             </div>
           </div>
-          <div
-            className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>FORÇA MUSCULAR:</div>
-              <button
-                onClick={() => { setnivel(1) }}
-                className={nivel === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NADA POR VIA ORAL
-              </button>
-              <button
-                onClick={() => { setnivel(2) }}
-                className={nivel === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                DEPENDÊNCIA DE VIA ALTERNATIVA, MÍNIMA OFERTA DE VIA ORAL (ESTÍMULO GUSTATIVO).
-              </button>
-              <button
-                onClick={() => { setnivel(3) }}
-                className={nivel === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                DEPENDÊNCIA DE VIA ALTERNATIVA, OFERTA DE UMA ÚNICA CONSISTÊNCIA POR VIA ORAL.
-              </button>
-              <button
-                onClick={() => { setnivel(4) }}
-                className={nivel === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VIA ORAL TOTAL, LIMITADA A UMA ÚNICA CONSISTÊNCIA.
-              </button>
-              <button
-                onClick={() => { setnivel(5) }}
-                className={nivel === 5 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VIA ORAL TOTAL, MAIS DE UMA CONSISTÊNCIA, NECESSITANDO PREPARO ESPECIAL.
-              </button>
-              <button
-                onClick={() => { setnivel(6) }}
-                className={nivel === 6 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VIA ORAL TOTAL, MAIS DE UMA CONSISTÊNCIA, LIMITAÇÕES OU RESTRIÇÕES ESPECÍFICAS.
-              </button>
-              <button
-                onClick={() => { setnivel(7) }}
-                className={nivel === 7 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VIA ORAL TOTAL, SEM RESTRIÇÕES.
-              </button>
+          <div>
+            <div
+              className="corpo">
+              <div
+                className="scroll"
+                style={{
+                  display: 'flex', flexDirection: 'row', justifyContent: 'center',
+                  marginBottom: 5, flexWrap: 'wrap',
+                  width: '60vw', height: '50vh'
+                }}>
+                <button
+                  onClick={() => { setnivel(1) }}
+                  className={nivel === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NADA POR VIA ORAL
+                </button>
+                <button
+                  onClick={() => { setnivel(2) }}
+                  className={nivel === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  DEPENDÊNCIA DE VIA ALTERNATIVA, MÍNIMA OFERTA DE VIA ORAL (ESTÍMULO GUSTATIVO).
+                </button>
+                <button
+                  onClick={() => { setnivel(3) }}
+                  className={nivel === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  DEPENDÊNCIA DE VIA ALTERNATIVA, OFERTA DE UMA ÚNICA CONSISTÊNCIA POR VIA ORAL.
+                </button>
+                <button
+                  onClick={() => { setnivel(4) }}
+                  className={nivel === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, height: 150, minHeight: 150, padding: 10 }}>
+                  VIA ORAL TOTAL, LIMITADA A UMA ÚNICA CONSISTÊNCIA.
+                </button>
+                <button
+                  onClick={() => { setnivel(5) }}
+                  className={nivel === 5 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  VIA ORAL TOTAL, MAIS DE UMA CONSISTÊNCIA, NECESSITANDO PREPARO ESPECIAL.
+                </button>
+                <button
+                  onClick={() => { setnivel(6) }}
+                  className={nivel === 6 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  VIA ORAL TOTAL, MAIS DE UMA CONSISTÊNCIA, LIMITAÇÕES OU RESTRIÇÕES ESPECÍFICAS.
+                </button>
+                <button
+                  onClick={() => { setnivel(7) }}
+                  className={nivel === 7 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  VIA ORAL TOTAL, SEM RESTRIÇÕES.
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -695,7 +707,7 @@ function EscalasAssistenciais() {
   }
   function Fugulin() {
     return (
-      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 5 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <div className="menucontainer">
           <div id="cabeçalho" className="cabecalho">
             <div className="title5">{'ESCALA DE FUGULIN'}</div>
@@ -728,88 +740,90 @@ function EscalasAssistenciais() {
           </div>
           <div
             className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
-              <button
-                onClick={() => { setestadomental(4) }}
-                className={estadomental === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                INCONSCIENTE
-              </button>
-              <button
-                onClick={() => { setestadomental(3) }}
-                className={estadomental === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                PERÍODOS DE INCONSCIÊNCIA
-              </button>
-              <button
-                onClick={() => { setestadomental(2) }}
-                className={estadomental === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
-              </button>
-              <button
-                onClick={() => { setestadomental(1) }}
-                className={estadomental === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                ORIENTADO NO TEMPO E NO ESPAÇO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>OXIGENAÇÃO:</div>
-              <button
-                onClick={() => { setoxigenacao(4) }}
-                className={oxigenacao === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VENTILAÇÃO MECÂNICA
-              </button>
-              <button
-                onClick={() => { setoxigenacao(3) }}
-                className={oxigenacao === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO CONTÍNUO DE MÁSCARA OU CN
-              </button>
-              <button
-                onClick={() => { setoxigenacao(2) }}
-                className={oxigenacao === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO INTERMITENTE DE MÁSCARA OU CN
-              </button>
-              <button
-                onClick={() => { setoxigenacao(1) }}
-                className={oxigenacao === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NÃO DEPENDE DE OXIGÊNIO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>SINAIS VITAIS:</div>
-              <button
-                onClick={() => { setsinaisvitais(4) }}
-                className={sinaisvitais === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 2H OU MENOS
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(3) }}
-                className={sinaisvitais === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 4H
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(2) }}
-                className={sinaisvitais === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 6H
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(1) }}
-                className={sinaisvitais === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
-              </button>
+            <div className="scroll" style={{ height: '60vh' }}>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOTILIDADE:</div>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>ESTADO MENTAL:</div>
+                <button
+                  onClick={() => { setestadomental(4) }}
+                  className={estadomental === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  INCONSCIENTE
+                </button>
+                <button
+                  onClick={() => { setestadomental(3) }}
+                  className={estadomental === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  PERÍODOS DE INCONSCIÊNCIA
+                </button>
+                <button
+                  onClick={() => { setestadomental(2) }}
+                  className={estadomental === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
+                </button>
+                <button
+                  onClick={() => { setestadomental(1) }}
+                  className={estadomental === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  ORIENTADO NO TEMPO E NO ESPAÇO
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>OXIGENAÇÃO:</div>
+                <button
+                  onClick={() => { setoxigenacao(4) }}
+                  className={oxigenacao === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  VENTILAÇÃO MECÂNICA
+                </button>
+                <button
+                  onClick={() => { setoxigenacao(3) }}
+                  className={oxigenacao === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  USO CONTÍNUO DE MÁSCARA OU CN
+                </button>
+                <button
+                  onClick={() => { setoxigenacao(2) }}
+                  className={oxigenacao === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  USO INTERMITENTE DE MÁSCARA OU CN
+                </button>
+                <button
+                  onClick={() => { setoxigenacao(1) }}
+                  className={oxigenacao === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  NÃO DEPENDE DE OXIGÊNIO
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>SINAIS VITAIS:</div>
+                <button
+                  onClick={() => { setsinaisvitais(4) }}
+                  className={sinaisvitais === 4 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  CONTROLES EM INTERVALOS DE 2H OU MENOS
+                </button>
+                <button
+                  onClick={() => { setsinaisvitais(3) }}
+                  className={sinaisvitais === 3 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  CONTROLES EM INTERVALOS DE 4H
+                </button>
+                <button
+                  onClick={() => { setsinaisvitais(2) }}
+                  className={sinaisvitais === 2 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  CONTROLES EM INTERVALOS DE 6H
+                </button>
+                <button
+                  onClick={() => { setsinaisvitais(1) }}
+                  className={sinaisvitais === 1 ? "red-button" : "blue-button"}
+                  style={{ width: 150, padding: 10 }}>
+                  CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>MOTILIDADE:</div>
                 <button
                   onClick={() => { setmotilidade(4) }}
                   className={mobilidade === 4 ? "red-button" : "blue-button"}
@@ -836,7 +850,7 @@ function EscalasAssistenciais() {
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DEAMBULAÇÃO:</div>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>DEAMBULAÇÃO:</div>
                 <button
                   onClick={() => { setdeambulacaofugulin(4) }}
                   className={deambulacao === 4 ? "red-button" : "blue-button"}
@@ -863,7 +877,7 @@ function EscalasAssistenciais() {
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ALIMENTAÇÃO:</div>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>ALIMENTAÇÃO:</div>
                 <button
                   onClick={() => { setalimentacao(4) }}
                   className={alimentacao === 4 ? "red-button" : "blue-button"}
@@ -890,7 +904,7 @@ function EscalasAssistenciais() {
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>CUIDADO CORPORAL:</div>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>CUIDADO CORPORAL:</div>
                 <button
                   onClick={() => { setcuidadocorporal(4) }}
                   className={cuidadocorporal === 4 ? "red-button" : "blue-button"}
@@ -917,7 +931,7 @@ function EscalasAssistenciais() {
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ELIMINAÇÃO:</div>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>ELIMINAÇÃO:</div>
                 <button
                   onClick={() => { seteliminacao(4) }}
                   className={eliminacao === 4 ? "red-button" : "blue-button"}
@@ -943,316 +957,33 @@ function EscalasAssistenciais() {
                   AUTO-SUFICIENTE
                 </button>
               </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPÊUTICA:</div>
-              <button
-                onClick={() => { setterapeutica(4) }}
-                className={terapeutica === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO DE DROGAS VASOATIVAS
-              </button>
-              <button
-                onClick={() => { setterapeutica(3) }}
-                className={terapeutica === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
-              </button>
-              <button
-                onClick={() => { setterapeutica(2) }}
-                className={terapeutica === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                EV INTERMITENTE
-              </button>
-              <button
-                onClick={() => { setterapeutica(1) }}
-                className={terapeutica === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                INTRAMUSCULAR OU VIA ORAL
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  function Fugulin() {
-    return (
-      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <div className="menucontainer">
-          <div id="cabeçalho" className="cabecalho">
-            <div className="title5">{'ESCALA DE FUGULIN'}</div>
-            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-              <button className="red-button" onClick={() => setshowescala(0)}>
-                <img
-                  alt=""
-                  src={deletar}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
-              <button className="green-button"
-                onClick={() => insertFugulin()}
-              >
-                <img
-                  alt=""
-                  src={salvar}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
-            </div>
-          </div>
-          <div
-            className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
-              <button
-                onClick={() => { setestadomental(4) }}
-                className={estadomental === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                INCONSCIENTE
-              </button>
-              <button
-                onClick={() => { setestadomental(3) }}
-                className={estadomental === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                PERÍODOS DE INCONSCIÊNCIA
-              </button>
-              <button
-                onClick={() => { setestadomental(2) }}
-                className={estadomental === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
-              </button>
-              <button
-                onClick={() => { setestadomental(1) }}
-                className={estadomental === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                ORIENTADO NO TEMPO E NO ESPAÇO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>OXIGENAÇÃO:</div>
-              <button
-                onClick={() => { setoxigenacao(4) }}
-                className={oxigenacao === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VENTILAÇÃO MECÂNICA
-              </button>
-              <button
-                onClick={() => { setoxigenacao(3) }}
-                className={oxigenacao === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO CONTÍNUO DE MÁSCARA OU CN
-              </button>
-              <button
-                onClick={() => { setoxigenacao(2) }}
-                className={oxigenacao === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO INTERMITENTE DE MÁSCARA OU CN
-              </button>
-              <button
-                onClick={() => { setoxigenacao(1) }}
-                className={oxigenacao === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NÃO DEPENDE DE OXIGÊNIO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>SINAIS VITAIS:</div>
-              <button
-                onClick={() => { setsinaisvitais(4) }}
-                className={sinaisvitais === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 2H OU MENOS
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(3) }}
-                className={sinaisvitais === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 4H
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(2) }}
-                className={sinaisvitais === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 6H
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(1) }}
-                className={sinaisvitais === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
-              </button>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOTILIDADE:</div>
+                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>TERAPÊUTICA:</div>
                 <button
-                  onClick={() => { setmotilidade(4) }}
-                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  onClick={() => { setterapeutica(4) }}
+                  className={terapeutica === 4 ? "red-button" : "blue-button"}
                   style={{ width: 150, padding: 10 }}>
-                  INCAPAZ DE SE MOVIMENTAR
+                  USO DE DROGAS VASOATIVAS
                 </button>
                 <button
-                  onClick={() => { setmotilidade(3) }}
-                  className={mobilidade === 3 ? "red-button" : "blue-button"}
+                  onClick={() => { setterapeutica(3) }}
+                  className={terapeutica === 3 ? "red-button" : "blue-button"}
                   style={{ width: 150, padding: 10 }}>
-                  DIFICULDADE PARA MOVIMENTAR
+                  EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
                 </button>
                 <button
-                  onClick={() => { setmotilidade(2) }}
-                  className={mobilidade === 2 ? "red-button" : "blue-button"}
+                  onClick={() => { setterapeutica(2) }}
+                  className={terapeutica === 2 ? "red-button" : "blue-button"}
                   style={{ width: 150, padding: 10 }}>
-                  LIMITAÇÃO DE MOVIMENTOS
+                  EV INTERMITENTE
                 </button>
                 <button
-                  onClick={() => { setmotilidade(1) }}
-                  className={mobilidade === 4 ? "red-button" : "blue-button"}
+                  onClick={() => { setterapeutica(1) }}
+                  className={terapeutica === 1 ? "red-button" : "blue-button"}
                   style={{ width: 150, padding: 10 }}>
-                  MOVIMENTA TODOS OS SEGMENTOS CORPORAIS
+                  INTRAMUSCULAR OU VIA ORAL
                 </button>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DEAMBULAÇÃO:</div>
-                <button
-                  onClick={() => { setdeambulacao(4) }}
-                  className={deambulacao === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  RESTRITO AO LEITO
-                </button>
-                <button
-                  onClick={() => { setdeambulacao(3) }}
-                  className={deambulacao === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  LOCOMOÇÃO ATRAVÉS DE CADEIRA DE RODAS
-                </button>
-                <button
-                  onClick={() => { setdeambulacao(2) }}
-                  className={deambulacao === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUXÍLIO PARA DEAMBULAR
-                </button>
-                <button
-                  onClick={() => { setdeambulacao(1) }}
-                  className={deambulacao === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AMBULANTE
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ALIMENTAÇÃO:</div>
-                <button
-                  onClick={() => { setalimentacao(4) }}
-                  className={alimentacao === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  ATRAVÉS DE CATETER CENTRAL (NPT)
-                </button>
-                <button
-                  onClick={() => { setalimentacao(3) }}
-                  className={alimentacao === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  ATRAVÉS DE SONDA NASOGÁSTRICA
-                </button>
-                <button
-                  onClick={() => { setalimentacao(2) }}
-                  className={alimentacao === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  POR BOCA COM AUXÍLIO
-                </button>
-                <button
-                  onClick={() => { setalimentacao(1) }}
-                  className={alimentacao === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUTO-SUFICIENTE
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>CUIDADO CORPORAL:</div>
-                <button
-                  onClick={() => { setcuidadocorporal(4) }}
-                  className={cuidadocorporal === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO NO LEITO
-                </button>
-                <button
-                  onClick={() => { setcuidadocorporal(3) }}
-                  className={cuidadocorporal === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
-                </button>
-                <button
-                  onClick={() => { setcuidadocorporal(2) }}
-                  className={cuidadocorporal === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
-                </button>
-                <button
-                  onClick={() => { setcuidadocorporal(1) }}
-                  className={cuidadocorporal === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUTO-SUFICIENTE
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ELIMINAÇÃO:</div>
-                <button
-                  onClick={() => { seteliminacao(4) }}
-                  className={eliminacao === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO NO LEITO
-                </button>
-                <button
-                  onClick={() => { seteliminacao(3) }}
-                  className={eliminacao === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
-                </button>
-                <button
-                  onClick={() => { seteliminacao(2) }}
-                  className={eliminacao === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
-                </button>
-                <button
-                  onClick={() => { seteliminacao(1) }}
-                  className={eliminacao === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUTO-SUFICIENTE
-                </button>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPÊUTICA:</div>
-              <button
-                onClick={() => { setterapeutica(4) }}
-                className={terapeutica === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO DE DROGAS VASOATIVAS
-              </button>
-              <button
-                onClick={() => { setterapeutica(3) }}
-                className={terapeutica === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
-              </button>
-              <button
-                onClick={() => { setterapeutica(2) }}
-                className={terapeutica === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                EV INTERMITENTE
-              </button>
-              <button
-                onClick={() => { setterapeutica(1) }}
-                className={terapeutica === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                INTRAMUSCULAR OU VIA ORAL
-              </button>
             </div>
           </div>
         </div>
@@ -1261,7 +992,6 @@ function EscalasAssistenciais() {
   }
 
   // ESCALA DE BARTHEL (showescala = 6).
-  
   const [higienepessoal, sethigienepessoal] = useState(0);
   const [banho, setbanho] = useState(0);
   const [alimentacaobarthel, setalimentacaobarthel] = useState(0);
@@ -1273,10 +1003,10 @@ function EscalasAssistenciais() {
   const [deambulacao, setdeambulacao] = useState(0);
   const [cadeiraderodas, setcadeiraderodas] = useState(0);
   const [transferencia, settransferencia] = useState(0);
-  
+
   const insertBarthel = () => {
-    var valor = higienepessoal + banho + alimentacaobarthel + toalete + 
-    escadas + vestir + urina + intestino + deambulacao + cadeiraderodas + transferencia;
+    var valor = higienepessoal + banho + alimentacaobarthel + toalete +
+      escadas + vestir + urina + intestino + deambulacao + cadeiraderodas + transferencia;
     var significado = '';
     if (valor < 20) {
       significado = 'DEPENDÊNCIA TOTAL';
@@ -1302,10 +1032,10 @@ function EscalasAssistenciais() {
       setshowescala(0);
     })
   }
-  
+
   function Barthel() {
     return (
-      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div className="menucover" style={{ zIndex: 9, display: showescala == 6 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
         <div className="menucontainer">
           <div id="cabeçalho" className="cabecalho">
             <div className="title5">{'ÍNDICE DE BARTHEL'}</div>
@@ -1339,7 +1069,7 @@ function EscalasAssistenciais() {
           <div
             className="corpo">
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>HIGIENE PESSOAL:</div>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>HIGIENE PESSOAL:</div>
               <button
                 onClick={() => { sethigienepessoal(1) }}
                 className={estadomental === 4 ? "red-button" : "blue-button"}
@@ -1371,9 +1101,9 @@ function EscalasAssistenciais() {
                 SEM ASSISTÊNCIA
               </button>
             </div>
-            
+
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>BANHO:</div>
+              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center', alignSelf: 'center' }}>BANHO:</div>
               <button
                 onClick={() => { setbanho(1) }}
                 className={estadomental === 4 ? "red-button" : "blue-button"}
@@ -1404,291 +1134,8 @@ function EscalasAssistenciais() {
                 style={{ width: 150, padding: 10 }}>
                 SEM ASSISTÊNCIA
               </button>
-            </div> 
-          
-          </div>
-        </div>
-      </div>
-    );
-  }
-  function Fugulin() {
-    return (
-      <div className="menucover" style={{ zIndex: 9, display: showescala == 2 ? 'flex' : 'none', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-        <div className="menucontainer">
-          <div id="cabeçalho" className="cabecalho">
-            <div className="title5">{'ESCALA DE FUGULIN'}</div>
-            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-              <button className="red-button" onClick={() => setshowescala(0)}>
-                <img
-                  alt=""
-                  src={deletar}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
-              <button className="green-button"
-                onClick={() => insertFugulin()}
-              >
-                <img
-                  alt=""
-                  src={salvar}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
             </div>
-          </div>
-          <div
-            className="corpo">
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ESTADO MENTAL:</div>
-              <button
-                onClick={() => { setestadomental(4) }}
-                className={estadomental === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                INCONSCIENTE
-              </button>
-              <button
-                onClick={() => { setestadomental(3) }}
-                className={estadomental === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                PERÍODOS DE INCONSCIÊNCIA
-              </button>
-              <button
-                onClick={() => { setestadomental(2) }}
-                className={estadomental === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                PERÍODOS DE DESORIENTAÇÃO NO TEMPO E NO ESPAÇO
-              </button>
-              <button
-                onClick={() => { setestadomental(1) }}
-                className={estadomental === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                ORIENTADO NO TEMPO E NO ESPAÇO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>OXIGENAÇÃO:</div>
-              <button
-                onClick={() => { setoxigenacao(4) }}
-                className={oxigenacao === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                VENTILAÇÃO MECÂNICA
-              </button>
-              <button
-                onClick={() => { setoxigenacao(3) }}
-                className={oxigenacao === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO CONTÍNUO DE MÁSCARA OU CN
-              </button>
-              <button
-                onClick={() => { setoxigenacao(2) }}
-                className={oxigenacao === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO INTERMITENTE DE MÁSCARA OU CN
-              </button>
-              <button
-                onClick={() => { setoxigenacao(1) }}
-                className={oxigenacao === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                NÃO DEPENDE DE OXIGÊNIO
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>SINAIS VITAIS:</div>
-              <button
-                onClick={() => { setsinaisvitais(4) }}
-                className={sinaisvitais === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 2H OU MENOS
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(3) }}
-                className={sinaisvitais === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 4H
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(2) }}
-                className={sinaisvitais === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS DE 6H
-              </button>
-              <button
-                onClick={() => { setsinaisvitais(1) }}
-                className={sinaisvitais === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                CONTROLES EM INTERVALOS MAIORES OU IGUAIS A 8H
-              </button>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>MOTILIDADE:</div>
-                <button
-                  onClick={() => { setmotilidade(4) }}
-                  className={mobilidade === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  INCAPAZ DE SE MOVIMENTAR
-                </button>
-                <button
-                  onClick={() => { setmotilidade(3) }}
-                  className={mobilidade === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  DIFICULDADE PARA MOVIMENTAR
-                </button>
-                <button
-                  onClick={() => { setmotilidade(2) }}
-                  className={mobilidade === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  LIMITAÇÃO DE MOVIMENTOS
-                </button>
-                <button
-                  onClick={() => { setmotilidade(1) }}
-                  className={mobilidade === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  MOVIMENTA TODOS OS SEGMENTOS CORPORAIS
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>DEAMBULAÇÃO:</div>
-                <button
-                  onClick={() => { setdeambulacao(4) }}
-                  className={deambulacao === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  RESTRITO AO LEITO
-                </button>
-                <button
-                  onClick={() => { setdeambulacao(3) }}
-                  className={deambulacao === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  LOCOMOÇÃO ATRAVÉS DE CADEIRA DE RODAS
-                </button>
-                <button
-                  onClick={() => { setdeambulacao(2) }}
-                  className={deambulacao === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUXÍLIO PARA DEAMBULAR
-                </button>
-                <button
-                  onClick={() => { setdeambulacao(1) }}
-                  className={deambulacao === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AMBULANTE
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ALIMENTAÇÃO:</div>
-                <button
-                  onClick={() => { setalimentacao(4) }}
-                  className={alimentacao === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  ATRAVÉS DE CATETER CENTRAL (NPT)
-                </button>
-                <button
-                  onClick={() => { setalimentacao(3) }}
-                  className={alimentacao === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  ATRAVÉS DE SONDA NASOGÁSTRICA
-                </button>
-                <button
-                  onClick={() => { setalimentacao(2) }}
-                  className={alimentacao === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  POR BOCA COM AUXÍLIO
-                </button>
-                <button
-                  onClick={() => { setalimentacao(1) }}
-                  className={alimentacao === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUTO-SUFICIENTE
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>CUIDADO CORPORAL:</div>
-                <button
-                  onClick={() => { setcuidadocorporal(4) }}
-                  className={cuidadocorporal === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO NO LEITO
-                </button>
-                <button
-                  onClick={() => { setcuidadocorporal(3) }}
-                  className={cuidadocorporal === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
-                </button>
-                <button
-                  onClick={() => { setcuidadocorporal(2) }}
-                  className={cuidadocorporal === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
-                </button>
-                <button
-                  onClick={() => { setcuidadocorporal(1) }}
-                  className={cuidadocorporal === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUTO-SUFICIENTE
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-                <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>ELIMINAÇÃO:</div>
-                <button
-                  onClick={() => { seteliminacao(4) }}
-                  className={eliminacao === 4 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO NO LEITO
-                </button>
-                <button
-                  onClick={() => { seteliminacao(3) }}
-                  className={eliminacao === 3 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  BANHO DE CHUVEIRO, HIGIENE ORAL FEITA PELA ENFERMAGEM
-                </button>
-                <button
-                  onClick={() => { seteliminacao(2) }}
-                  className={eliminacao === 2 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUXÍLIO NO BANHO DE CHUVEIRO E NA HIGIENE ORAL
-                </button>
-                <button
-                  onClick={() => { seteliminacao(1) }}
-                  className={eliminacao === 1 ? "red-button" : "blue-button"}
-                  style={{ width: 150, padding: 10 }}>
-                  AUTO-SUFICIENTE
-                </button>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'left', marginBottom: 5 }}>
-              <div className="title2" style={{ fontSize: 14, width: 150, textAlign: 'center' }}>TERAPÊUTICA:</div>
-              <button
-                onClick={() => { setterapeutica(4) }}
-                className={terapeutica === 4 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                USO DE DROGAS VASOATIVAS
-              </button>
-              <button
-                onClick={() => { setterapeutica(3) }}
-                className={terapeutica === 3 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                EV CONTÍNUA OU POR SONDA NASOGÁSTRICA
-              </button>
-              <button
-                onClick={() => { setterapeutica(2) }}
-                className={terapeutica === 2 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                EV INTERMITENTE
-              </button>
-              <button
-                onClick={() => { setterapeutica(1) }}
-                className={terapeutica === 1 ? "red-button" : "blue-button"}
-                style={{ width: 150, padding: 10 }}>
-                INTRAMUSCULAR OU VIA ORAL
-              </button>
-            </div>
+
           </div>
         </div>
       </div>
