@@ -2411,19 +2411,19 @@ function Prontuario() {
               >
                 {item.ds_escala}
               </button>
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', width: '100%' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%', padding: 10 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', width: '65vw' }}>
+                <div id="GRÁFICO" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '65vw', padding: 10 }}>
                   <Line
                     ref={myChartRef}
                     data={{
                       labels: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala)
-                      .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
-                      .map(item => moment(item.data).format('DD/MM/YY')),
+                        .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1).slice(-5)
+                        .map(item => moment(item.data).format('DD/MM/YY')),
                       datasets: [
                         {
                           data: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala)
-                          .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
-                          .map(item => item.valor_resultado),
+                            .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
+                            .map(item => item.valor_resultado),
                           // label: arraylistescalas.filter(valor => valor.cd_escala == item.cd_escala).map(item => moment(item.data).format('DD/MM/YY')),
                           borderColor: '#BB8FCE',
                           pointBackgroundColor: '#BB8FCE',
@@ -2471,7 +2471,15 @@ function Prontuario() {
                               fontSize: 10,
                               display: true,
                               suggestedMin: 0,
-                              suggestedMax: item.cd_escala == 1 ? 23 : item.cd_escala == 2 ? 125 : item.cd_escala == 3 ? 5 : item.cd_escala == 4 ? 7 : 100,
+                              suggestedMax:
+                                item.cd_escala == 1 ? 23 :
+                                  item.cd_escala == 2 ? 125 :
+                                    item.cd_escala == 3 ? 5 :
+                                      item.cd_escala == 4 ? 7 :
+                                        item.cd_escala == 5 ? 10 :
+                                          item.cd_escala == 6 ? 100 :
+                                            item.cd_escala == 7 ? 10 :
+                                              100,
                               fontColor: '#61636e',
                               fontWeight: 'bold',
                             },
@@ -2517,64 +2525,71 @@ function Prontuario() {
                     }}
                   />
                 </div>
-                <div className="scroll" style={{ overflowX: 'scroll', overflowY: 'hidden', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                <div id="CARDS COM VALORES" className="scroll" style={{ overflowX: 'scroll', overflowY: 'hidden', flexDirection: 'row', justifyContent: 'flex-start', width: '65vw' }}>
                   {arraylistescalas.filter(value => value.cd_escala == item.cd_escala)
-                  .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
-                  .map(item => (
-                    <div
-                      key={item.id}
-                      id="item da lista"
-                      className="row"
-                      title={item.ds_resultado}
-                      style={{
-                        flexDirection: 'column',
-                        position: 'relative', opacity: item.status == 2 ? 0.5 : 1,
-                        width: 120, height: 120,
-                        backgroundColor: 'lightgray'
-                      }}
-                    >
+                    .sort((a, b) => moment(a.data) > moment(b.data) ? 1 : -1)
+                    .map(item => (
                       <div
+                        key={item.id}
+                        id="item da lista"
+                        className="row"
+                        title={item.ds_resultado}
                         style={{
-                          position: 'absolute', bottom: 5, right: 5, display: 'flex',
-                          flexDirection: 'row', justifyContent: 'center',
-                          display: item.status == 2 ? 'none' : 'flex'
-                        }}>
-                        <button
-                          id={"deletekey 0 " + item.id}
-                          className="animated-red-button"
-                          style={{ display: item.status == 2 ? 'none' : 'flex' }}
-                          onClick={(e) => { deletetoast(updateEscala, item); e.stopPropagation() }}
-                        >
-                          <img
-                            alt=""
-                            src={deletar}
-                            style={{
-                              display: 'flex',
-                              margin: 10,
-                              height: 30,
-                              width: 30,
-                            }}
-                          ></img>
-                        </button>
-                        <button
-                          id={"deletekey 1 " + item.id}
-                          style={{ display: 'none', width: 100 }}
-                          className="animated-red-button"
-                          onClick={(e) => { deletetoast(updateEscala, item); e.stopPropagation() }}
-                        >
-                          <div>DESFAZER</div>
-                          <div className="deletetoast"
-                            style={{
-                              height: 5, borderRadius: 5, backgroundColor: 'pink', alignSelf: 'flex-start',
-                              marginLeft: 5, marginRight: 5, maxWidth: 90,
-                            }}>
-                          </div>
-                        </button>
+                          flexDirection: 'column',
+                          justifyContent: 'flex-start',
+                          position: 'relative', opacity: item.status == 2 ? 0.5 : 1,
+                          minWidth: 120,
+                          width: 120, height: 120,
+                          backgroundColor: 'lightgray'
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: 'absolute', bottom: 5, right: 5, display: 'flex',
+                            flexDirection: 'row', justifyContent: 'center',
+                            display: item.status == 2 ? 'none' : 'flex'
+                          }}>
+                          <button
+                            id={"deletekey 0 " + item.id}
+                            className="animated-red-button"
+                            style={{ display: item.status == 2 ? 'none' : 'flex' }}
+                            onClick={(e) => { deletetoast(updateEscala, item); e.stopPropagation() }}
+                          >
+                            <img
+                              alt=""
+                              src={deletar}
+                              style={{
+                                display: 'flex',
+                                margin: 10,
+                                height: 30,
+                                width: 30,
+                              }}
+                            ></img>
+                          </button>
+                          <button
+                            id={"deletekey 1 " + item.id}
+                            style={{ display: 'none', width: 100 }}
+                            className="animated-red-button"
+                            onClick={(e) => { deletetoast(updateEscala, item); e.stopPropagation() }}
+                          >
+                            <div>DESFAZER</div>
+                            <div className="deletetoast"
+                              style={{
+                                height: 5, borderRadius: 5, backgroundColor: 'pink', alignSelf: 'flex-start',
+                                marginLeft: 5, marginRight: 5, maxWidth: 90,
+                              }}>
+                            </div>
+                          </button>
+                        </div>
+                        <div className="title2center" style={{ fontWeight: 'bold', margin: 2.5, padding: 0 }}>{moment(item.data).format('DD/MM/YY')}</div>
+                        <div className="title2center" style={{ fontSize: 22, margin: 2.5, padding: 0 }}>{item.valor_resultado}</div>
+                        <div
+                          title={item.ds_resultado}
+                          className="title2center" 
+                          style={{ fontSize: 14, margin: 2.5, padding: 0 }}>
+                            {JSON.stringify(item.ds_resultado).length > 20 ? item.ds_resultado.toString().substring(0, 20) + '...' : item.ds_resultado}</div>
                       </div>
-                      <div className="title2center" style={{ fontWeight: 'bold' }}>{moment(item.data).format('DD/MM/YY')}</div>
-                      <div className="title2center" style={{ fontSize: 22 }}>{item.valor_resultado}</div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             </div>
@@ -2787,7 +2802,6 @@ function Prontuario() {
   }
 
   // LISTA DE INTERCONSULTAS.
-
   const loadInterconsultas = () => {
     axios.get(htmlghapinterconsultas + idatendimento).then((response) => {
       var x = [];
@@ -2842,6 +2856,7 @@ function Prontuario() {
       idsolicitante: item.idsolicitante,
       idatendente: item.idatendente,
       status: valor, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = suspensa.
+      unidade: idunidade
     };
     axios.post(htmlghapupdateinterconsulta + item.id, obj).then(() => {
       toast(1, '#52be80', 'INTERCONSULTA ASSINADA COM SUCESSO.', 3000);

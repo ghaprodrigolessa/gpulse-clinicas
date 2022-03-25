@@ -12,7 +12,6 @@ function Interconsultas(
   { viewinterconsulta,
     hospital,
     unidade,
-    
     idinterconsulta,
     especialidade,
     motivo,
@@ -25,6 +24,7 @@ function Interconsultas(
   }) {
 
   const {
+    idunidade,
     setlistinterconsultas,
     setarrayinterconsultas,
     idpaciente, idatendimento,
@@ -134,6 +134,7 @@ function Interconsultas(
         idsolicitante: 0,
         idatendente: null,
         status: 0, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = suspensa.
+        unidade: idunidade,
       };
       axios.post(htmlghapinsertinterconsulta, obj).then(() => {
         toast(1, '#52be80', 'INTERCONSULTA REGISTRADA COM SUCESSO.', 3000);
@@ -162,6 +163,7 @@ function Interconsultas(
         idsolicitante: 0,
         idatendente: null,
         status: 0, // 0 = registrada, 1 = assinada, 2 = respondida, 3 = suspensa.
+        unidade: idunidade,
       };
       axios.post(htmlghapupdateinterconsulta + idinterconsulta, obj).then(() => {
         toast(1, '#52be80', 'INTERCONSULTA ATUALIZADA COM SUCESSO.', 3000);

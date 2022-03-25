@@ -44,6 +44,8 @@ function AptPlanoTerapeutico() {
   const [linhasdecuidados, setlinhasdecuidados] = useState();
   const [metasterapeuticas, setmetasterapeuticas] = useState(); // será uma array, um código para abertura de conjunto de metas?
 
+  
+
   // selecionando um registro de escala IVCF (utilizado ao clicarmos no histórico de registros de IVCF).
   const selectIVCF = (item) => {
     setdata(item.data);
