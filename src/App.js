@@ -294,11 +294,8 @@ function App() {
   const [ivcf, setivcf] = useState(0);
 
   // APT plano terapêutico.
-  const [idplanoterapeutico, setidplanoterapeutico] = useState(0);
-  const [dataplanoterapeutico, setdataplanoterapeutico] = useState('');
-  const [statusplanoterapeutico, setstatusplanoterapeutico] = useState(0);
+  const [planoterapeutico, setplanoterapeutico] = useState([]);
   const [linhadecuidado, setlinhadecuidado] = useState(0);
-
   const [refreshatendimentos, setrefreshatendimentos] = useState(0);
 
   // APT escalas.
@@ -430,9 +427,7 @@ function App() {
         // APT ivcf / curva de moraes.
         ivcf, setivcf,
         // APT plano terapêutico.
-        idplanoterapeutico, setidplanoterapeutico,
-        dataplanoterapeutico, setdataplanoterapeutico,
-        statusplanoterapeutico, setstatusplanoterapeutico,
+        planoterapeutico, setplanoterapeutico,
         linhadecuidado, setlinhadecuidado,
 
         refreshatendimentos, setrefreshatendimentos,

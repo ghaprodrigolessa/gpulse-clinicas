@@ -7,8 +7,12 @@ import Context from '../Context';
 import { Doughnut, Line } from 'react-chartjs-2'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import deletar from '../images/deletar.svg';
-import salvar from '../images/salvar.svg';
 import suspender from '../images/suspender.svg';
+import editar from '../images/editar.svg';
+import salvar from '../images/salvar.svg';
+import novo from '../images/novo.svg';
+import copiar from '../images/copiar.svg';
+import Toast from '../components/Toast';
 
 // import setaesquerda from '../images/arrowleft.svg';
 // import setadireita from '../images/arrowright.svg';
@@ -20,13 +24,672 @@ function AptPlanoTerapeutico() {
     idpaciente,
     idatendimento, ivcf, setivcf,
     listevolucoes,
-    idplanoterapeutico, setidplanoterapeutico,
-    dataplanoterapeutico, setdataplanoterapeutico,
-    statusplanoterapeutico, setstatusplanoterapeutico,
+    planoterapeutico, setplanoterapeutico,
     linhadecuidado, setlinhadecuidado,
   } = useContext(Context)
 
   var html = 'https://pulsarapp-server.herokuapp.com';
+
+  var htmlplanosterapeuticos = process.env.REACT_APP_API_CLONE_PLANOSTERAPEUTICOS;
+  var htmlinsertplanoterapeutico = process.env.REACT_APP_API_CLONE_INSERTPLANOTERAPEUTICO;
+  var htmlupdateplanoterapeutico = process.env.REACT_APP_API_CLONE_UPDATEPLANOTERAPEUTICO;
+  var htmldeleteplanoterapeutico = process.env.REACT_APP_API_CLONE_DELETEPLANOTERAPEUTICO;
+
+  var htmlopcoesobjetivos = process.env.REACT_APP_API_CLONE_OPCOES_OBJETIVOS;
+  var htmlobjetivos = process.env.REACT_APP_API_CLONE_OBJETIVOS;
+  var htmlinsertobjetivo = process.env.REACT_APP_API_CLONE_INSERTOBJETIVO;
+  var htmlupdateobjetivo = process.env.REACT_APP_API_CLONE_UPDATEOBJETIVO;
+  var htmldeleteobjetivo = process.env.REACT_APP_API_CLONE_DELETEOBJETIVO;
+
+  var htmlopcoesmetas = process.env.REACT_APP_API_CLONE_OPCOES_METAS;
+  var htmlmetas = process.env.REACT_APP_API_CLONE_METAS;
+  var htmlinsertmeta = process.env.REACT_APP_API_CLONE_INSERTMETA;
+  var htmlupdatemeta = process.env.REACT_APP_API_CLONE_UPDATEMETA;
+  var htmldeletemeta = process.env.REACT_APP_API_CLONE_DELETEMETA;
+
+  var htmlopcoespropostasterapeuticas = process.env.REACT_APP_API_CLONE_OPCOES_PROPOSTASTERAPEUTICAS;
+  var htmlpropostasterapeuticas = process.env.REACT_APP_API_CLONE_PROPOSTASTERAPEUTICAS;
+  var htmlinsertpropostaterapeutica = process.env.REACT_APP_API_CLONE_INSERTPROPOSTATERAPEUTICA;
+  var htmlupdatepropostaterapeutica = process.env.REACT_APP_API_CLONE_UPDATEPROPOSTATERAPEUTICA;
+  var htmldeletepropostaterapeutica = process.env.REACT_APP_API_CLONE_DELETEPROPOSTATERAPEUTICA;
+
+  // carregando planos terapêuticos, objetivos, metas e propostas terapêuticas (intervenções) para o atendimento.
+  const [lastplanoterapeutico, setlastplanoterapeutico] = useState([]);
+  const [idplanoterapeutico, setidplanoterapeutico] = useState(0);
+  const [datainicioplanoterapeutico, setdatainicioplanoterapeutico] = useState('');
+  const [dataterminoplanoterapeutico, setdataterminoplanoterapeutico] = useState('');
+  const [statusplanoterapeutico, setstatusplanoterapeutico] = useState(0);
+  const loadPlanosTerapeuticos = () => {
+    axios.get(htmlplanosterapeuticos + idatendimento).then((response) => {
+      var x = [0, 1];
+      var y = [0, 1];
+      x = response.data;
+      y = x.rows;
+      setplanoterapeutico(x.rows);
+      // carregando último plano terapêutico (ativo).
+      setlastplanoterapeutico(y.filter(item => item.datatermino == null).slice(-1)); // recuperando último registro de plano terapêutico.
+      setidplanoterapeutico(y.filter(item => item.datatermino == null).slice(-1).map(item => item.id)); // recuperando a id do último plano terapêutico.
+      setdatainicioplanoterapeutico(y.filter(item => item.datatermino == null).slice(-1).map(item => moment(item.datainicio).format('DD/MM/YY'))); // recuperando a data de início do último plano terapêutico.
+      setstatusplanoterapeutico(y.filter(item => item.datatermino == null).slice(-1).map(item => item.status));
+    });
+  }
+  const [objetivos, setobjetivos] = useState([]);
+  const [arrayobjetivos, setarrayobjetivos] = useState([]);
+  const loadObjetivos = () => {
+    axios.get(htmlobjetivos + idatendimento).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setobjetivos(x.rows);
+      setarrayobjetivos(x.rows);
+    });
+  }
+  const [metas, setmetas] = useState([]);
+  const [arraymetas, setarraymetas] = useState([]);
+  const loadMetas = () => {
+    axios.get(htmlmetas + idatendimento).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setmetas(x.rows);
+    });
+  }
+  const [intervencoes, setintervencoes] = useState([]);
+  const loadIntervencoes = () => {
+    axios.get(htmlpropostasterapeuticas + idatendimento).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setintervencoes(x.rows);
+    });
+  }
+
+  // carregando opções de objetivos, metas e intervenções (propostas terapêuticas).
+  const [opcoesobjetivos, setopcoesobjetivos] = useState([]);
+  const [arrayopcoesobjetivos, setarrayopcoesobjetivos] = useState([]);
+  const loadOpcoesObjetivos = () => {
+    axios.get(htmlopcoesobjetivos).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setopcoesobjetivos(x.rows);
+      setarrayopcoesobjetivos(x.rows);
+    });
+  }
+  const [opcoesmetas, setopcoesmetas] = useState([]);
+  const [arrayopcoesmetas, setarrayopcoesmetas] = useState([]);
+  const loadOpcoesMetas = () => {
+    axios.get(htmlopcoesmetas).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setopcoesmetas(x.rows);
+      setarrayopcoesmetas(x.rows);
+    });
+  }
+  const [opcoesintervencoes, setopcoesintervencoes] = useState([]);
+  const [arrayopcoesintervencoes, setarrayopcoesintervencoes] = useState([]);
+  const loadOpcoesIntervencoes = () => {
+    axios.get(htmlopcoespropostasterapeuticas).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setopcoesintervencoes(x.rows);
+      setarrayopcoesintervencoes(x.rows);
+    });
+  }
+
+  // crud para planos terapêuticos, objetivos e metas.
+  // PLANO TERAPÊUTICO.
+  // inserir plano terapêutico.
+  const [moraes, setmoraes] = useState(0);
+  const [decliniofuncional, setdecliniofuncional] = useState(0);
+  const [riscofuncional, setriscofuncional] = useState(0);
+  const insertPlanoTerapeutico = () => {
+    if (planoterapeutico.filter(item => item.datatermino == null).length > 0) {
+      toast(1, '#ec7063', 'EXISTE UM PLANO TERAPÊUTICO ATIVO. FINALIZE-O PARA CRIAR UM NOVO PLANO TERAPÊUTICO.', 5000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        datainicio: moment(),
+        datatermino: null,
+        idprofissional: 0,
+        moraes: moraes,
+        decliniofuncional: decliniofuncional,
+        riscofuncional: riscofuncional,
+        linhadecuidados: linhadecuidado,
+        status: 1 // 1 = ativo, 2 = cancelado, 3 = concluído.
+      }
+      // alert(JSON.stringify(obj));
+      axios.post(htmlinsertplanoterapeutico, obj).then(() => {
+        loadPlanosTerapeuticos();
+      });
+    }
+  }
+  // atualizar plano terapêutico.
+  const updatePlanoTerapeutico = (id, status) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      datainicio: moment(datainicioplanoterapeutico, 'DD/MM/YY'),
+      datatermino: moment(),
+      idprofissional: 0,
+      moraes: moraes,
+      decliniofuncional: decliniofuncional,
+      riscofuncional: riscofuncional,
+      linhadecuidados: linhadecuidado,
+      status: status
+    }
+    axios.post(htmlupdateplanoterapeutico + id, obj).then(() => {
+      loadPlanosTerapeuticos();
+    });
+  }
+  // deletar plano terapêutico.
+  const deletePlanoTerapeutico = (item) => {
+    axios.get(htmldeleteplanoterapeutico + item.id).then(() => {
+      loadPlanosTerapeuticos();
+    });
+  }
+
+  // OBJETIVOS.
+  // inserir objetivo.
+  const [idobjetivo, setidobjetivo] = useState(0);
+  const insertObjetivo = (idobjetivo, objetivo, tipo) => {
+    if (objetivos.filter(item => item.datatermino != null && item.idobjetivo == idobjetivo).length > 0) {
+      toast(1, '#ec7063', 'OBJETIVO JÁ CADASTRADO.', 5000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        idplanoterapeutico: idplanoterapeutico,
+        idobjetivo: idobjetivo,
+        objetivo: objetivo,
+        datainicio: moment(),
+        datatermino: null,
+        idprofissional: 0,
+        tipoobjetivo: tipo, // 1 = primário. 2 = secundário.
+        statusobjetivo: 1 // 1 = ativo. 2 = concluído. 3 = não alcançado. 4 = cancelado.
+      }
+      axios.post(htmlinsertplanoterapeutico, obj).then(() => {
+        loadPlanosTerapeuticos();
+      });
+    }
+  }
+  // atualizar objetivo (no sentido de concluído, encerrada, cancelada).
+  const updateObjetivo = (item, status) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      idplanoterapeutico: idplanoterapeutico,
+      idobjetivo: item.idobjetivo,
+      objetivo: item.objetivo,
+      datainicio: item.datainicio,
+      datatermino: moment(),
+      idprofissional: item.idprofissional,
+      tipoobjetivo: item.tipoobjetivo,
+      statusobjetivo: status
+    }
+    axios.post(htmlupdateobjetivo + item.id, obj).then(() => {
+      loadObjetivos();
+    });
+  }
+  // deletar objetivo.
+  const deleteObjetivo = (item) => {
+    axios.get(htmldeleteobjetivo + item.id).then(() => {
+      loadObjetivos();
+    });
+  }
+  // filtrar objetivos.
+  var searchobjetivo = '';
+  var timeout = null;
+  const [filterobjetivo, setfilterobjetivo] = useState([]);
+  const filterObjetivo = () => {
+    clearTimeout(timeout);
+    document.getElementById("inputObjetivo").focus();
+    searchobjetivo = document.getElementById("inputObjetivo").value.toUpperCase();
+    timeout = setTimeout(() => {
+      if (searchobjetivo === '') {
+        setarrayopcoesobjetivos([]);
+        document.getElementById("inputObjetivo").value = '';
+        document.getElementById("inputObjetivo").focus();
+      } else {
+        setfilterobjetivo(document.getElementById("inputObjetivo").value.toUpperCase());
+        setarrayopcoesobjetivos(opcoesobjetivos.filter(item => item.objetivo.toUpperCase().includes(searchobjetivo) === true));
+        document.getElementById("inputObjetivo").value = searchobjetivo;
+        document.getElementById("inputObjetivo").focus();
+      }
+    }, 500);
+  }
+
+  // METAS.
+  // inserir meta.
+  const [idmeta, setidmeta] = useState(0);
+  const insertMeta = (idmeta, meta) => {
+    if (metas.filter(item => item.datatermino != null && item.idmeta == idmeta).length > 0) {
+      toast(1, '#ec7063', 'META JÁ CADASTRADA.', 5000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        idplanoterapeutico: idplanoterapeutico,
+        idobjetivo: idobjetivo,
+        meta: meta,
+        datainicio: moment(),
+        datatermino: null,
+        idprofissional: 0,
+        statusmeta: 1, // 1 = ativa. 2 = concluída. 3 = não alcançada. 4 = cancelada.
+        idmeta: idmeta
+      }
+      axios.post(htmlinsertmeta, obj).then(() => {
+        loadMetas();
+      });
+    }
+  }
+  // atualizar metas (no sentido de concluída, cancelada, etc.).
+  const updateMeta = (item, status) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      idplanoterapeutico: idplanoterapeutico,
+      idobjetivo: item.idobjetivo,
+      meta: item.meta,
+      datainicio: item.datainicio,
+      datatermino: moment(),
+      idprofissional: 0,
+      statusmeta: status, // 1 = ativa. 2 = concluída. 3 = não alcançada. 4 = cancelada.
+      idmeta: item.idmeta
+    }
+    axios.post(htmlupdatemeta + item.id, obj).then(() => {
+      loadMetas();
+    });
+  }
+  // deletar meta.
+  const deleteMeta = (item) => {
+    axios.get(htmldeletemeta + item.id).then(() => {
+      loadMetas();
+    });
+  }
+  // filtrar metas.
+  var searchmeta = '';
+  var timeout = null;
+  const [filtermeta, setfiltermeta] = useState([]);
+  const filterMeta = () => {
+    clearTimeout(timeout);
+    document.getElementById("inputMeta").focus();
+    searchmeta = document.getElementById("inputMeta").value.toUpperCase();
+    timeout = setTimeout(() => {
+      if (searchmeta === '') {
+        setarrayopcoesmetas([]);
+        document.getElementById("inputMeta").value = '';
+        document.getElementById("inputMeta").focus();
+      } else {
+        setfiltermeta(document.getElementById("inputMeta").value.toUpperCase());
+        setarrayopcoesmetas(opcoesmetas.filter(item => item.meta.toUpperCase().includes(searchmeta) === true));
+        document.getElementById("inputMeta").value = searchmeta;
+        document.getElementById("inputMeta").focus();
+      }
+    }, 500);
+  }
+
+  // PROPOSTAS TERAPÊUTICAS / INTERVENÇÕES.
+  // inserir intervenções.
+  const insertIntervencao = (idmeta, intervencao, dataestimada) => {
+    if (intervencoes.filter(item => item.datatermino != null && item.idmeta == idmeta).length > 0) {
+      toast(1, '#ec7063', 'INTERVENÇÃO JÁ CADASTRADA.', 5000);
+    } else {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        idplanoterapeutico: idplanoterapeutico,
+        idobjetivo: idobjetivo,
+        idmeta: idmeta,
+        propostaterapeutica: intervencao,
+        datainicio: moment(),
+        dataestimada: dataestimada,
+        datatermino: null,
+        idprofissional: 0,
+        statusintervencao: 1 // 1 = ativa. 2 = concluída. 3 = não alcançada. 4 = cancelada.
+      }
+      axios.post(htmlinsertpropostaterapeutica, obj).then(() => {
+        loadIntervencoes();
+      });
+    }
+  }
+  // atualizar intervenções (no sentido de concluída, cancelada, etc.).
+  const updateIntervencao = (item, status) => {
+    var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
+      idplanoterapeutico: idplanoterapeutico,
+      idobjetivo: item.idobjetivo,
+      idmeta: item.idmeta,
+      propostaterapeutica: item.propostaterapeutica,
+      datainicio: item.datainicio,
+      dataestimada: item.dataestimada,
+      datatermino: moment(),
+      idprofissional: 0,
+      statusintervencao: status // 1 = ativa. 2 = concluída. 3 = não alcançada. 4 = cancelada.
+    }
+    axios.post(htmlupdatepropostaterapeutica + item.id, obj).then(() => {
+      loadIntervencoes();
+    });
+  }
+  // deletar proposta terapêutica.
+  const deleteIntervencao = (item) => {
+    axios.get(htmldeletepropostaterapeutica + item.id).then(() => {
+      loadIntervencoes();
+    });
+  }
+  // filtrar metas.
+  var searchintervencao = '';
+  var timeout = null;
+  const [filterintervencao, setfilterintervencao] = useState([]);
+  const filterIntervencao = () => {
+    clearTimeout(timeout);
+    document.getElementById("inputIntervencao").focus();
+    searchintervencao = document.getElementById("inputIntervencao").value.toUpperCase();
+    timeout = setTimeout(() => {
+      if (searchintervencao === '') {
+        setarrayopcoesintervencoes([]);
+        document.getElementById("inputIntervencao").value = '';
+        document.getElementById("inputIntervencao").focus();
+      } else {
+        setfilterintervencao(document.getElementById("inputIntervencao").value.toUpperCase());
+        setarrayopcoesintervencoes(opcoesintervencoes.filter(item => item.intervencao.toUpperCase().includes(searchintervencao) === true));
+        document.getElementById("inputIntervencao").value = searchintervencao;
+        document.getElementById("inputIntervencao").focus();
+      }
+    }, 500);
+  }
+
+  // componentes (telas) para inserir ou atualizar objetivos, metas e propostas terapêuticas.
+  // objetivos.
+  const [viewobjetivo, setviewobjetivo] = useState(0); // 1 = objetivo primário; 2 = objetivo secundário.
+  function ViewObjetivo() {
+    return (
+      <div
+        className="menucover"
+        onClick={(e) => { setviewobjetivo(0); e.stopPropagation() }}
+        style={{
+          display: viewobjetivo == 0 ? 'none' : 'flex',
+          zIndex: 9, display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div>{viewobjetivo == 1 ? 'INSERIR OBJETIVO PRIMÁRIO' : 'INSERIR OBJETIVO SECUNDÁRIO'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setviewobjetivo(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div className="corpo" onClick={(e) => e.stopPropagation()}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 5,
+                marginBottom: 0,
+              }}
+            >
+              <div id="divObjetivoPrimario" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: window.innerWidth > 400 ? '30vw' : '90vw', alignSelf: 'center' }}>
+                <label className="title2">
+                  {viewobjetivo == 1 ? 'BUSCAR OBJETIVO PRIMÁRIO:' : 'BUSCAR OBJETIVO SECUNDÁRIO'}
+                </label>
+                <input
+                  autoComplete="off"
+                  className="input"
+                  placeholder="BUSCAR..."
+                  onFocus={(e) => {
+                    (e.target.placeholder = '');
+                  }}
+                  onBlur={(e) => (e.target.placeholder = 'BUSCAR...')}
+                  onChange={() => filterObjetivo()}
+                  title={viewobjetivo == 1 ? "BUSCAR OBJETIVO PRIMÁRIO." : "BUSCAR OBJETIVO SECUNDÁRIO."}
+                  type="text"
+                  maxLength={200}
+                  id="inputObjetivo"
+                ></input>
+                <div
+                  className="scroll"
+                  id="LISTA DE OBJETIVOS"
+                  style={{ width: '60vw', maxWidth: '60vw', minWidth: '60vw', height: '30vh', marginTop: 20 }}
+                >
+                  {viewobjetivo == 1 ?
+                    arrayopcoesobjetivos.filter(item => item.tipo == 1).map((item) => (
+                      <p
+                        key={item.id}
+                        id="item da lista"
+                        className="row"
+                        onClick={() => insertObjetivo(item.id, item.objetivo, 1)}
+                      >
+                        <button
+                          className="blue-button"
+                          style={{
+                            width: '100%',
+                            margin: 2.5,
+                            flexDirection: 'column',
+                          }}
+                        >
+                          <div>{item.objetivo}</div>
+                        </button>
+                      </p>
+                    ))
+                    :
+                    arrayopcoesobjetivos.filter(item => item.tipo == 2).map((item) => (
+                      <p
+                        key={item.id}
+                        id="item da lista"
+                        className="row"
+                        onClick={() => insertObjetivo(item.id, item.objetivo, 1)}
+                      >
+                        <button
+                          className="blue-button"
+                          style={{
+                            width: '100%',
+                            margin: 2.5,
+                            flexDirection: 'column',
+                          }}
+                        >
+                          <div>{item.objetivo}</div>
+                        </button>
+                      </p>
+                    ))
+                  }
+                </div>      
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  // metas.
+  const [viewmeta, setviewmeta] = useState(0);
+  function ViewMeta() {
+    return (
+      <div
+        className="menucover"
+        onClick={(e) => { setviewmeta(0); e.stopPropagation() }}
+        style={{
+          display: viewobjetivo == 0 ? 'none' : 'flex',
+          zIndex: 9, display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div>{'INSERIR META'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setviewmeta(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div className="corpo" onClick={(e) => e.stopPropagation()}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 5,
+                marginBottom: 0,
+              }}
+            >
+              <div id="divObjetivoPrimario" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: window.innerWidth > 400 ? '30vw' : '90vw', alignSelf: 'center' }}>
+                <label className="title2">
+                  {'BUSCAR META'}
+                </label>
+                <input
+                  autoComplete="off"
+                  className="input"
+                  placeholder="BUSCAR..."
+                  onFocus={(e) => {
+                    (e.target.placeholder = '');
+                  }}
+                  onBlur={(e) => (e.target.placeholder = 'BUSCAR...')}
+                  onChange={() => filterObjetivo()}
+                  title={"BUSCAR META."}
+                  type="text"
+                  maxLength={200}
+                  id="inputMeta"
+                ></input>
+                <div
+                  className="scroll"
+                  id="LISTA DE METAS"
+                  style={{ width: '60vw', maxWidth: '60vw', minWidth: '60vw', height: '30vh', marginTop: 20 }}
+                >
+                  {arrayopcoesmetas.filter(item => item.tipo == 1).map((item) => (
+                    <p
+                      key={item.id}
+                      id="item da lista"
+                      className="row"
+                      onClick={() => insertMeta(item.id, item.meta)}
+                    >
+                      <button
+                        className="blue-button"
+                        style={{
+                          width: '100%',
+                          margin: 2.5,
+                          flexDirection: 'column',
+                        }}
+                      >
+                        <div>{item.objetivo}</div>
+                      </button>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+  // intervenções.
+  const [viewintervencao, setviewintervencao] = useState(0);
+  function ViewIntervencoes() {
+    return (
+      <div
+        className="menucover"
+        onClick={(e) => { setviewintervencao(0); e.stopPropagation() }}
+        style={{
+          display: viewobjetivo == 0 ? 'none' : 'flex',
+          zIndex: 9, display: 'flex', flexDirection: 'column',
+          justifyContent: 'center', alignItems: 'center'
+        }}>
+        <div className="menucontainer">
+          <div id="cabeçalho" className="cabecalho">
+            <div>{'INSERIR INTERVENÇÃO'}</div>
+            <div id="botões" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              <button className="red-button" onClick={() => setviewintervencao(0)}>
+                <img
+                  alt=""
+                  src={deletar}
+                  style={{
+                    margin: 10,
+                    height: 30,
+                    width: 30,
+                  }}
+                ></img>
+              </button>
+            </div>
+          </div>
+          <div className="corpo" onClick={(e) => e.stopPropagation()}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                borderRadius: 5,
+                marginTop: 5,
+                marginBottom: 0,
+              }}
+            >
+              <div id="divIntervencao" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: window.innerWidth > 400 ? '30vw' : '90vw', alignSelf: 'center' }}>
+                <label className="title2">
+                  {'BUSCAR INTERVENÇÃO'}
+                </label>
+                <input
+                  autoComplete="off"
+                  className="input"
+                  placeholder="BUSCAR..."
+                  onFocus={(e) => {
+                    (e.target.placeholder = '');
+                  }}
+                  onBlur={(e) => (e.target.placeholder = 'BUSCAR...')}
+                  onChange={() => filterObjetivo()}
+                  title={"BUSCAR INTERVENÇÃO."}
+                  type="text"
+                  maxLength={200}
+                  id="inputMeta"
+                ></input>
+                <div
+                  className="scroll"
+                  id="LISTA DE INTERVENÇÕES"
+                  style={{ width: '60vw', maxWidth: '60vw', minWidth: '60vw', height: '30vh', marginTop: 20 }}
+                >
+                  {arrayopcoesintervencoes.filter(item => item.tipo == 1).map((item) => (
+                    <p
+                      key={item.id}
+                      id="item da lista"
+                      className="row"
+                      onClick={() => insertIntervencao(item.id, item.intervencao)}
+                    >
+                      <button
+                        className="blue-button"
+                        style={{
+                          width: '100%',
+                          margin: 2.5,
+                          flexDirection: 'column',
+                        }}
+                      >
+                        <div>{item.intervencao}</div>
+                      </button>
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   // ESCALA EDITÁVEL IVCF (ESCALA DE MORAES).
   const [data, setdata] = useState(moment().format('DD/MM/YYYY'))
@@ -43,8 +706,6 @@ function AptPlanoTerapeutico() {
   const [ddfecomunicacao, setddfecomunicacao] = useState();
   const [linhasdecuidados, setlinhasdecuidados] = useState();
   const [metasterapeuticas, setmetasterapeuticas] = useState(); // será uma array, um código para abertura de conjunto de metas?
-
-  
 
   // selecionando um registro de escala IVCF (utilizado ao clicarmos no histórico de registros de IVCF).
   const selectIVCF = (item) => {
@@ -481,6 +1142,7 @@ function AptPlanoTerapeutico() {
       </div>
     )
   }
+
   function LinhaDeCuidados() {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -504,207 +1166,23 @@ function AptPlanoTerapeutico() {
     )
   }
 
-
-  const [planosterapeuticos, setplanosterapeuticos] = useState([]);
-  const [objetivos, setobjetivos] = useState([]);
-  const [metas, setmetas] = useState([]);
-  const [intervencoes, setintervencoes] = useState([]);
   const [tiposescalas, settiposescalas] = useState([]);
   const [escalas, setescalas] = useState([]);
   useEffect(() => {
-    // pseudo-registro de planos terapêuticos (APAGAR!).
-    setplanosterapeuticos([
-      {
-        id: 1,
-        idpaciente: idpaciente,
-        data: '12/10/2020',
-        linhadecuidado: 1,
-        status: 3, // 1 = ativo, 2 = cancelado, 3 = concluído.
-      },
-      {
-        id: 2,
-        idpaciente: idpaciente,
-        data: '21/11/2021',
-        linhadecuidado: 1,
-        status: 1,
-      }
-    ]);
-    setlastplanoterapeutico(planosterapeuticos.slice(-1)); // recuperando último registro de plano terapêutico.
-    setidplanoterapeutico(planosterapeuticos.slice(-1).map(item => item.id)); // recuperando a id do último plano terapêutico.
-    // pseudo-registro de objetivos (APAGAR!).
-    setobjetivos([
-      {
-        id: 1,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        tipo: 1, // 1 = primário, 2 = secundário.
-        objetivo: 'REABILITAR PACIENTE VÍTIMA DE AVE.',
-        desfecho: 1 // 0 = pendente de validação, 1 = ativo, 2 = sucesso, 3 = fracasso, 4 = cancelado.
-      },
-      {
-        id: 2,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        tipo: 2,
-        objetivo: 'RECUPERAÇÃO PARCIAL OU TOTAL DA FUNÇÃO MOTORA.',
-        desfecho: 0
-      },
-      {
-        id: 3,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        tipo: 2,
-        objetivo: 'RECUPERAÇÃO PARCIAL OU TOTAL DA FUNÇÃO COGNITIVA. VAMOS POR UM TEXTO GRANDE AQUI PORQUE OS OBJETIVOS PODEM SER GRANDES.',
-        desfecho: 2
-      }, {
-        id: 4,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        tipo: 2,
-        objetivo: 'RECUPERAR EM 50% A CONTINÊNCIA URINÁRIA E ESFINCTERIANA.',
-        desfecho: 1
-      },
-    ]);
-    // pseudo-registro de metas (APAGAR!).
-    setmetas([
-      {
-        id: 1,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        meta: 'VOLTAR A DEAMBULAR.',
-        dominio: 'MOTRICIDADE',
-        profissional: 3,
-        inicio: '13/11/2021',
-        prazo: '30/11/2021',
-        nota: 8,
-        status: 1,
-      },
-      {
-        id: 2,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        meta: 'REDUZIR O NÚMERO DE MEDICAÇÕES USADAS EM 50%.',
-        dominio: 'CLÍNICO',
-        profissional: 1,
-        inicio: '08/11/2021',
-        prazo: '16/12/2021',
-        status: 0,
-      }
-    ]);
-    // pseudo-registro de intervenções (APAGAR!).
-    setintervencoes([
-      {
-        id: 1,
-        idpaciente: idpaciente,
-        idplanoterapeutico: idplanoterapeutico,
-        intervencao: 'SESSÕES DE FISIOTERAPIA MOTORA.',
-        dominio: 'MOTRICIDADE',
-        profissional: 3,
-        local: 'GINÁSIO 01',
-        inicio: '13/11/2021',
-        periodicidade: 'DIÁRIA',
-        horainicio: '08',
-        horatermino: '10',
-        prazo: '30/11/2021',
-        status: 1,
-      }
-    ]);
-    // pseudo-registro de tipos de escalas (APAGAR!).
-    settiposescalas([
-      {
-        id: 1,
-        tipoescala: 1, // escala MIF.
-        nome: 'MIF',
-        min: 0, // valores min e max.
-        max: 10,
-      },
-      {
-        id: 2,
-        tipoescala: 2, // escala PPS.
-        nome: 'PPS',
-        min: 0,
-        max: 100,
-      }
-    ]);
-    // pseudo-registro de escalas (APAGAR!).
-    setescalas([
-      {
-        id: 1,
-        idpaciente: idpaciente,
-        data: '10/11/2021',
-        tipo: 1, // escala MIF.
-        valor: 10, // valor da escala.
-        profissional: 'JOSÉ MARIA',
-      },
-      {
-        id: 2,
-        idpaciente: idpaciente,
-        data: '15/11/2021',
-        tipo: 1,
-        valor: 6,
-        profissional: 'JOSÉ MARIA',
-      },
-      {
-        id: 3,
-        idpaciente: idpaciente,
-        data: '20/11/2021',
-        tipo: 1,
-        valor: 8,
-        profissional: 'JOSÉ MARIA',
-      },
-      {
-        id: 4,
-        idpaciente: idpaciente,
-        data: '25/11/2021',
-        tipo: 1,
-        valor: 9,
-        profissional: 'JOSÉ MARIA',
-      },
-      {
-        id: 5,
-        idpaciente: idpaciente,
-        data: '01/10/2021',
-        tipo: 2, // escala PPS.
-        valor: 90,
-        profissional: 'JOSÉ MARIA',
-      },
-      {
-        id: 6,
-        idpaciente: idpaciente,
-        data: '10/10/2021',
-        tipo: 2,
-        valor: 70,
-        profissional: 'JOSÉ MARIA',
-      },
-      {
-        id: 7,
-        idpaciente: idpaciente,
-        data: '20/10/2021',
-        tipo: 2,
-        valor: 90,
-        profissional: 'JOSÉ MARIA',
-      },
-    ]);
+    loadPlanosTerapeuticos();
+    loadObjetivos();
+    loadMetas();
+    loadIntervencoes();
   }, []);
 
   // PLANOS TERAPÊUTICOS.
-  // carregamento dos planos terapêuticos e seleção do último correspondente ao paciente atual.
-  const [lastplanoterapeutico, setlastplanoterapeutico] = useState([]);
-  const loadPlanosTerapeuticos = () => {
-    axios.get(html + "/planoterapeutico").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setplanosterapeuticos(x.filter(item => item.idatendimento == idatendimento));
-      setlastplanoterapeutico(x.slice(-1)); // recuperando último registro de plano terapêutico.
-      setidplanoterapeutico(x.slice(-1).map(item => item.id)); // recuperando a id do último plano terapêutico.
-    });
-  }
   // selecionando um plano terapêutico da lista de planos terapêuticos.
   const selectPlanoTerapeutico = (item) => {
     setidplanoterapeutico(item.id);
-    setdataplanoterapeutico(item.data);
-    setstatusplanoterapeutico(item.status);
     setlinhadecuidado(item.linhadecuidado);
+    setdatainicioplanoterapeutico(moment(item.datainicio).format('DD/MM/YY'));
+    setdataterminoplanoterapeutico(moment(item.datainicio).format('DD/MM/YY'));
+    setstatusplanoterapeutico(item.status);
   }
 
   // lista de planos terapêuticos relativos ao paciente em atendimento (histórico).
@@ -715,8 +1193,6 @@ function AptPlanoTerapeutico() {
           display: 'flex',
           alignSelf: 'center',
           flexDirection: 'row',
-          height: 80,
-          minHeight: 80,
           width: '100%',
           // width: window.innerWidth > 1024 ? '60vw' : window.innerWidth < 1025 && window.innerWidth > 400 ? '65vw' : '85vw',
           // minWidth: window.innerWidth > 1024 ? '45vw' : window.innerWidth < 1025 && window.innerWidth > 400 ? '65vw' : '85vw',
@@ -730,11 +1206,21 @@ function AptPlanoTerapeutico() {
           backgroundColor: 'transparent', borderColor: 'transparent',
         }}
       >
-        {planosterapeuticos.map(item => (
-          <div className="card" onClick={() => selectPlanoTerapeutico(item)}>
-            {item.data}
+        {planoterapeutico.map(item => (
+          <div
+            className="card"
+            style={{
+              opacity: item.datatermino == null ? 1 : 0.4,
+              backgroundColor: item.id == idplanoterapeutico ? '#ec7063' : '#ffffff',
+              color: '#ffffff',
+              fontWeight: 'bold',
+              width: 100, height: 75, minWidth: 100, maxWidth: 100, maxHeight: 75
+            }}
+            onClick={() => selectPlanoTerapeutico(item)}>
+            {moment(item.datainicio).format('DD/MM/YY')}
           </div>
-        ))}
+        ))
+        }
       </div>
     )
   }
@@ -767,21 +1253,67 @@ function AptPlanoTerapeutico() {
                 {'PLANO TERAPÊUTICO ' + idplanoterapeutico}
               </div>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                <button title="INÍCIO" className="blue-button" style={{ width: window.innerWidth > 400 ? '10vw' : 100 }}>
-                  {dataplanoterapeutico}
+                <button
+                  title="CRIAR PLANO TERAPÊUTICO"
+                  className="green-button"
+                  style={{ display: planoterapeutico.filter(item => item.datatermino == null).length > 0 ? 'none' : 'flex' }}
+                  onClick={() => insertPlanoTerapeutico()}
+                >
+                  <img
+                    alt=""
+                    src={novo}
+                    style={{
+                      margin: 10,
+                      height: 30,
+                      width: 30,
+                    }}
+                  ></img>
                 </button>
-                <button title="STATUS" className="green-button" style={{ width: window.innerWidth > 400 ? '10vw' : 100 }}>
+                <button
+                  title="INÍCIO"
+                  className="blue-button"
+                  style={{ display: dataterminoplanoterapeutico == null ? 'flex' : 'none', width: window.innerWidth > 400 ? '10vw' : 100 }}>
+                  {datainicioplanoterapeutico}
+                </button>
+                <button
+                  title="STATUS"
+                  className="green-button"
+                  style={{
+                    display: planoterapeutico.length > 0 && idplanoterapeutico > 0 ? 'flex' : 'none',
+                    width: window.innerWidth > 400 ? '10vw' : 100,
+                    backgroundColor: statusplanoterapeutico == 1 ? '#f39c12' : statusplanoterapeutico == 2 ? '#ec7063' : '#52be80'
+                  }}>
                   {statusplanoterapeutico == 1 ? 'ATIVO' :
-                    statusplanoterapeutico == 2 ? 'INTERRROMPIDO' :
+                    statusplanoterapeutico == 2 ? 'CANCELADO' :
                       'CONCLUÍDO'
                   }
                 </button>
-                <button title="INTERROMPER PLANO TERAPÊUTICO"
+                <button
+                  onClick={() => updatePlanoTerapeutico(idplanoterapeutico, 2)}
+                  title="CONCLUIR PLANO TERAPÊUTICO"
                   style={{ display: statusplanoterapeutico == 1 ? 'flex' : 'none' }}
-                  className="animated-yellow-button">
-                  !
+                  className="animated-green-button">
+                  ✔
+                </button>
+                <button
+                  onClick={() => updatePlanoTerapeutico(idplanoterapeutico, 3)}
+                  title="CANCELAR PLANO TERAPÊUTICO"
+                  style={{ display: statusplanoterapeutico == 1 ? 'flex' : 'none' }}
+                  className="animated-red-button">
+                  <img
+                    alt=""
+                    src={deletar}
+                    style={{
+                      margin: 10,
+                      height: 30,
+                      width: 30,
+                    }}
+                  ></img>
                 </button>
               </div>
+            </div>
+            <div className="title2" style={{ width: '100%', justifyContent: 'flex-start', color: '#ffffff', display: planoterapeutico.filter(item => item.datatermino == null).length < 1 ? 'flex' : 'none' }}>
+              {'SEM REGISTROS DE PLANO TERAPÊUTICO PARA ESTE ATENDIMENTO.'}
             </div>
             <ListaDePlanosTerapeuticos></ListaDePlanosTerapeuticos>
           </div>
@@ -1075,32 +1607,6 @@ function AptPlanoTerapeutico() {
     )
   }, [categoria]);
 
-  // OBJETIVOS PRIMÁRIO E SECUNDÁRIOS DO PLANO TERAPÊUTICO.
-  // carregar objetivos primários e secundários relacionados ao plano terapêutico ativo.
-  const loadObjetivos = () => {
-    axios.get(html + "/objetivos").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setobjetivos(x);
-    })
-  };
-  // excluir meta indesejada para o plano terapêutico.
-  const deleteObjetivo = (item) => {
-    axios.get(html + "/deleteobjetivo/'" + item.id + "'").then(() => {
-      loadObjetivos();
-    });
-  }
-  // validar/salvar a meta após definição do prazo (uma vez salva, seu prazo não poderá ser alterado. A meta pode ser excluída).
-  const updateObjetivo = (item, valor) => {
-    var obj = {
-      tipo: item.tipo,
-      objetivo: item.objetivo,
-      desfecho: valor,
-    };
-    axios.post(html + '/updateobjetivos/' + item.id, obj).then(() => {
-      loadObjetivos();
-    });
-  }
   // exibição de objetivos primários e secundários.
   function ObjetivosPrimarios() {
     return (
@@ -1278,45 +1784,6 @@ function AptPlanoTerapeutico() {
     )
   }
 
-  // METAS DO PLANO TERAPÊUTICO (resultados futuros).
-  /*
-  status 0 = PENDENTE DE VALIDAÇÃO/SALVAMENTO. 
-  status 1 = ATIVA. 
-  status 2 = CANCELADA. 
-  status 3 = PRAZO ATINGIDO.
-  status 4 = ALCANÇADA.
-  status 5 = NÃO ALCANÇADA.
-  */
-
-  // obtendo as metas relacionadas ao plano terapêutico.
-  const loadMetas = () => {
-    axios.get(html + "/metas").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setmetas(x);
-    })
-  };
-  // excluir meta indesejada para o plano terapêutico.
-  const deleteMeta = (item) => {
-    axios.get(html + "/deletemeta/'" + item.id + "'").then(() => {
-      loadMetas();
-    });
-  }
-  // validar/salvar a meta após definição do prazo (uma vez salva, seu prazo não poderá ser alterado. A meta pode ser excluída).
-  const updateMeta = (item, valor, prazo) => {
-    var obj = {
-      meta: item.meta,
-      dominio: item.dominio,
-      profissional: item.profissional, // categoria profissional, não o nome do profissional.
-      inicio: item.inicio,
-      prazo: moment().add(prazo, 'days').format('DD/MM/YYYY'),
-      nota: item.nota,
-      status: valor,
-    };
-    axios.post(html + '/updateproblema/' + item.id, obj).then(() => {
-      loadMetas();
-    });
-  }
   // gráfico que exibe o tempo decorrido entre o início da meta e seu prazo.
   var dataChartMetas = [];
   const getMetas = (item) => {
@@ -1539,48 +2006,6 @@ function AptPlanoTerapeutico() {
     )
   }
 
-  // INTERVENÇÕES DO PLANO TERAPÊUTICO (medidas terapêuticas definidas para o alcance das metas).
-  /*
-  status 0 = PENDENTE DE VALIDAÇÃO/SALVAMENTO. 
-  status 1 = ATIVA. 
-  status 2 = CANCELADA. 
-  status 3 = CONCLUÍDA.
-  */
-
-  // obtendo as intervenções relacionadas ao plano terapêutico.
-  const loadIntervencoes = () => {
-    axios.get(html + "/intervencoes").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      setintervencoes(x);
-    })
-  };
-  // excluir intervenção indesejada para o plano terapêutico.
-  const deleteIntervencoes = (item) => {
-    axios.get(html + "/deleteintervencoes/'" + item.id + "'").then(() => {
-      loadIntervencoes();
-    });
-  }
-  // validar/salvar a intervenção após definição do prazo (uma vez salva, seu prazo não poderá ser alterado. A intervenção pode ser excluída).
-  const updateIntervencao = (item, local, inicio, periodicidade, horainicio, horatermino, prazo, status) => {
-    var obj = {
-      idpaciente: idpaciente,
-      idplanoterapeutico: idplanoterapeutico,
-      intervencao: item.intervencao,
-      dominio: item.dominio,
-      profissional: item.profissional,
-      local: local == '' ? item.local : local,
-      inicio: inicio == '' ? item.inicio : inicio,
-      periodicidade: periodicidade == '' ? item.periodicidade : periodicidade,
-      horainicio: horainicio == '' ? item.horainicio : horainicio,
-      horatermino: horatermino == '' ? item.horatermino : horatermino,
-      prazo: prazo,
-      status: status,
-    };
-    axios.post(html + '/updateintervencao/' + item.id, obj).then(() => {
-      loadMetas();
-    });
-  }
   // gráfico que exibe o tempo decorrido entre o início da intervenção e seu prazo.
   var dataChartIntervencoes = [];
   const getIntervencoes = (item) => {
@@ -1715,7 +2140,7 @@ function AptPlanoTerapeutico() {
               title="EXCLUIR INTERVENÇÃO."
               style={{ display: item.status == 0 ? 'flex' : 'none' }}
               className="red-button"
-              onClick={(e) => { deleteIntervencoes(item); e.stopPropagation() }}
+              onClick={(e) => { deleteIntervencao(item); e.stopPropagation() }}
             >
               <img
                 alt=""
@@ -2037,6 +2462,21 @@ function AptPlanoTerapeutico() {
     )
   }
 
+  // função para construção dos toasts.
+  const [valortoast, setvalortoast] = useState(0);
+  const [cor, setcor] = useState('transparent');
+  const [mensagem, setmensagem] = useState('');
+  const [tempo, settempo] = useState(2000);
+  const toast = (value, color, message, time) => {
+    setvalortoast(value);
+    setcor(color);
+    setmensagem(message);
+    settempo(time);
+    setTimeout(() => {
+      setvalortoast(0);
+    }, time);
+  }
+
   return (
     <div style={{
       display: 'flex', flexDirection: 'column',
@@ -2058,6 +2498,7 @@ function AptPlanoTerapeutico() {
           paddingRight: 10,
         }}>
         <div className="title4" style={{ margin: 15, marginTop: 15 }}>ESCALA DE MORAES</div>
+        <Toast valortoast={valortoast} cor={cor} mensagem={mensagem} tempo={tempo} />
         <Regua></Regua>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <AvaliacaoDeDeclinioFuncional></AvaliacaoDeDeclinioFuncional>

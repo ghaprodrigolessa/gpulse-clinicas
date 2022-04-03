@@ -22,7 +22,19 @@ import { Hemoderivados } from './Hemoderivados';
 function Prescricao({ newprescricao }) {
   moment.locale('pt-br');
   var html = 'https://pulsarapp-server.herokuapp.com';
-  
+
+  var htmlprescricoes = REACT_APP_API_CLONE_PRESCRICOES;
+  var htmlinsertprescricao = REACT_APP_API_CLONE_INSERTPRESCRICAO;
+  var htmlupdateprescricao = REACT_APP_API_CLONE_UPDATEPRESCRICAO;
+  var htmldeleteprescricao = REACT_APP_API_CLONE_DELETEPRESCRICAO;
+
+  var htmlopcoesitensprescricao = REACT_APP_API_CLONE_OPCOES_ITENS_PRESCRICAO;
+  var htmlitensprescricao = REACT_APP_API_CLONE_ITENSPRESCRICAO;
+  var htmlinsertitensprescricao = REACT_APP_API_CLONE_INSERTITEMPRESCRICAO;
+  var htmlupdateitemprescricao = REACT_APP_API_CLONE_UPDATEITEMPRESCRICAO;
+  var htmldeleteitemprescricao = REACT_APP_API_CLONE_DELETEITEMPRESCRICAO;
+
+
   var htmlbuscaitemprescricao = process.env.REACT_APP_API_BUSCAITEMPRESCRICAO;
   // recuperando estados globais (Context.API).
   const {
@@ -49,12 +61,12 @@ function Prescricao({ newprescricao }) {
     listitensprescricao, setlistitensprescricoes,
   } = useContext(Context)
 
-  
+
   const loadBuscaItemPrescricao = (valor) => {
     axios.get(htmlbuscaitemprescricao + '?descricao_tipo_prescricao=' + valor).then((response) => {
       var x = [0, 1]
       x = response.data
-      setarrayoptionsitens(x);    
+      setarrayoptionsitens(x);
       setfilteroptionsitens(valor);
       document.getElementById("inputFilterItemPrescricao").value = valor;
 
@@ -154,9 +166,9 @@ function Prescricao({ newprescricao }) {
         loadBuscaItemPrescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
         // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true));
         // if (tipousuario == 5) {
-          // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true && item.grupo === 'ENFERMAGEM')); // separando itens que podem ser prescritos pela enfermagem.
+        // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true && item.grupo === 'ENFERMAGEM')); // separando itens que podem ser prescritos pela enfermagem.
         //}
-        
+
         document.getElementById("inputFilterItemPrescricao").value = searchitemprescricao;
         document.getElementById("inputFilterItemPrescricao").focus();
       }
