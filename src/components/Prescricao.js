@@ -23,17 +23,16 @@ function Prescricao({ newprescricao }) {
   moment.locale('pt-br');
   var html = 'https://pulsarapp-server.herokuapp.com';
 
-  var htmlprescricoes = REACT_APP_API_CLONE_PRESCRICOES;
-  var htmlinsertprescricao = REACT_APP_API_CLONE_INSERTPRESCRICAO;
-  var htmlupdateprescricao = REACT_APP_API_CLONE_UPDATEPRESCRICAO;
-  var htmldeleteprescricao = REACT_APP_API_CLONE_DELETEPRESCRICAO;
+  var htmlprescricoes = process.env.REACT_APP_API_CLONE_PRESCRICOES;
+  var htmlinsertprescricao = process.env.REACT_APP_API_CLONE_INSERTPRESCRICAO;
+  var htmlupdateprescricao = process.env.REACT_APP_API_CLONE_UPDATEPRESCRICAO;
+  var htmldeleteprescricao = process.env.REACT_APP_API_CLONE_DELETEPRESCRICAO;
 
-  var htmlopcoesitensprescricao = REACT_APP_API_CLONE_OPCOES_ITENS_PRESCRICAO;
-  var htmlitensprescricao = REACT_APP_API_CLONE_ITENSPRESCRICAO;
-  var htmlinsertitensprescricao = REACT_APP_API_CLONE_INSERTITEMPRESCRICAO;
-  var htmlupdateitemprescricao = REACT_APP_API_CLONE_UPDATEITEMPRESCRICAO;
-  var htmldeleteitemprescricao = REACT_APP_API_CLONE_DELETEITEMPRESCRICAO;
-
+  var htmlopcoesitensprescricao = process.env.REACT_APP_API_CLONE_OPCOES_ITENS_PRESCRICAO;
+  var htmlitensprescricao = process.env.REACT_APP_API_CLONE_ITENSPRESCRICAO;
+  var htmlinsertitensprescricao = process.env.REACT_APP_API_CLONE_INSERTITEMPRESCRICAO;
+  var htmlupdateitemprescricao = process.env.REACT_APP_API_CLONE_UPDATEITEMPRESCRICAO;
+  var htmldeleteitemprescricao = process.env.REACT_APP_API_CLONE_DELETEITEMPRESCRICAO;
 
   var htmlbuscaitemprescricao = process.env.REACT_APP_API_BUSCAITEMPRESCRICAO;
   // recuperando estados globais (Context.API).

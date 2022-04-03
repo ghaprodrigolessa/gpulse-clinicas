@@ -1,5 +1,6 @@
 {
   "name": "gpulse",
+  "homepage": "https://github.com/ghaprodrigolessa/gpulse-clinicas.git",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
