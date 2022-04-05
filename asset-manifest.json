@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/gpulse-clinicas/static/css/main.25c23fce.chunk.css",
-    "main.js": "/gpulse-clinicas/static/js/main.63712e58.chunk.js",
-    "main.js.map": "/gpulse-clinicas/static/js/main.63712e58.chunk.js.map",
+    "main.js": "/gpulse-clinicas/static/js/main.01d305cc.chunk.js",
+    "main.js.map": "/gpulse-clinicas/static/js/main.01d305cc.chunk.js.map",
     "runtime-main.js": "/gpulse-clinicas/static/js/runtime-main.9ccb1bb3.js",
     "runtime-main.js.map": "/gpulse-clinicas/static/js/runtime-main.9ccb1bb3.js.map",
     "static/css/2.38920208.chunk.css": "/gpulse-clinicas/static/css/2.38920208.chunk.css",
-    "static/js/2.55858ad3.chunk.js": "/gpulse-clinicas/static/js/2.55858ad3.chunk.js",
-    "static/js/2.55858ad3.chunk.js.map": "/gpulse-clinicas/static/js/2.55858ad3.chunk.js.map",
+    "static/js/2.2845dbcf.chunk.js": "/gpulse-clinicas/static/js/2.2845dbcf.chunk.js",
+    "static/js/2.2845dbcf.chunk.js.map": "/gpulse-clinicas/static/js/2.2845dbcf.chunk.js.map",
     "index.html": "/gpulse-clinicas/index.html",
     "static/css/2.38920208.chunk.css.map": "/gpulse-clinicas/static/css/2.38920208.chunk.css.map",
     "static/css/main.25c23fce.chunk.css.map": "/gpulse-clinicas/static/css/main.25c23fce.chunk.css.map",
-    "static/js/2.55858ad3.chunk.js.LICENSE.txt": "/gpulse-clinicas/static/js/2.55858ad3.chunk.js.LICENSE.txt",
+    "static/js/2.2845dbcf.chunk.js.LICENSE.txt": "/gpulse-clinicas/static/js/2.2845dbcf.chunk.js.LICENSE.txt",
     "static/media/3x4.ead4b82b.jpg": "/gpulse-clinicas/static/media/3x4.ead4b82b.jpg",
     "static/media/Roboto-Bold.4f39c579.ttf": "/gpulse-clinicas/static/media/Roboto-Bold.4f39c579.ttf",
     "static/media/back.015df188.svg": "/gpulse-clinicas/static/media/back.015df188.svg",
@@ -42,6 +42,7 @@
     "static/media/newlogo.8b168cc9.svg": "/gpulse-clinicas/static/media/newlogo.8b168cc9.svg",
     "static/media/novo.cfce66c2.svg": "/gpulse-clinicas/static/media/novo.cfce66c2.svg",
     "static/media/power.9b48fbbd.svg": "/gpulse-clinicas/static/media/power.9b48fbbd.svg",
+    "static/media/rxmockado.e3d6498d.png": "/gpulse-clinicas/static/media/rxmockado.e3d6498d.png",
     "static/media/salvar.43cba929.svg": "/gpulse-clinicas/static/media/salvar.43cba929.svg",
     "static/media/settings.c36f7ec4.svg": "/gpulse-clinicas/static/media/settings.c36f7ec4.svg",
     "static/media/suspender.3ca37dfc.svg": "/gpulse-clinicas/static/media/suspender.3ca37dfc.svg",
@@ -50,8 +51,8 @@
   "entrypoints": [
     "static/js/runtime-main.9ccb1bb3.js",
     "static/css/2.38920208.chunk.css",
-    "static/js/2.55858ad3.chunk.js",
+    "static/js/2.2845dbcf.chunk.js",
     "static/css/main.25c23fce.chunk.css",
-    "static/js/main.63712e58.chunk.js"
+    "static/js/main.01d305cc.chunk.js"
   ]
 }
