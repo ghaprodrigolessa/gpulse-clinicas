@@ -29,10 +29,18 @@ function Prescricao({ newprescricao }) {
   var htmldeleteprescricao = process.env.REACT_APP_API_CLONE_DELETEPRESCRICAO;
 
   var htmlopcoesitensprescricao = process.env.REACT_APP_API_CLONE_OPCOES_ITENS_PRESCRICAO;
+  var htmlitensatendimento = process.env.REACT_APP_API_CLONE_ITENSATENDIMENTO;
   var htmlitensprescricao = process.env.REACT_APP_API_CLONE_ITENSPRESCRICAO;
-  var htmlinsertitensprescricao = process.env.REACT_APP_API_CLONE_INSERTITEMPRESCRICAO;
+  var htmlinsertitemprescricao = process.env.REACT_APP_API_CLONE_INSERTITEMPRESCRICAO;
   var htmlupdateitemprescricao = process.env.REACT_APP_API_CLONE_UPDATEITEMPRESCRICAO;
   var htmldeleteitemprescricao = process.env.REACT_APP_API_CLONE_DELETEITEMPRESCRICAO;
+
+  var htmlopcoescomponentesprescricao = process.env.REACT_APP_API_CLONE_OPCOES_COMPONENTES_PRESCRICAO;
+  var htmlcomponentesprescricao = process.env.REACT_APP_API_CLONE_COMPONENTESPRESCRICAO;
+  var htmlinsertcomponenteprescricao = process.env.REACT_APP_API_CLONE_INSERTCOMPONENTEPRESCRICAO;
+  var htmlupdatecomponenteprescricao = process.env.REACT_APP_API_CLONE_UPDATECOMPONENTEPRESCRICAO;
+  var htmldeletecomponenteprescricao = process.env.REACT_APP_API_CLONE_DELETECOMPONENTESPRESCRICAO;
+
 
   var htmlbuscaitemprescricao = process.env.REACT_APP_API_BUSCAITEMPRESCRICAO;
   // recuperando estados globais (Context.API).
@@ -57,16 +65,18 @@ function Prescricao({ newprescricao }) {
     scrollprescricao, setscrollprescricao,
     scrollitem, setscrollitem,
     scrollitemcomponent, setscrollitemcomponent,
-    listitensprescricao, setlistitensprescricoes,
+    listitensprescricao, setlistitensprescricao,
   } = useContext(Context)
 
-
+  // itens disponíveis para prescrição
   const loadBuscaItemPrescricao = (valor) => {
-    axios.get(htmlbuscaitemprescricao + '?descricao_tipo_prescricao=' + valor).then((response) => {
+    axios.get(htmlopcoesitensprescricao).then((response) => {
       var x = [0, 1]
+      var y = [0, 1]
       x = response.data
-      setarrayoptionsitens(x);
-      setfilteroptionsitens(valor);
+      y = x.rows
+      setarrayoptionsitens(x.rows);
+      // setfilteroptionsitens(y.filter(item => item.ds_produto.includes(value) == true));
       document.getElementById("inputFilterItemPrescricao").value = valor;
 
       // alert(valor);
@@ -79,7 +89,7 @@ function Prescricao({ newprescricao }) {
     if (stateprontuario == 9) {
       setviewselectmodelprescription(newprescricao);
       loadPrescricoes();
-      loadAtendimento();
+      // loadAtendimento();
       loadOptionsItens();
       loadAntibioticos();
       // limpando debris da prescrição...
@@ -87,10 +97,10 @@ function Prescricao({ newprescricao }) {
       setfilteritemprescricao('');
       setarrayoptionsitens([]);
       setarrayitemprescricao([]);
-      getHorarios();
+      // getHorarios();
     } else if (stateprontuario == 10) {
-      loadCheckPrescricoes();
-      getHorarios();
+      // loadCheckPrescricoes();
+      // getHorarios();
     }
   }, [stateprontuario, newprescricao])
 
@@ -98,13 +108,19 @@ function Prescricao({ newprescricao }) {
   // constantes relacionadas à lista de prescricoes:
   const [idprescricao, setidprescricao] = useState(0);
   // constantes relacionadas à lista de items da prescrição:
+  const [id, setid] = useState(0);
   const [iditem, setiditem] = useState(0);
-  const [grupo, setgrupo] = useState('');
-  const [farmaco, setfarmaco] = useState('');
-  const [qtdeitem, setqtdeitem] = useState(0);
-  const [via, setvia] = useState('');
-  const [horario, sethorario] = useState('');
+  const [nome_item, setnome_item] = useState('');
+  const [keyword_item, setkeyword_item] = useState('');
+  const [qtde, setqtde] = useState(0);
+  const [via, setvia] = useState(0);
+  const [horario, sethorario] = useState(moment());
   const [observacao, setobservacao] = useState('');
+  const [status, setstatus] = useState(0);
+  const [justificativa, setjustificativa] = useState('');
+  const [tipoitem, settipoitem] = useState(0);
+  const [aprazamento, setaprazamento] = useState(0);
+
   // constantes relacionadas à lista de componentes
   const [codigo, setcodigo] = useState(0);
   const [idcomponente, setidcomponente] = useState(0);
@@ -126,16 +142,32 @@ function Prescricao({ newprescricao }) {
   // carregando a lista de prescrições.
   const [listprescricoes, setlistprescricoes] = useState([]);
   const loadPrescricoes = () => {
-    axios.get(html + "/prescricoes/'" + idatendimento + "'").then((response) => {
-      setlistprescricoes(response.data);
+    axios.get(htmlprescricoes + idatendimento).then((response) => {
+      var x = [0, 1]
+      x = response.data;
+      setlistprescricoes(x.rows);
     });
   }
 
   // lista de itens disponíveis para inserção na prescrição.
   const [optionsitens, setoptionsitens] = useState([]);
   const loadOptionsItens = () => {
-    axios.get(html + "/optionsitens").then((response) => {
-      setoptionsitens(response.data);
+    axios.get(htmlopcoesitensprescricao).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setoptionsitens(x.rows);
+      // setarrayoptionsitens(x.rows);
+    });
+  }
+
+  // carregando a lista com todas as opções de componentes disponíveis no sistema.
+  const [optionscomponentes, setoptionscomponentes] = useState();
+  const loadOptionsComponentes = () => {
+    axios.get(htmlopcoescomponentesprescricao).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setoptionscomponentes(x.rows);
+      setarrayfiltercomponente(x.rows);
     });
   }
 
@@ -153,16 +185,16 @@ function Prescricao({ newprescricao }) {
     document.getElementById("inputFilterItemPrescricao").focus();
     searchitemprescricao = document.getElementById("inputFilterItemPrescricao").value.toUpperCase();
     timeout = setTimeout(() => {
-      if (searchitemprescricao === '') {
+      if (searchitemprescricao == '') {
         setfilteritemprescricao('');
         setarrayitemprescricao(listitensprescricao);
         setarrayoptionsitens([]);
         document.getElementById("inputFilterItemPrescricao").value = '';
         document.getElementById("inputFilterItemPrescricao").focus();
       } else {
-        // setfilteritemprescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
-        // setarrayitemprescricao(listitensprescricao.filter(item => item.farmaco.includes(searchitemprescricao) === true));
-        loadBuscaItemPrescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
+        setfilteritemprescricao(document.getElementById("inputFilterItemPrescricao").value.toUpperCase());
+        setarrayitemprescricao(listitensprescricao.filter(item => item.nome_item.includes(searchitemprescricao) == true));
+        setarrayoptionsitens(optionsitens.filter(item => item.ds_produto.includes(searchitemprescricao) == true));
         // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true));
         // if (tipousuario == 5) {
         // setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(searchitemprescricao) === true && item.grupo === 'ENFERMAGEM')); // separando itens que podem ser prescritos pela enfermagem.
@@ -347,9 +379,10 @@ function Prescricao({ newprescricao }) {
                     backgroundColor: item.id == idprescricao ? "#ec7063" : "8f9bbc",
                   }}
                 >
-                  <div>{item.data}</div>
-                  <div>{item.usuario}</div>
-                  <div>{item.conselho}</div>
+                  <div>{moment(item.data).format('DD/MM/YY')}</div>
+                  <div>{moment(item.data).format('HH:MM')}</div>
+                  <div>{item.idprofissional}</div>
+                  <div>{'CONSELHO'}</div>
                 </button>
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <button id={"deleteprescricao" + item.id}
@@ -553,15 +586,17 @@ function Prescricao({ newprescricao }) {
           <p
             key={item.id}
             id="item da prescrição"
-            className="row"
-            disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+            // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
             style={{
               display: item.grupo === 'ANTIBIOTICOS' && item.datatermino !== '' ? 'none' : 'flex', // hack para não exibir o antibiótico prescrito junto com o card de atb em uso. 
               flexDirection: 'column',
               opacity: item.status === 1 ? 0.3 : 1,
+              width: '100%',
+              padding: 5,
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+              
               <button
                 className="hover-button"
                 onClick={() => selectItem(item)}
@@ -570,7 +605,8 @@ function Prescricao({ newprescricao }) {
                 style={{
                   width: '100%',
                   margin: 2.5,
-                  flexDirection: 'row',
+                  flexDirection: 'column',
+                  backgroundColor: '#8f9bbc',
                 }}
               >
                 <div
@@ -581,8 +617,67 @@ function Prescricao({ newprescricao }) {
                     padding: 10,
                     width: '100%',
                   }}
-                >{JSON.stringify(item.farmaco).length > 45 ? JSON.stringify(item.farmaco).substring(1, 45) + '...' : item.farmaco}
+                >
+                  {JSON.stringify(item.nome_item).length > 45 ? JSON.stringify(item.nome_item).substring(1, 45) + '...' : item.nome_item}
                 </div>
+
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}
+                // botões para ação coletiva referente ao tipo de item prescrito (excluir todos, mudar quantidade, via e aprazamento de todos, etc.).
+                >
+                  <input
+                    className="input"
+                    // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                    defaultValue={item.qtde}
+                    autoComplete="off"
+                    placeholder="QTDE."
+                    onFocus={(e) => (e.target.placeholder = '')}
+                    onBlur={(e) => (e.target.placeholder = 'QTDE.')}
+                    title="QUANTIDADE (ITEM)."
+                    style={{
+                      display: 'flex',
+                      width: 50,
+                      margin: 2.5,
+                      flexDirection: 'column',
+                      boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.1)',
+                    }}
+                    // onKeyUp={(e) => updateMassiveItensPrescricao(item, e.target.value, item.via, item.aprazamento)}
+                    type="number"
+                    id="inputItemQtde"
+                    maxLength={3}>
+                  </input>
+                  <button
+                    className="hover-button"
+                    // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                    // onClick={() => clickMassiveItemVia(item)}
+                    style={{
+                      display: 'flex',
+                      width: 120,
+                      minWidth: 120,
+                      maxWidth: 120,
+                      padding: 5,
+                      margin: 2.5,
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <div>{item.via}</div>
+                  </button>
+                  <button
+                    className="hover-button"
+                    // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                    // onClick={() => clickItemHorario(item)}
+                    style={{
+                      width: 120,
+                      minWidth: 120,
+                      maxWidth: 120,
+                      margin: 2.5,
+                      flexDirection: 'column',
+                      //opacity: item.id === iditem ? 1 : 0.6,
+                    }}
+                  >
+                    <div>{aprazamento}</div>
+                  </button>
+                </div>
+
                 <div
                   style={{
                     display: window.innerWidth < 1025 ? 'flex' : 'none',
@@ -591,8 +686,9 @@ function Prescricao({ newprescricao }) {
                     padding: 10,
                     width: '100%',
                   }}
-                >{JSON.stringify(item.farmaco).length > 30 ? JSON.stringify(item.farmaco).substring(1, 30) + '...' : item.farmaco}
+                >{JSON.stringify(item.nome_item).length > 30 ? JSON.stringify(item.nome_item).substring(1, 30) + '...' : item.nome_item}
                 </div>
+
                 <div
                   className="red-button"
                   title="DIA DE ANTIBIÓTICO."
@@ -603,94 +699,103 @@ function Prescricao({ newprescricao }) {
                   {moment(dataprescricao, 'DD/MM/YY').diff(moment(item.datainicio, 'DD/MM/YY'), 'days') + '/' + moment(item.datatermino, 'DD/MM/YY').diff(moment(item.datainicio, 'DD/MM/YY'), 'days')}
                 </div>
               </button>
-              <input
-                className="input"
-                disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                defaultValue={item.qtde}
-                autoComplete="off"
-                placeholder="QTDE."
-                onFocus={(e) => (e.target.placeholder = '')}
-                onBlur={(e) => (e.target.placeholder = 'QTDE.')}
-                title="QUANTIDADE (ITEM)."
-                style={{
-                  display: item.grupo === 'CUIDADOS GERAIS' || item.grupo === 'OXIGENOTERAPIA' ? 'none' : 'flex',
-                  width: 50,
-                  margin: 2.5,
-                  flexDirection: 'column',
-                  boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.1)',
-                }}
-                onKeyUp={(e) => updateItemQtde(e.target.value, item)}
-                type="number"
-                id="inputItemQtde"
-                maxLength={3}>
-              </input>
-              <button
-                className="hover-button"
-                disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                onClick={() => clickItemVia(item)}
-                style={{
-                  display: item.grupo === 'CUIDADOS GERAIS' || item.grupo === 'OXIGENOTERAPIA' ? 'none' : 'flex',
-                  width: 120,
-                  minWidth: 120,
-                  maxWidth: 120,
-                  padding: 5,
-                  margin: 2.5,
-                  flexDirection: 'column',
-                }}
-              >
-                <div>{item.via}</div>
-              </button>
-              <button
-                className="hover-button"
-                disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                onClick={() => clickItemHorario(item)}
-                style={{
-                  width: 120,
-                  minWidth: 120,
-                  maxWidth: 120,
-                  margin: 2.5,
-                  flexDirection: 'column',
-                  //opacity: item.id === iditem ? 1 : 0.6,
-                }}
-              >
-                <div>{item.horario}</div>
-              </button>
-              <button className="animated-red-button"
-                onClick={() => deleteItem(item)}
-                disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                style={{
-                  display: statusprescricao === 0 ? 'flex' : 'none',
-                }}
-              >
-                <img
-                  alt=""
-                  src={deletar}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
-              <button className="animated-red-button"
-                onClick={() => suspendItem(item)}
-                disabled={item.status === 1 ? true : false}
-                title={item.status === 1 ? "" : "SUSPENDER ITEM"}
-                style={{
-                  marginRight: 0,
-                  display: statusprescricao === 1 ? 'flex' : 'none',
-                }}
-              >
-                <img
-                  alt=""
-                  src={suspender}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
+
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                {listitensprescricao.filter(valor => valor.iditem == item.iditem).map(valor => (
+                  <div className="row" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+
+                    <input
+                      className="input"
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      defaultValue={valor.qtde}
+                      autoComplete="off"
+                      placeholder="QTDE."
+                      onFocus={(e) => (e.target.placeholder = '')}
+                      onBlur={(e) => (e.target.placeholder = 'QTDE.')}
+                      title="QUANTIDADE (ITEM)."
+                      style={{
+                        display: 'flex',
+                        width: 50,
+                        margin: 2.5,
+                        flexDirection: 'column',
+                        boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      onKeyUp={(e) => updateItemQtde(e.target.value, valor)}
+                      type="number"
+                      id="inputItemQtde"
+                      maxLength={3}>
+                    </input>
+                    <button
+                      className="hover-button"
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      onClick={() => clickItemVia(valor)}
+                      style={{
+                        display: 'flex',
+                        width: 120,
+                        minWidth: 120,
+                        maxWidth: 120,
+                        padding: 5,
+                        margin: 2.5,
+                        flexDirection: 'column',
+                      }}
+                    >
+                      <div>{valor.via}</div>
+                    </button>
+                    <button
+                      className="hover-button"
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      // onClick={() => clickItemHorario(valor)}
+                      style={{
+                        width: 120,
+                        minWidth: 120,
+                        maxWidth: 120,
+                        margin: 2.5,
+                        flexDirection: 'column',
+                        //opacity: item.id === iditem ? 1 : 0.6,
+                      }}
+                    >
+                      <div>{moment(valor.horario).format('DD/MM/YY - HH:MM')}</div>
+                    </button>
+
+                    <button className="animated-red-button"
+                      onClick={() => deleteItem(valor)}
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      style={{
+                        // display: statusprescricao === 0 ? 'flex' : 'none',
+                      }}
+                    >
+                      <img
+                        alt=""
+                        src={deletar}
+                        style={{
+                          margin: 10,
+                          height: 30,
+                          width: 30,
+                        }}
+                      ></img>
+                    </button>
+                    <button className="animated-red-button"
+                      onClick={() => suspendItem(valor)}
+                      disabled={valor.status === 1 ? true : false}
+                      title={valor.status === 1 ? "" : "SUSPENDER ITEM"}
+                      style={{
+                        marginRight: 0,
+                        // display: statusprescricao === 1 ? 'flex' : 'none',
+                      }}
+                    >
+                      <img
+                        alt=""
+                        src={suspender}
+                        style={{
+                          margin: 10,
+                          height: 30,
+                          width: 30,
+                        }}
+                      ></img>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div style={{ display: expanditem === 1 && item.id === iditem ? 'flex' : 'none', flexDirection: 'row', justifyContent: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -911,7 +1016,7 @@ function Prescricao({ newprescricao }) {
                 marginLeft: 0
               }}
             >
-              {item.ds_tip_presc}
+              {item.ds_produto}
             </button>
           </p>
         ))}
@@ -923,38 +1028,52 @@ function Prescricao({ newprescricao }) {
   const selectPrescricao = (item) => {
     setexpanditem(0);
     setfilteritemprescricao('');
-    loadItensPrescricoes(item.id, '');
-    loadAntibioticos();
-    getHorarios();
+    loadItensPrescricoes(item.id);
+    // loadAntibioticos();
+    // getHorarios();
     setdataprescricao(item.data);
     setstatusprescricao(item.status);
     setidprescricao(item.id);
+    console.log(idprescricao);
   }
 
-  // carregamento dos itens de antibióticos (todas as prescrições).
+  // carregamento de todos os itens prescritos para o atendimento. Importante para itens de antibióticos (todas as prescrições).
   const [listantibioticos, setlistantibioticos] = useState([]);
   const loadAntibioticos = () => {
-    axios.get(html + "/allitensprescricao").then((response) => {
-      setlistantibioticos(response.data);
+    axios.get(htmlitensatendimento + idatendimento).then((response) => {
+      var x = [0, 1];
+      x = response.data;
+      setlistantibioticos(x.rows);
     });
   }
 
   // carregando os itens de uma prescrição selecionada.
-  const loadItensPrescricoes = (item, filteritemprescricao) => {
-    axios.get(html + "/itensprescricao/'" + item + "'").then((response) => {
+  const [minimalarrayitensprescricao, setminimalarrayitensprescricao] = useState([])
+  const loadItensPrescricoes = (id, filteritemprescricao) => {
+    axios.get(htmlitensprescricao + id).then((response) => {
       setexpanditem(0);
       var x = [0, 1];
       x = response.data;
-      setlistitensprescricoes(response.data);
-      setarrayitemprescricao(x.filter(item => item.farmaco.includes(filteritemprescricao) === true));
-      if (filteritemprescricao === '') {
-        setarrayitemprescricao(x);
+      var y = [0, 1];
+      y = x.rows;
+      var arr = y.filter((value, index, self) =>
+        index === self.findIndex((item) => (
+          item.nome_item === value.nome_item
+        ))
+      )
+      setTimeout(() => {
+        setlistitensprescricao(x.rows);
+        setarrayitemprescricao(arr);
+      }, 2000);
+      if (filteritemprescricao == '') {
+        setarrayitemprescricao(arr);
         setarrayoptionsitens([]);
       } else {
-        setarrayoptionsitens(optionsitens.filter(item => item.farmaco.includes(filteritemprescricao) === true));
+        setarrayitemprescricao(arr.filter(item => item.nome_item.includes(filteritemprescricao) == true));
+        setarrayoptionsitens(optionsitens.filter(item => item.nome_item.includes(filteritemprescricao) == true));
       }
-      loadComponents();
-      loadViewComponents();
+      loadComponents(id);
+      // loadViewComponents();
     });
   }
   // carregamento usado para atualização dos itens de prescrição.
@@ -962,34 +1081,38 @@ function Prescricao({ newprescricao }) {
     axios.get(html + "/itensprescricao/'" + idprescricao + "'").then((response) => {
       var x = [0, 1];
       x = response.data;
-      setlistitensprescricoes(response.data);
+      setlistitensprescricao(response.data);
       if (expanditem === 1) {
         setarrayitemprescricao(x.filter(value => value.id === iditem));
       } else {
         setarrayitemprescricao(x);
       }
       loadComponents();
-      loadViewComponents();
+      // loadViewComponents();
     });
   }
   // seleção do item de prescrição.
   const [expanditem, setexpanditem] = useState(0);
   const [itemtodo, setitemtodo] = useState([]);
   const selectItem = (item) => {
-    setitemtodo(item);
-    setiditem(item.id);
-    setgrupo(item.grupo);
-    setfarmaco(item.farmaco);
-    setqtdeitem(item.qtde);
+    setid(item.id);
+    setiditem(item.iditem);
+    setnome_item(item.nome_item);
+    setkeyword_item(item.keyword_item);
+    setqtde(item.qtde);
     setvia(item.via);
     sethorario(item.horario);
     setobservacao(item.observacao);
+    setstatus(item.status);
+    setjustificativa(item.justificativa);
+    settipoitem(item.tipoitem);
+    setaprazamento(item.aprazamento);
     if (expanditem === 0) {
       setexpanditem(1);
       // setarrayitemprescricao(listitensprescricao.filter(x => x.id === item.id));
       keepScroll();
     } else {
-      loadItensPrescricoes(idprescricao, filteritemprescricao);
+      loadItensPrescricoes(filteritemprescricao);
       keepScroll();
     }
   }
@@ -998,7 +1121,7 @@ function Prescricao({ newprescricao }) {
     axios.get(html + "/deleteitemprescricao/'" + item.id + "'");
     setfilteritemprescricao('');
     setTimeout(() => {
-      loadItensPrescricoes(idprescricao, '');
+      loadItensPrescricoes('');
     }, 1000);
     // EXCLUINDO A VISÃO DE COMPONENTES.
     axios.get(html + "/deleteallcomponenteview/" + item.id);
@@ -1033,7 +1156,7 @@ function Prescricao({ newprescricao }) {
         moment(value.horario, 'DD/MM/YY HH:mm') > moment()).map((item) => deleteCheck(item));
       setexpanditem(0);
       loadAntibioticos();
-      loadItensPrescricoes(idprescricao, '');
+      loadItensPrescricoes('');
     });
   }
 
@@ -1046,174 +1169,66 @@ function Prescricao({ newprescricao }) {
     axios.get(html + "/deletecomponenteprescricao/" + item.iditem);
   }
 
-  // inserindo item na prescrição.
+  // prescrições valem das 13h do dia da prescrição às 13h do dia seguinte.
   const insertItem = (item) => {
-    var obj = {
-      idprescricao: idprescricao,
-      idatendimento: idatendimento,
-      codigo: item.codigo,
-      grupo: item.grupo,
-      farmaco: item.farmaco,
-      qtde: item.qtde,
-      via: item.via,
-      horario: item.horario,
-      observacao: item.observacao,
-      status: 0,
-      justificativa: item.justificativa,
-      datainicio: moment().format('DD/MM/YY'),
-      datatermino: item.datatermino,
-    };
-    axios.post(html + '/insertprescricaoitem', obj).then(() => {
-      loadItensPrescricoes(idprescricao, '');
-      // requisição do último registro de item salvo e resgate do seu iditem.
-      var newiditem = 0;
-      var newcodigoitem = '';
-      axios.get(html + "/lastitem/" + idprescricao).then((response) => {
-        var x = [0, 1];
-        x = response.data;
-        // retornando o id do item inserido.
-        const arraylastiditem = x.map((item) => item.id);
-        const lastiditem = arraylastiditem[0];
-        newiditem = lastiditem;
-        // retornando o código do item selecionado.
-        const arraylastcodigoitem = x.map((item) => item.codigo);
-        const lastcodigoitem = arraylastcodigoitem[0];
-        newcodigoitem = lastcodigoitem;
-        // INSERINDO APRAZAMENTOS.
-        if (item.grupo !== "ANTIBIOTICOS") {
-          var datatermino = moment().startOf('day').add(1, 'day').add(13, 'hours');
-          aprazaItens(item, idprescricao, newiditem, datatermino);
-          // INSERINDO COMPONENTES.
-          setTimeout(() => {
-            if (newcodigoitem === 'abd10ml') {
-              abd10ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'abd20ml') {
-              abd20ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sf100ml') {
-              sf100ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sf250ml') {
-              sf250ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sf500ml') {
-              sf500ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sgi100ml') {
-              sgi100ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sgi250ml') {
-              sgi250ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sgi500ml') {
-              sgi500ml(newiditem, idprescricao);
-            } else if (item.codigo === 'soroesquema') {
-              soroesquema(item.id, idprescricao);
-            } else {
-            }
-            setfilteritemprescricao('');
-            loadItensPrescricoes(idprescricao, '');
-            loadComponents();
-            loadViewComponents();
-          }, 3000);
-        } else {
-          // INSERINDO APRAZAMENTOS.
-          /* O aprazamento dos antibióticos é feito padronizando-se o uso por 7 dias.*/
-          var datatermino = moment().startOf('day').add(7, 'day').add(13, 'hours');
-          aprazaItens(item, idprescricao, newiditem, datatermino);
-          // INSERINDO COMPONENTES.
-          setTimeout(() => {
-            if (newcodigoitem === 'abd10ml') {
-              abd10ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'abd20ml') {
-              abd20ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sf100ml') {
-              sf100ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sf250ml') {
-              sf250ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sf500ml') {
-              sf500ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sgi100ml') {
-              sgi100ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sgi250ml') {
-              sgi250ml(newiditem, idprescricao);
-            } else if (newcodigoitem === 'sgi500ml') {
-              sgi500ml(newiditem, idprescricao);
-            } else if (item.codigo === 'soroesquema') {
-              soroesquema(item.id, idprescricao);
-            } else {
-            }
-            setfilteritemprescricao('');
-            // loadItensPrescricoes(idprescricao, '');
-            loadComponents();
-            loadViewComponents();
-          }, 3000);
-        }
-      }, 1000);
-    });
-  }
-  // pacotes de componentes.
-  const arraycomponentes = [];
-  const abd10ml = (iditem, idprescricao) => { // diluição de droga, em 10ml abd.
-    addComponentKit(iditem, idprescricao, 'ÁGUA BIDESTILADA 10ML AMPOLA', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const abd20ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'ÁGUA BIDESTILADA 10ML AMPOLA', 2);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 20ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const sf100ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'CLORETO DE SÓDIO 0.9% 100ML FRASCO', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const sf250ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'CLORETO DE SÓDIO 0.9% 250ML FRASCO', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const sf500ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'CLORETO DE SÓDIO 0.9% 500ML FRASCO', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const sgi100ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'SOLUÇÃO GLICOSADA 5% 100ML FRASCO', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const sgi250ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'SOLUÇÃO GLICOSADA 5% 250ML FRASCO', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const sgi500ml = (iditem, idprescricao) => { // diluição de droga, em 20ml abd.
-    addComponentKit(iditem, idprescricao, 'SOLUÇÃO GLICOSADA 5% 500ML FRASCO', 1);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
-  }
-  const soroesquema = (iditem, idprescricao) => { // SF0.9% com SGH50%.
-    addComponentKit(iditem, idprescricao, 'SOLUÇÃO GLICOSADA 50% 20ML FRASCO', 2);
-    addComponentKit(iditem, idprescricao, 'SERINGA DESCARTÁVEL 10ML UNIDADE', 1);
-    addComponentKit(iditem, idprescricao, 'AGULHA 40X12 UNIDADE', 1);
+    if (item.horario == '24/24') {
+      pushItem(item, moment().startOf('day').add(1, 'day').add(10, 'hours')); // padrão 10h do dia seguinte à prescrição.
+    } else if (item.horario == '12/12') {
+      pushItem(item, moment().startOf('day').add(20, 'hours')); // 20h da noite.
+      pushItem(item, moment().startOf('day').add(1, 'day').add(8, 'hours')); // 8h da manhã do dia seguinte.
+    } else if (item.horario == '6/6') {
+      pushItem(item, moment().startOf('day').add(18, 'hours')); // 18h da noite.
+      pushItem(item, moment().startOf('day').add(24, 'hours')); // meia-noite.
+      pushItem(item, moment().startOf('day').add(30, 'hours')); // 6h da manhã do dia seguinte.
+      pushItem(item, moment().startOf('day').add(36, 'hours')); // 12h do dia seguinte.
+    }
   }
 
-  // classe para criação e registro dos componentes de prescrição.
-  const addComponentKit = (iditem, idprescricao, componente, quantidade) => {
-    // atualizando a lista de aprazamentos.
-    var x = [0, 1];
-    axios.get(html + "/checagemall").then((response) => {
-      x = response.data;
-      setlistcheckhorariosprescricoes(response.data);
-      // filtrando os aprazamentos para o item inserido e acrescentando o novo componente para cada aprazamento.
-      x.filter((item) => item.iditem === iditem).map((item) => insertComponent(iditem, idprescricao, componente, quantidade, item.horario));
-    });
-    // inserindo o componente view.
+  // inserindo item na prescrição.
+  const pushItem = (item, horario) => {
     var obj = {
+      idpct: idpaciente,
+      idatendimento: idatendimento,
       idprescricao: idprescricao,
-      iditem: iditem,
-      componente: componente,
-      quantidade: quantidade,
+      iditem: item.cd_produto,
+      nome_item: item.ds_produto,
+      keyword_item: item.ds_produto_resumido,
+      qtde: parseInt(item.qtde),
+      via: item.via,
+      horario: horario,
+      observacao: item.observacao,
+      status: 0,
+      justificativa: '-x-',
+      datainicio: moment(),
+      datatermino: moment().add(1, 'day'),
+      tipoitem: parseInt(item.tipo),
+      aprazamento: item.horario,
     };
-    axios.post(html + '/insertcomponenteview', obj).then(() => {
-      loadItensPrescricoes(idprescricao, '');
-    });
+    axios.post(htmlinsertitemprescricao, obj).then(() => {
+      // recuperar id do item recém-criado:
+      axios.get(htmlitensprescricao + idprescricao).then((response) => {
+        var x = [0, 1];
+        x = response.data;
+        var lastitemprescricaoid = x.rows.slice(-1).map(item => item.id);
+        // registrando componentes para o item recém-criado:
+        pushComponente(item, lastitemprescricaoid);
+      });
+    }).catch(err => console.log(err));
+  }
+
+  // inserindo componentes no item prescrito.
+  const pushComponente = (item, id) => {
+    optionscomponentes.filter(value => value.tag_componente = item.tag_componente).map(item => {
+      var obj = {
+        idpct: idpaciente,
+        idatendimento: idatendimento,
+        idprescricao: idprescricao,
+        iditemprescricao: id,
+        componente: item.componente,
+        qtde: item.qtde,
+      }
+      axios.post(htmlinsertcomponenteprescricao, obj);
+    })
   }
 
   // inserindo prescrição.
@@ -1221,36 +1236,35 @@ function Prescricao({ newprescricao }) {
     // criando um novo registro de prescrição.
     setviewselectmodelprescription(0);
     var obj = {
+      idpct: idpaciente,
       idatendimento: idatendimento,
-      data: moment().format('DD/MM/YY HH:mm'),
-      usuario: nomeusuario,
-      conselho: conselhousuario,
+      data: moment(),
       status: 0,
+      idprofissional: 0,
     };
-    axios.post(html + '/insertprescricao', obj);
-    setTimeout(() => {
+    axios.post(htmlinsertprescricao, obj).then(() => {
       // resgatando o id da prescrição gerada.
-      axios.get(html + "/lastprescricao/" + idatendimento).then((response) => {
+      axios.get(htmlprescricoes + idatendimento).then((response) => {
         var x = [0, 1];
+        var y = [0, 1];
         x = response.data;
-        const arraylastid = x.map((item) => item.id);
-        const lastid = arraylastid[0];
+        y = x.rows;
+        const lastid = y.map((item) => item.id).slice(-1);
         lastidprescricao = lastid;
         loadPrescricoes();
-        setidprescricao(lastidprescricao);
-        loadItensPrescricoes(lastidprescricao, filteritemprescricao);
-        setTimeout(() => {
-          // document.getElementById("inputFilterItemPrescricao").focus();
-        }, 1000);
+        setidprescricao(lastid);
+        loadItensPrescricoes(filteritemprescricao);
       });
-    }, 1000);
+    });
   }
   // deletando prescrição.
   const deletePrescription = (item) => {
     setfilteritemprescricao('');
     // deletando a identificação da prescrição em sua lista.
-    axios.get(html + "/deleteprescricao/" + item.id);
+    axios.get(htmldeleteprescricao + item.id);
     // deletando os registros de itens associados à prescrição.
+
+    /*
     axios.get(html + "/deleteallitemprescricao/" + item.id);
     // deletando os registros de componentes associados à prescrição.
     axios.get(html + "/deleteallcomponenteprescricao/" + item.id);
@@ -1258,11 +1272,12 @@ function Prescricao({ newprescricao }) {
     axios.get(html + "/deleteallchecagemprescricao/" + item.id);
     // deletando os registros de views dos componentes.
     axios.get(html + "/deletefullcomponenteview/" + item.id);
+    */
     // limpando a lista de itens.
     setarrayitemprescricao([]);
     setTimeout(() => {
       loadPrescricoes();
-      setlistitensprescricoes([]);
+      setlistitensprescricao([]);
       setarrayitemprescricao([]);
       setlistcomponentes([]);
       setidprescricao('');
@@ -1305,8 +1320,7 @@ function Prescricao({ newprescricao }) {
         x = response.data;
         x.map((item) => copyItem(item));
         setTimeout(() => {
-          fillStuff(lastidprescricao);
-          loadItensPrescricoes(lastidprescricao, '');
+          loadItensPrescricoes('');
         }, 3000);
       });
     });
@@ -1393,8 +1407,8 @@ function Prescricao({ newprescricao }) {
         y = x.filter((item) => item.grupo !== 'ANTIBIOTICOS').map((item) => copyItem(item));
         setTimeout(() => {
           // após a cópia dos itens, estes devem receber seus aprazamentos e componentes.
-          fillStuff(lastidprescricao);
-          loadItensPrescricoes(lastidprescricao, '');
+
+          loadItensPrescricoes('');
           document.getElementById("btnprescricao" + lastidprescricao).className = "red-button"
         }, 3000);
       });
@@ -1418,63 +1432,26 @@ function Prescricao({ newprescricao }) {
     };
     axios.post(html + '/insertprescricaoitem', obj);
   }
-  // resgatando itens copiados na nova prescrição e inserindo seus respectivos componentes e aprazamentos.
-  const fillStuff = (lastidprescricao) => {
-    axios.get(html + "/itensprescricao/'" + lastidprescricao + "'").then((response) => {
-      var x = [0, 1];
-      x = response.data;
-      // registrando aprazamentos e componentes para cada item da nova prescrição.
-      x.map((item) => setStuff(item, lastidprescricao));
-    });
-  }
-  const setStuff = (item, lastidprescricao) => {
-    // INSERINDO APRAZAMENTOS.
-    var datatermino = moment().startOf('day').add(1, 'day').add(13, 'hours');
-    aprazaItens(item, lastidprescricao, item.id, datatermino);
-    setTimeout(() => {
-      // INSERINDO OS COMPONENTES.
-      if (item.codigo === 'abd10ml') {
-        abd10ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'abd20ml') {
-        abd20ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'sf100ml') {
-        sf100ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'sf250ml') {
-        sf250ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'sf500ml') {
-        sf500ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'sgi100ml') {
-        sgi100ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'sgi250ml') {
-        sgi250ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'sgi500ml') {
-        sgi500ml(item.id, lastidprescricao);
-      } else if (item.codigo === 'soroesquema') {
-        soroesquema(item.id, lastidprescricao);
-      } else {
-      }
-    }, 3000);
-  }
 
   // definindo a data exata de salvamento da prescrição (assinatua digital), incluindo minutos (CHECK PRESCRIÇÕES).
   const [dataprescricao, setdataprescricao] = useState('');
   // assinando uma prescrição (alterando seu status para 1, impedindo assim a exclusão de itens e componentes).
   const [statusprescricao, setstatusprescricao] = useState(0);
   const signPrescription = (item) => {
-    setdataprescricao(moment().format('DD/MM/YY HH:mm'));
+    setdataprescricao(moment());
     // a condição abaixo impede operações em prescrição vazia e a assinatura da prescrição quando um antibiótico não foi devidamente registrado (datade inicio não setada).
     //if (arrayitemprescricao.length > 0 && arrayitemprescricao.filter((item) => item.grupo == 'ANTIBIOTICOS' && item.datatermino == '').length < 1) {
     var obj = {
+      idpct: idpaciente,
       idatendimento: idatendimento,
-      data: dataprescricao,
-      usuario: nomeusuario,
-      conselho: conselhousuario,
+      data: moment(),
       status: 1,
+      idprofissional: 0,
     };
-    axios.post(html + "/updateprescricao/" + item.id, obj).then(() => {
+    axios.post(htmlupdateprescricao + item.id, obj).then(() => {
       setstatusprescricao(1); // necessário para exibir a opção de suspensão dos itens.
       loadPrescricoes();
-      loadItensPrescricoes(idprescricao, filteritemprescricao);
+      loadItensPrescricoes(filteritemprescricao);
     });
     //} else {
     //toast(1, '#ec7063', arrayitemprescricao.lenght < 1 ? 'NÃO É POSSÍVEL SALVAR UMA PRESCRIÇÃO VAZIA.' : 'REGISTRO DE ANTIBIÓTICO INCOMPLETO.', 3000);
@@ -1493,7 +1470,7 @@ function Prescricao({ newprescricao }) {
       axios.post(html + "/updateprescricao/" + item.id, obj).then(() => {
         setstatusprescricao(1); // necessário para exibir a opção de suspensão dos itens.
         loadPrescricoes();
-        loadItensPrescricoes(idprescricao, filteritemprescricao);
+        loadItensPrescricoes(filteritemprescricao);
       });
     } else {
       toast(1, '#ec7063', 'NÃO É POSSÍVEL SUSPENDER UMA PRESCRIÇÃO VAZIA.', 3000);
@@ -1526,15 +1503,17 @@ function Prescricao({ newprescricao }) {
 
   // carregando os componentes de todos os itens da prescrição.
   const [listcomponentes, setlistcomponentes] = useState([]);
-  const loadComponents = () => {
-    axios.get(html + "/componentesprescricao").then((response) => { // ATENÇÃO: melhor filtrar por id prescrição.
-      setlistcomponentes(response.data);
+  const loadComponents = (id) => {
+    axios.get(htmlcomponentesprescricao + id).then((response) => {
+      var x = [0, 1]
+      x = response.data
+      setlistcomponentes(x.rows);
     });
   }
   // filtrando os componentes para cada item da prescrição.
   function FilterComponents(value) {
     var x = [];
-    x = listcomponentes.filter(item => item.iditem === value);
+    x = listcomponentes.filter(item => item.iditemprescricao === value);
     return x;
   }
   // funções e componentes que tratam da seleção de um novo componente ao item de prescrição.
@@ -1546,14 +1525,7 @@ function Prescricao({ newprescricao }) {
       setviewinsertcomponent(1);
     }, 1000);
   }
-  // carregando a lista com todas as opções de componentes disponíveis no sistema.
-  const [optionscomponentes, setoptionscomponentes] = useState();
-  const loadOptionsComponentes = () => {
-    axios.get(html + '/optionsitens').then((response) => {
-      setoptionscomponentes(response.data);
-      setarrayfiltercomponente(response.data);
-    });
-  }
+
   // filtrando um novo componente para seleção.
   const [arrayfiltercomponente, setarrayfiltercomponente] = useState(optionscomponentes);
   const [filtercomponente, setfiltercomponente] = useState('');
@@ -1583,44 +1555,47 @@ function Prescricao({ newprescricao }) {
     setcomponente(item.farmaco);
     setviewcomponentselector(2);
   }
-  // adicionando o novo componente para cada registro de aprazamento de um item da prescrição.
-  const addComponent = () => {
-    var quantidade = document.getElementById("inputQuantidade").value;
-    if (quantidade > 0) {
-      // atualizar lista de aprazamentos, pois o usuário pode ter acabado de criar o item e seus aprazamentos ainda não foram listados.
-      axios.get(html + "/checagemall").then((response) => {
-        var x = [0, 1];
-        x = response.data;
-        // filtrando os aprazamentos para o item inserido e acrescentando o novo componente para cada aprazamento.
-        x.filter((item) => item.iditem === iditem).map((item) => insertComponent(iditem, idprescricao, componente, quantidade, item.horario));
-        setviewinsertcomponent(0);
-        // inserindo o componente view.
-        var obj = {
-          iditem: iditem,
-          componente: componente,
-          quantidade: quantidade,
-        };
-        axios.post(html + '/insertcomponenteview', obj).then(() => {
-          setviewinsertcomponent(0);
-          loadViewComponents();
-        });
-      });
-    } else {
-      toast(1, '#ec7063', 'CAMPO NÃO PREENCHIDO.', 3000);
+
+  // atualizando um conjunto de itens comuns de prescrição.
+  const updateMassiveItensPrescricao = (item, qtde, via, aprazamento) => {
+    // deletando os registros de itens de prescrição.
+    listitensprescricao.filter(valor => valor.iditem == item.iditem).map((valor) => {
+      axios.get(htmldeleteitemprescricao + valor.id);
+    });
+    // inserindo os registros de itens de prescrição com os novos parâmetros.
+    if (item.aprazamento == '24/24') {
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(1, 'day').add(10, 'hours')); // padrão 10h do dia seguinte à prescrição.
+    } else if (item.aprazamento == '12/12') {
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(20, 'hours')); // 20h da noite.
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(1, 'day').add(8, 'hours')); // 8h da manhã do dia seguinte.
+    } else if (item.aprazamento == '6/6') {
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(18, 'hours')); // 18h da noite.
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(24, 'hours')); // meia-noite.
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(30, 'hours')); // 6h da manhã do dia seguinte.
+      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(36, 'hours')); // 12h do dia seguinte.
     }
   }
-  const insertComponent = (iditem, idprescricao, componente, quantidade, horario) => {
+
+  const pushMassiveItem = (item, qtde, via, aprazamento, horario) => {
     var obj = {
-      iditem: iditem,
+      idpct: idpaciente,
+      idatendimento: idatendimento,
       idprescricao: idprescricao,
-      componente: componente,
-      quantidade: quantidade,
+      iditem: item.cd_produto,
+      nome_item: item.ds_produto,
+      keyword_item: item.ds_produto_resumido,
+      qtde: qtde,
+      via: via,
       horario: horario,
+      observacao: item.observacao,
+      status: 0,
+      justificativa: '-x-',
+      datainicio: moment(),
+      datatermino: moment().add(1, 'day'),
+      tipoitem: parseInt(item.tipo),
+      aprazamento: aprazamento,
     };
-    axios.post(html + '/insertprescricaocomponente', obj).then(() => {
-      //setviewinsertcomponent(0);
-      //loadItensPrescricoes(idprescricao, '');
-    });
+    axios.post(htmlinsertitemprescricao, obj)
   }
 
   // atualizando a quantidade de um item da prescrição.
@@ -1646,7 +1621,7 @@ function Prescricao({ newprescricao }) {
       };
       axios.post(html + '/updateitemprescricao/' + item.id, obj).then(() => {
         // carregando a lista de itens prescritos.
-        loadItensPrescricoes(idprescricao, '');
+        loadItensPrescricoes('');
         keepScroll('LISTA DE ITENS PRESCRITOS');
         axios.get(html + "/allitensprescricao").then((response) => {
           var x = [0, 1];
@@ -1662,13 +1637,13 @@ function Prescricao({ newprescricao }) {
             // excluindo aprazamento prévio, caso existente.
             axios.get(html + "/deletechecagemprescricao/" + item.id).then(() => {
               // inserindo os novos aprazamentos.
-              aprazaUpdateHorario(horario, farmaco, grupo, qtde, via, idprescricao, item.id, datatermino);
+
             });
           } else {
             // INSERINDO APRAZAMENTOS.
             /* O aprazamento dos antibióticos é feito padronizando-se o uso por 7 dias.*/
             var datatermino = moment().startOf('day').add(7, 'day').add(13, 'hours');
-            aprazaUpdateHorario(horario, farmaco, grupo, qtde, via, idprescricao, itemid, datatermino);
+
           }
         });
       });
@@ -1676,159 +1651,86 @@ function Prescricao({ newprescricao }) {
   }
 
   // atualizando a via de administração de um item da prescrição.
-  const [itemid, setitemid] = useState(0);
-  const [itemcodigo, setitemcodigo] = useState(0);
-  const [itemgrupo, setitemgrupo] = useState(0);
-  const [itemfarmaco, setitemfarmaco] = useState(0);
-  const [itemqtde, setitemqtde] = useState(0);
-  const [itemvia, setitemvia] = useState(0);
-  const [itemhorario, setitemhorario] = useState(0);
-  const [itemobservacao, setitemobservacao] = useState(0);
   const clickItemVia = (item) => {
-    // setarrayitemprescricao(listitensprescricao.filter(x => x.id === item.id));
-    setshowitemviaselector(1);
-    // loadItensPrescricoesById(idprescricao, item.id);
-    setitemid(item.id);
-    setitemcodigo(item.codigo);
-    setitemgrupo(item.grupo);
-    setitemfarmaco(item.farmaco);
-    setitemqtde(item.qtde);
-    setitemvia(item.via);
-    setitemhorario(item.horario);
-    setitemobservacao(item.observacao);
+    setshowitemviaselector(1); // 1 = atualiza único registro de item de prescrição; 2 = atualiza massivamente registros de item de prescrição.
+    setid(item.id);
+    setiditem(item.iditem);
+    setnome_item(item.nome_item);
+    setkeyword_item(item.keyword_item);
+    setqtde(item.qtde);
+    setvia(item.via);
+    sethorario(item.horario);
+    setobservacao(item.observacao);
+    setstatus(item.status);
+    setjustificativa(item.justificativa);
+    settipoitem(item.tipoitem);
+    setaprazamento(item.aprazamento);
   }
-  const updateItemVia = (item) => {
+  const updateItemVia = (via) => {
     var obj = {
-      id: itemid,
+      idpct: idpaciente,
       idatendimento: idatendimento,
       idprescricao: idprescricao,
-      codigo: itemcodigo,
-      grupo: itemgrupo,
-      farmaco: itemfarmaco,
-      qtde: itemqtde,
-      via: item,
-      horario: itemhorario,
-      observacao: itemobservacao,
+      iditem: iditem,
+      nome_item: nome_item,
+      keyword_item: keyword_item,
+      qtde: qtde,
+      via: via,
+      horario: horario,
+      observacao: observacao,
+      status: status,
+      justificativa: justificativa,
+      datainicio: moment().startOf('day').add(13, 'hours'), // todo item de prescrição vale a partir das 13h.
+      datatermino: moment().startOf('day').add(37, 'hours'), // todo item de prescrição vence às 13h do dia seguinte.
+      tipoitem: tipoitem,
+      aprazamento: aprazamento
     };
-    axios.post(html + '/updateitemprescricao/' + itemid, obj).then(() => {
+    axios.post(htmlupdateitemprescricao + id, obj).then(() => {
       setshowitemviaselector(0);
-      loadItensPrescricoesById(idprescricao, itemid);
+      loadItensPrescricoes();
       keepScroll();
     });
   }
-  const clickItemHorario = (item) => {
-    // setarrayitemprescricao(listitensprescricao.filter(x => x.id === item.id));
-    setshowitemhorarioselector(1);
-    // loadItensPrescricoesById(idprescricao, item.id);
-    setitemid(item.id);
-    setitemcodigo(item.codigo);
-    setitemgrupo(item.grupo);
-    setitemfarmaco(item.farmaco);
-    setitemqtde(item.qtde);
-    setitemvia(item.via);
-    setitemhorario(item.horario);
-    setitemobservacao(item.observacao);
+
+  // atualizando o aprazamento para administração de um item da prescrição (aplicável apenas às atualizações massivas).
+  const clickItemAprazamento = (item) => {
+    setshowitemhorarioselector(1); // 1 = atualiza único registro de item de prescrição; 2 = atualiza massivamente registros de item de prescrição.
+    setid(item.id);
+    setiditem(item.iditem);
+    setnome_item(item.nome_item);
+    setkeyword_item(item.keyword_item);
+    setqtde(item.qtde);
+    setvia(item.via);
+    sethorario(item.horario);
+    setobservacao(item.observacao);
+    setstatus(item.status);
+    setjustificativa(item.justificativa);
+    settipoitem(item.tipoitem);
+    setaprazamento(item.aprazamento);
   }
-  const updateItemHorario = (item) => {
+  const updateItemAprazamento = (horario) => {
     var obj = {
-      id: itemid,
+      idpct: idpaciente,
       idatendimento: idatendimento,
       idprescricao: idprescricao,
-      codigo: itemcodigo,
-      grupo: itemgrupo,
-      farmaco: itemfarmaco,
-      qtde: itemqtde,
-      via: itemvia,
-      horario: item,
-      observacao: itemobservacao,
-    };
-    axios.post(html + '/updateitemprescricao/' + itemid, obj).then(() => {
-      setshowitemhorarioselector(0);
+      iditem: iditem,
+      nome_item: nome_item,
+      keyword_item: keyword_item,
+      qtde: qtde,
+      via: via,
+      horario: horario,
+      observacao: observacao,
+      status: status,
+      justificativa: justificativa,
+      datainicio: moment().startOf('day').add(13, 'hours'), // todo item de prescrição vale a partir das 13h.
+      datatermino: moment().startOf('day').add(37, 'hours'), // todo item de prescrição vence às 13h do dia seguinte.
+      tipoitem: tipoitem,
+      aprazamento: aprazamento
+    }
+    axios.post(htmlupdateitemprescricao + id, obj).then(() => {
+      setshowitemviaselector(0);
+      loadItensPrescricoes();
       keepScroll();
-      // excluindo view dos componentes.
-      axios.get(html + "/deleteallcomponenteview/" + itemid);
-      // carregando a lista de itens prescritos.
-      axios.get(html + "/allitensprescricao").then((response) => {
-        var x = [0, 1];
-        x = response.data;
-        const horario = x.filter((item) => item.id === itemid).map((item) => item.horario);
-        const farmaco = x.filter((item) => item.id === itemid).map((item) => item.farmaco);
-        const grupo = x.filter((item) => item.id === itemid).map((item) => item.grupo);
-        const qtde = x.filter((item) => item.id === itemid).map((item) => item.qtde);
-        const via = x.filter((item) => item.id === itemid).map((item) => item.via);
-        const codigo = x.filter((item) => item.id === itemid).map((item) => item.codigo);
-        if (grupo !== "ANTIBIOTICOS") {
-          var datatermino = moment().startOf('day').add(1, 'day').add(13, 'hours');
-          // excluindo aprazamento prévio, caso existente.
-          axios.get(html + "/deletechecagemprescricao/" + itemid).then(() => {
-            // inserindo os novos aprazamentos.
-            aprazaUpdateHorario(horario, farmaco, grupo, qtde, via, idprescricao, itemid, datatermino);
-          });
-          // INSERINDO COMPONENTES.
-          setTimeout(() => {
-            // excluindo componentes prévios.
-            axios.get(html + "/deleteitemcomponentesprescricao/" + itemid).then(() => {
-              // inserindo os componentes atualizados.
-              if (codigo == 'abd10ml') {
-                abd10ml(itemid, idprescricao);
-              } else if (codigo == 'abd20ml') {
-                abd20ml(itemid, idprescricao);
-              } else if (codigo == 'sf100ml') {
-                sf100ml(itemid, idprescricao);
-              } else if (codigo == 'sf250ml') {
-                sf250ml(itemid, idprescricao);
-              } else if (codigo == 'sf500ml') {
-                sf500ml(itemid, idprescricao);
-              } else if (codigo == 'sgi100ml') {
-                sgi100ml(itemid, idprescricao);
-              } else if (codigo == 'sgi250ml') {
-                sgi250ml(itemid, idprescricao);
-              } else if (codigo == 'sgi500ml') {
-                sgi500ml(itemid, idprescricao);
-              } else if (codigo == 'soroesquema') {
-                soroesquema(itemid, idprescricao);
-              } else {
-              }
-              setfilteritemprescricao('');
-              loadItensPrescricoes(idprescricao, '');
-              loadComponents();
-              loadViewComponents();
-            });
-          }, 3000);
-        } else {
-          // INSERINDO APRAZAMENTOS.
-          /* O aprazamento dos antibióticos é feito padronizando-se o uso por 7 dias.*/
-          var datatermino = moment().startOf('day').add(7, 'day').add(13, 'hours');
-          aprazaUpdateHorario(horario, farmaco, grupo, qtde, via, idprescricao, itemid, datatermino);
-          // INSERINDO COMPONENTES.
-          setTimeout(() => {
-            if (codigo == 'abd10ml') {
-              abd10ml(itemid, idprescricao);
-            } else if (codigo == 'abd20ml') {
-              abd20ml(itemid, idprescricao);
-            } else if (codigo == 'sf100ml') {
-              sf100ml(itemid, idprescricao);
-            } else if (codigo == 'sf250ml') {
-              sf250ml(itemid, idprescricao);
-            } else if (codigo == 'sf500ml') {
-              sf500ml(itemid, idprescricao);
-            } else if (codigo == 'sgi100ml') {
-              sgi100ml(itemid, idprescricao);
-            } else if (codigo == 'sgi250ml') {
-              sgi250ml(itemid, idprescricao);
-            } else if (codigo == 'sgi500ml') {
-              sgi500ml(itemid, idprescricao);
-            } else if (codigo == 'soroesquema') {
-              soroesquema(itemid, idprescricao);
-            } else {
-            }
-            setfilteritemprescricao('');
-            loadItensPrescricoes(idprescricao, '');
-            loadComponents();
-            loadViewComponents();
-          }, 3000);
-        }
-      });
     });
   }
 
@@ -1854,7 +1756,7 @@ function Prescricao({ newprescricao }) {
   const [showitemviaselector, setshowitemviaselector] = useState(0);
   var arrayitemvia = ['VO', 'IV', 'IM', 'SC', 'INTRADÉRMICA', 'HIPODERMÓCLISE', 'INTRATECAL'];
   function ShowItemViaSelector() {
-    if (showitemviaselector === 1) {
+    if (showitemviaselector === 1 || showitemviaselector === 2) {
       return (
         <div className="menucover"
           style={{ zIndex: 9, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
@@ -1872,7 +1774,11 @@ function Prescricao({ newprescricao }) {
               {arrayitemvia.map((item) => (
                 <div
                   key={item.id}
-                  onClick={(e) => { updateItemVia(item); e.stopPropagation() }}
+                  onClick={
+                    showitemviaselector == 1 ?
+                      (e) => { updateItemVia(item); e.stopPropagation() } :
+                      (e) => { updateMassiveItensPrescricao(item,); e.stopPropagation() }
+                  }
                   id="item da lista"
                   className="blue-button"
                   style={{ width: 200 }}
@@ -1916,7 +1822,7 @@ function Prescricao({ newprescricao }) {
               {arrayitemhorario.map((item) => (
                 <div
                   key={item.id}
-                  onClick={(e) => { updateItemHorario(item); e.stopPropagation() }}
+                  // onClick={(e) => { updateItemHorario(item); e.stopPropagation() }}
                   id="item da lista"
                   className="blue-button"
                   style={{ width: 200 }}
@@ -2014,271 +1920,6 @@ function Prescricao({ newprescricao }) {
   // atualizando a data de término da administração do item da prescrição (aplicável aos antibióticos).
   const [diasatb, setdiasatb] = useState();
   const updateDataTermino = (value, item) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      // excluindo aprazamento prévio, caso existente.
-      axios.get(html + "/deletechecagemprescricao/" + item.id);
-      // excluindo componentes prévios.
-      axios.get(html + "/deleteitemcomponentesprescricao/" + item.id);
-      // excluindo view dos componentes.
-      axios.get(html + "/deleteallcomponenteview/" + item.id);
-      var obj = {
-        id: item.id,
-        idatendimento: item.idatendimento,
-        idprescricao: item.idprescricao,
-        codigo: item.codigo,
-        grupo: item.grupo,
-        farmaco: item.farmaco,
-        qtde: item.qtde,
-        via: item.via,
-        horario: item.horario,
-        observacao: item.observacao,
-        status: item.status,
-        justificativa: item.justificativa,
-        datainicio: item.datainicio,
-        datatermino: moment(item.datainicio, "DD/MM/YY").add(value, 'days').format('DD/MM/YY'),
-      };
-      axios.post(html + '/updateitemprescricao/' + item.id, obj).then(() => {
-        var datatermino = moment(item.datainicio, "DD/MM/YY").add(value, 'days').format('DD/MM/YY');
-        loadItensPrescricoes(idprescricao, '');
-        loadAntibioticos();
-        setTimeout(() => {
-          // registrando horários para checagem.
-          aprazaAtb(item, datatermino);
-          // registrando componentes.
-          setTimeout(() => {
-            if (item.codigo === 'abd10ml') {
-              abd10ml(item.id, idprescricao);
-            } else if (item.codigo === 'abd20ml') {
-              abd20ml(item.id, idprescricao);
-            } else if (item.codigo === 'sf100ml') {
-              sf100ml(item.id, idprescricao);
-            } else if (item.codigo === 'sf250ml') {
-              sf250ml(item.id, idprescricao);
-            } else if (item.codigo === 'sf500ml') {
-              sf500ml(item.id, idprescricao);
-            } else if (item.codigo === 'sgi100ml') {
-              sgi100ml(item.id, idprescricao);
-            } else if (item.codigo === 'sgi250ml') {
-              sgi250ml(item.id, idprescricao);
-            } else if (item.codigo === 'sgi500ml') {
-              sgi500ml(item.id, idprescricao);
-            } else if (item.codigo === 'soroesquema') {
-              soroesquema(item.id, idprescricao);
-            } else {
-            }
-            setfilteritemprescricao('');
-            loadItensPrescricoes(idprescricao, '');
-            loadComponents();
-            loadViewComponents();
-          }, 3000);
-        }, 1000);
-      });
-    }, 1000);
-  }
-
-  // aprazamento dos antibióticos.
-  const aprazaAtb = (item, datatermino) => {
-    var adddate = moment();
-    if (item.horario === '1/1H') {
-      // horário padrão para 2/2h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 13:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(1, 'hours');
-      }
-    } else if (item.horario === '2/2H') {
-      // horário padrão para 2/2h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 14:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(2, 'hours');
-      }
-    } else if (item.horario === '4/4H') {
-      // horário padrão para 4/4h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 14:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(4, 'hours');
-      }
-    } else if (item.horario === '6/6H') {
-      // horário padrão para 6/6h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 18:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(6, 'hours');
-      }
-    } else if (item.horario === '8/8H') {
-      // horário padrão para 8/8h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 16:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(8, 'hours');
-      }
-    } else if (item.horario === '12/12H') {
-      // horário padrão para 12/12h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 22:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(12, 'hours');
-      }
-    } else if (item.horario === '24/24H') {
-      // horário padrão para 24/24h.
-      adddate = moment(moment().add(1, 'day').format('DD/MM/YY') + ' 10:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(24, 'hours');
-      }
-    } else if (item.horario === 'AGORA') {
-      // agora.
-      insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment().format('DD/MM/YY HH:mm'));
-    } else if (item.horario === 'ACM') {
-      // acm.
-      insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, 'ACM');
-      insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, 'ACM');
-      insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, 'ACM');
-      insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, 'ACM');
-      insertCheckPrescricao(idpaciente, item.idatendimento, item.idprescricao, item.id, item.farmaco, item.grupo, item.qtde, item.via, item.horario, 'ACM');
-    }
-    else {
-      // INSERIR DEMAIS APRAZAMENTOS...
-    }
-  }
-
-  // aprazamento dos demais itens de prescrição.
-  const aprazaItens = (item, idprescricao, itemid, datatermino) => {
-    var adddate = moment();
-    if (item.horario === '1/1H') {
-      // horário padrão para 1/1h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 13:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(1, 'hour');
-      }
-    } else if (item.horario === '2/2H') {
-      // horário padrão para 2/2h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 14:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(2, 'hours');
-      }
-    } else if (item.horario === '4/4H') {
-      // horário padrão para 4/4h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 14:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(4, 'hours');
-      }
-    } else if (item.horario === '6/6H') {
-      // horário padrão para 6/6h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 18:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(6, 'hours');
-      }
-    } else if (item.horario === '8/8H') {
-      // horário padrão para 8/8h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 16:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(8, 'hours');
-      }
-    } else if (item.horario === '12/12H') {
-      // horário padrão para 12/12h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 22:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(12, 'hours');
-      }
-    } else if (item.horario === '24/24H') {
-      // horário padrão para 24/24h.
-      adddate = moment(moment().add(1, 'day').format('DD/MM/YY') + ' 10:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(24, 'hours');
-      }
-    } else if (item.horario === 'AGORA') {
-      // agora.
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, item.horario, moment().format('DD/MM/YY HH:mm'));
-    } else if (item.horario === 'ACM') {
-      // acm.
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, item.farmaco, item.grupo, item.qtde, item.via, 'ACM');
-    }
-    else {
-      // INSERIR DEMAIS APRAZAMENTOS...
-    }
-  }
-
-  // aprazamento dos demais itens de prescrição.
-  const aprazaUpdateHorario = (horario, farmaco, grupo, qtde, via, idprescricao, itemid, datatermino) => {
-    var adddate = moment();
-    if (horario == '1/1H') {
-      // horário padrão para 2/2h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 13:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(1, 'hour');
-      }
-    } else if (horario == '2/2H') {
-      // horário padrão para 2/2h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 14:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(2, 'hours');
-      }
-    } else if (horario == '4/4H') {
-      // horário padrão para 4/4h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 14:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(4, 'hours');
-      }
-    } else if (horario == '6/6H') {
-      // horário padrão para 6/6h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 18:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(6, 'hours');
-      }
-    } else if (horario == '8/8H') {
-      // horário padrão para 8/8h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 16:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(8, 'hours');
-      }
-    } else if (horario == '12/12H') {
-      // horário padrão para 12/12h.
-      adddate = moment(moment().format('DD/MM/YY') + ' 22:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(12, 'hours');
-      }
-    } else if (horario === '24/24H') {
-      // horário padrão para 24/24h.
-      adddate = moment(moment().add(1, 'day').format('DD/MM/YY') + ' 10:00', 'DD/MM/YY HH:mm');
-      while (moment(datatermino, 'DD/MM/YY') > adddate) {
-        insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment(adddate).format('DD/MM/YY HH:mm'));
-        adddate = adddate.add(24, 'hours');
-      }
-    } else if (horario == 'AGORA') {
-      // agora.
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, moment().format('DD/MM/YY HH:mm'));
-    } else if (horario == 'ACM') {
-      // acm.
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, 'ACM');
-      insertCheckPrescricao(idpaciente, idatendimento, idprescricao, itemid, farmaco, grupo, qtde, via, horario, 'ACM');
-    }
-    else {
-      // INSERIR DEMAIS APRAZAMENTOS...
-    }
   }
 
   // atualizando a quantidade de um componente.
@@ -2289,24 +1930,14 @@ function Prescricao({ newprescricao }) {
         document.getElementById("inputComponenteQtde").value = '';
       } else {
         if (value > 0) {
-          // filtrando os aprazamentos para o item inserido e atualizando o componente para cada aprazamento.
-          listcomponentes.filter((valor) => valor.iditem === iditem && valor.componente === item.componente).map((item) => updateComponent(item, value));
-          // atualizando o componente view.
-          var obj = {
-            iditem: item.iditem,
-            componente: item.componente,
-            quantidade: value,
-          };
-          axios.post(html + '/updatecomponenteview/' + item.id, obj).then(() => {
-            loadViewComponents();
-            setexpanditem(1);
-          });
+
         } else {
           toast(1, '#ec7063', 'CAMPO NÃO PREENCHIDO.', 3000);
         }
       }
     }, 2000);
   }
+
   const updateComponent = (item, value) => {
     var obj = {
       iditem: item.iditem,
@@ -2316,7 +1947,6 @@ function Prescricao({ newprescricao }) {
       horario: item.horario,
     };
     axios.post(html + '/updatecomponenteprescricao/' + item.id, obj).then(() => {
-      //loadItensPrescricoes(idprescricao, filteritemprescricao);
       //setexpanditem(1);
     });
   }
@@ -2330,7 +1960,7 @@ function Prescricao({ newprescricao }) {
       // excluindo o componente view.
       axios.get(html + "/deletecomponenteview/" + item.id).then(() => {
         loadComponents();
-        loadViewComponents();
+        // loadViewComponents();
       }, 2000);
     });
   }
@@ -2441,7 +2071,7 @@ function Prescricao({ newprescricao }) {
             <div style={{ display: 'flex', flexDirection: 'row' }}>
               <button
                 className="green-button"
-                onClick={() => addComponent()}
+                // onClick={() => addComponent()}
                 style={{
                   width: 50,
                   margin: 2.5,

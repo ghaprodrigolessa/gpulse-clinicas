@@ -249,7 +249,6 @@ function App() {
   const [arrayimagem, setarrayimagem] = useState([]);
 
   const [listbalancos, setlistbalancos] = useState([]);
-  const [listitensprescricao, setlistitensprescricoes] = useState([]);
 
   const [listformularios, setlistformularios] = useState([]);
   const [arrayformularios, setarrayformularios] = useState([]);
@@ -300,6 +299,9 @@ function App() {
 
   // APT escalas.
   const [showescala, setshowescala] = useState(0);
+
+  // prescrição.
+  const [listitensprescricao, setlistitensprescricao] = useState([]);
 
   var html = 'https://pulsarapp-server.herokuapp.com';
   const loadSettings = () => {
@@ -386,7 +388,7 @@ function App() {
         arraylaboratorio, setarraylaboratorio,
         listimagem, setlistimagem,
         arrayimagem, setarrayimagem,
-        listitensprescricao, setlistitensprescricoes,
+        listitensprescricao, setlistitensprescricao,
         listbalancos, setlistbalancos,
         listformularios, setlistformularios,
         arrayformularios, setarrayformularios,

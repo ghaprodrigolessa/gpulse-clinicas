@@ -19,6 +19,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 // importando css.
 import '../design.css';
 // importando imagens.
+import rxmockado from '../images/rxmockado.png'; // mock do Guilherme!
 import body from '../images/body.png';
 import dorso from '../images/dorso.svg';
 import Logo from '../components/Logo';
@@ -636,7 +637,6 @@ function Prontuario() {
         </div>
         <div onClick={() => setviewupdatevm(1)} className="pulsewidgetcontent"
           title="PARÂMETROS VENTILATÓRIOS."
-          onClick={() => setviewupdatevm(1)}
           style={{
             display: va > 2 ? '' : 'none',
             width: '100%', margin: 0, padding: 0,
@@ -2585,9 +2585,9 @@ function Prontuario() {
                         <div className="title2center" style={{ fontSize: 22, margin: 2.5, padding: 0 }}>{item.valor_resultado}</div>
                         <div
                           title={item.ds_resultado}
-                          className="title2center" 
+                          className="title2center"
                           style={{ fontSize: 14, margin: 2.5, padding: 0 }}>
-                            {JSON.stringify(item.ds_resultado).length > 20 ? item.ds_resultado.toString().substring(0, 20) + '...' : item.ds_resultado}</div>
+                          {JSON.stringify(item.ds_resultado).length > 20 ? item.ds_resultado.toString().substring(0, 20) + '...' : item.ds_resultado}</div>
                       </div>
                     ))}
                 </div>
@@ -3338,6 +3338,45 @@ function Prontuario() {
     });
   }
 
+  // GUILHERME E SEUS MOCKS:
+  var arraymockimage = [{
+    id: 1,
+    codigo: 10,
+    exame: 'RX DE TÓRAX AP',
+    status: 1,
+    pedido: '04/04/22',
+    resultado: '04/04/22'
+  }]
+  const [arraymockimagem, setarraymockimagem] = useState(arraymockimage);
+
+  const [viewrxmocked, setviewrxmocked] = useState(0);
+  function ViewMockRx() {
+    return (
+      <div
+        style={{
+          position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+          display: viewrxmocked == 1 ? 'flex' : 'none', 
+          flexDirection: 'row', justifyContent: 'center', alignContent: 'center', verticalAlign: 'center',
+          alignItems: 'center',
+          zIndex: 999,
+        }}
+        onClick={() => setviewrxmocked(0)}
+      >
+        <img
+          alt=""
+          src={rxmockado}
+          style={{
+            margin: 10,
+            height: '80vh',
+            width: '80vh',
+            borderRadius: 5,
+          }}
+        ></img>
+      </div>
+
+    )
+  }
+
   // constantes relacionadas à lista de exames de imagem:
   const [idimagem, setidimagem] = useState(0);
   const [codigoimagem, setcodigoimagem] = useState(0);
@@ -3446,7 +3485,7 @@ function Prontuario() {
             className="scroll"
             style={{ width: '100%', height: '90%', backgroundColor: 'transparent', borderColor: 'transparent' }}
             id="LISTA DE EXAMES DE IMAGEM"          >
-            {arrayimagem.map((item) => (
+            {arraymockimagem.map((item) => (
               <div
                 key={item.id}
                 id="item da lista"
@@ -3480,7 +3519,11 @@ function Prontuario() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                      <button id="viewimage" className="animated-blue-button" style={{ display: item.status < 3 ? 'none' : 'flex' }}>
+                      <button
+                        id="viewimage"
+                        className="animated-blue-button" style={{ display: 'flex' }}
+                        onClick={() => setviewrxmocked(1)}
+                      >
                         <img
                           alt=""
                           src={viewimage}
@@ -6000,14 +6043,14 @@ function Prontuario() {
             ></input>
             <div>
             </div>
-            <div className="scroll" style={{ height: '30vh', width: '60vh', marginTop: 10 }}>
+            <div className="scroll">
               {arraycid.map(item => (
                 <div
-                  className="blue-button" style={{ width: '100%', minWidth: '100%' }}
+                  className="blue-button"
                   onClick={() => {
                     insertDiagnosticoGhap(item.cid, item.descricao);
                   }}
-                  style={{ padding: 10, margin: 5, width: '100%' }}
+                  style={{ marginTop: 10, padding: 10, margin: 5, width: '100%', minWidth: '100%', height: '30vh' }}
                 >
                   {item.cid + ' - ' + item.descricao.toString().toUpperCase()}
                 </div>
@@ -10416,14 +10459,17 @@ function Prontuario() {
   function ShowCurativosList() {
     if (showcurativoslist == 1) {
       return (
-        <div className="menucover" style={{ zIndex: 9, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div className="menucover">
           <div className="menucontainer">
             <div
-              className="scroll" style={{ width: '100%' }}
+              className="scroll"
               id="LISTA DE CURATIVOS"
               style={{
+                zIndex: 9,
                 display: 'flex',
+                flexDirection: 'column',
                 justifyContent: 'flex-start',
+                alignItems: 'center',
                 margin: 5,
                 padding: 0,
                 paddingRight: 5,
@@ -11611,6 +11657,7 @@ function Prontuario() {
       onMouseMove={(e) => { showSideBar(e) }}
     >
       <LoadPrincipal></LoadPrincipal>
+      <ViewMockRx></ViewMockRx>
       <div
         style={{
           display: window.innerWidth < 800 && loadprincipal == 0 ? 'flex' : 'none',
