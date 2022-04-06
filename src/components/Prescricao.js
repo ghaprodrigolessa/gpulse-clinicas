@@ -120,6 +120,7 @@ function Prescricao({ newprescricao }) {
   const [justificativa, setjustificativa] = useState('');
   const [tipoitem, settipoitem] = useState(0);
   const [aprazamento, setaprazamento] = useState(0);
+  const [tag_componente, settag_componente] = useState(0);
 
   // constantes relacionadas à lista de componentes
   const [codigo, setcodigo] = useState(0);
@@ -504,7 +505,6 @@ function Prescricao({ newprescricao }) {
           }
           }> FÁRMACO</div >
           <div className="header-button" style={{ minWidth: 50, margin: 2.5 }}>QTDE</div>
-          <div className="header-button" style={{ minWidth: 120, margin: 2.5 }}>VIA</div>
           <div className="header-button" style={{ minWidth: 120, margin: 2.5 }}>HORÁRIO</div>
         </div>
       </div>
@@ -518,77 +518,22 @@ function Prescricao({ newprescricao }) {
         className="scroll"
         id="LISTA DE ITENS PRESCRITOS"
         onMouseUp={() => scrollPosition()}
-        onMouseOver={() => keepScroll()}
-        onMouseOut={() => keepScroll()}
-        onClick={() => keepScroll()}
+        // onMouseOver={() => keepScroll()}
+        // onMouseOut={() => keepScroll()}
+        // onClick={() => keepScroll()}
         // onLoad={() => keepScroll()}
         style={{
           display: stateprontuario == 9 ? 'flex' : 'none', height: 'calc(65vh - 22px)', width: '100%', alignItems: 'center',
           borderTopRightRadius: 0, borderBottomRightRadius: 0
         }}
       >
-        {listantibioticos.filter((item) => expanditem === 0 && item.status === 0 && item.idatendimento === idatendimento &&
-          moment((item.datatermino).toString().substring(0, 8), 'DD/MM/YY') > moment().startOf('day').add(1, 'day').add(13, 'hours')).map((item) => (
-            <p
-              key={item.id}
-              id="item da prescrição"
-              className="row"
-              disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-              style={{
-                backgroundColor: '#52be80',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                opacity: item.status === 1 ? 0.3 : 1,
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'left', alignItems: 'flex-start', width: '100%' }}>
-                <div
-                  className="title2"
-                  style={{
-                    color: '#ffffff',
-                  }}
-                >{item.farmaco + ' - ' + item.qtde + 'U ' + item.via + ' ' + item.horario}
-                </div>
-                <div style={{ margin: 10, marginTop: 0, marginBottom: 5, color: '#ffffff', fontSize: 12, fontWeight: 'bold', alignSelf: 'flex-start', textAlign: 'left' }}>
-                  {'PRÓXIMAS DOSES: ' + listcheckhorariosprescricoes.filter((valorhorario) => valorhorario.iditem === item.id).slice(0, 3).map((valorhorario) => ' ' + valorhorario.horario + '')}
-                </div>
-              </div>
-              <div
-                className="red-button"
-                title="DIA DE ANTIBIÓTICO."
-                style={{
-                  display: item.grupo === 'ANTIBIOTICOS' && item.datatermino !== '' ? 'flex' : 'none',
-                  margin: 5,
-                }}>
-                {moment().diff(moment(item.datainicio, 'DD/MM/YY'), 'days') + '/' + moment(item.datatermino, 'DD/MM/YY').diff(moment(item.datainicio, 'DD/MM/YY'), 'days')}
-              </div>
-              <button className="animated-red-button"
-                onClick={() => suspendItem(item)}
-                disabled={item.status === 1 ? true : false}
-                title={item.status === 1 ? "" : "SUSPENDER ANTIBIÓTICO."}
-                style={{
-                  alignSelf: 'center',
-                }}
-              >
-                <img
-                  alt=""
-                  src={suspender}
-                  style={{
-                    margin: 10,
-                    height: 30,
-                    width: 30,
-                  }}
-                ></img>
-              </button>
-            </p>
-          ))}
         {arrayitemprescricao.map((item) => (
           <p
             key={item.id}
             id="item da prescrição"
             // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
             style={{
-              display: item.grupo === 'ANTIBIOTICOS' && item.datatermino !== '' ? 'none' : 'flex', // hack para não exibir o antibiótico prescrito junto com o card de atb em uso. 
+              display: 'flex',
               flexDirection: 'column',
               opacity: item.status === 1 ? 0.3 : 1,
               width: '100%',
@@ -596,115 +541,102 @@ function Prescricao({ newprescricao }) {
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-              
               <button
-                className="hover-button"
+                className="blue-button"
                 onClick={() => selectItem(item)}
-                disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
                 id={item.id}
                 style={{
                   width: '100%',
                   margin: 2.5,
-                  flexDirection: 'column',
+                  flexDirection: 'row',
                   backgroundColor: '#8f9bbc',
                 }}
               >
                 <div
                   style={{
                     display: window.innerWidth > 1024 ? 'flex' : 'none',
+                    flexDirection: 'column',
                     textAlign: 'left',
                     justifyContent: 'flex-start',
                     padding: 10,
                     width: '100%',
                   }}
                 >
-                  {JSON.stringify(item.nome_item).length > 45 ? JSON.stringify(item.nome_item).substring(1, 45) + '...' : item.nome_item}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}
-                // botões para ação coletiva referente ao tipo de item prescrito (excluir todos, mudar quantidade, via e aprazamento de todos, etc.).
-                >
-                  <input
-                    className="input"
-                    // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                    defaultValue={item.qtde}
-                    autoComplete="off"
-                    placeholder="QTDE."
-                    onFocus={(e) => (e.target.placeholder = '')}
-                    onBlur={(e) => (e.target.placeholder = 'QTDE.')}
-                    title="QUANTIDADE (ITEM)."
-                    style={{
-                      display: 'flex',
-                      width: 50,
-                      margin: 2.5,
-                      flexDirection: 'column',
-                      boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.1)',
-                    }}
-                    // onKeyUp={(e) => updateMassiveItensPrescricao(item, e.target.value, item.via, item.aprazamento)}
-                    type="number"
-                    id="inputItemQtde"
-                    maxLength={3}>
-                  </input>
-                  <button
-                    className="hover-button"
-                    // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                    // onClick={() => clickMassiveItemVia(item)}
-                    style={{
-                      display: 'flex',
-                      width: 120,
-                      minWidth: 120,
-                      maxWidth: 120,
-                      padding: 5,
-                      margin: 2.5,
-                      flexDirection: 'column',
-                    }}
+                  <div id="nome do item"
+                    style={{ color: 'white', margin: 10, fontSize: 18 }}>
+                    {JSON.stringify(item.nome_item).length > 45 ? JSON.stringify(item.nome_item).substring(1, 45) + '...' : item.nome_item}
+                  </div>
+                  <div id="cabeçalho de ações massivas"
+                    style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+                    <div className="header-button" style={{ minWidth: 50, margin: 2.5, color: 'white', marginBottom: 0 }}>QTDE</div>
+                    <div className="header-button" style={{ minWidth: 120, margin: 2.5, color: 'white', marginBottom: 0 }}>VIA</div>
+                    <div className="header-button" style={{ minWidth: 120, margin: 2.5, color: 'white', marginBottom: 0 }}>HORÁRIO</div>
+                  </div>
+                  <div id="inputs para ações massivas"
+                    // botões para ação coletiva referente ao tipo de item prescrito (excluir todos, mudar quantidade, via e aprazamento de todos, etc.).
+                    style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}
                   >
-                    <div>{item.via}</div>
-                  </button>
-                  <button
-                    className="hover-button"
-                    // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                    // onClick={() => clickItemHorario(item)}
-                    style={{
-                      width: 120,
-                      minWidth: 120,
-                      maxWidth: 120,
-                      margin: 2.5,
-                      flexDirection: 'column',
-                      //opacity: item.id === iditem ? 1 : 0.6,
-                    }}
-                  >
-                    <div>{aprazamento}</div>
-                  </button>
-                </div>
-
-                <div
-                  style={{
-                    display: window.innerWidth < 1025 ? 'flex' : 'none',
-                    textAlign: 'left',
-                    justifyContent: 'flex-start',
-                    padding: 10,
-                    width: '100%',
-                  }}
-                >{JSON.stringify(item.nome_item).length > 30 ? JSON.stringify(item.nome_item).substring(1, 30) + '...' : item.nome_item}
-                </div>
-
-                <div
-                  className="red-button"
-                  title="DIA DE ANTIBIÓTICO."
-                  style={{
-                    display: item.grupo === 'ANTIBIOTICOS' && item.datatermino !== '' ? 'flex' : 'none',
-                    margin: 5,
-                  }}>
-                  {moment(dataprescricao, 'DD/MM/YY').diff(moment(item.datainicio, 'DD/MM/YY'), 'days') + '/' + moment(item.datatermino, 'DD/MM/YY').diff(moment(item.datainicio, 'DD/MM/YY'), 'days')}
+                    <input id="inputQtde(massivo)"
+                      onKeyUp={(e) => updateMassiveItensPrescricao(e.target.value, via, aprazamento, observacao)}
+                      className="input"
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      defaultValue={item.qtde}
+                      autoComplete="off"
+                      placeholder="QTDE."
+                      onFocus={(e) => (e.target.placeholder = '')}
+                      onBlur={(e) => (e.target.placeholder = 'QTDE.')}
+                      title="QUANTIDADE (ITEM)."
+                      style={{
+                        display: 'flex',
+                        width: 50,
+                        margin: 2.5,
+                        flexDirection: 'column',
+                        boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      type="number"
+                      maxLength={3}>
+                    </input>
+                    <button id="seletor via (massivo)"
+                      className="hover-button"
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      onClick={() => clickItemVia(item)}
+                      style={{
+                        display: 'flex',
+                        width: 120,
+                        minWidth: 120,
+                        maxWidth: 120,
+                        padding: 5,
+                        margin: 2.5,
+                        flexDirection: 'column',
+                      }}
+                    >
+                      <div>{item.via}</div>
+                    </button>
+                    <button id="seletor aprazamento (massivo)"
+                      className="hover-button"
+                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                      onClick={() => clickItemAprazamento(item)}
+                      style={{
+                        width: 120,
+                        minWidth: 120,
+                        maxWidth: 120,
+                        margin: 2.5,
+                        flexDirection: 'column',
+                        //opacity: item.id === iditem ? 1 : 0.6,
+                      }}
+                    >
+                      <div>{item.aprazamento}</div>
+                    </button>
+                  </div>
                 </div>
               </button>
-
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div id={"itens prescritos" + item.iditem}
+                className="retractitensprescricao"
+                style={{ flexDirection: 'column', justifyContent: 'center' }}>
                 {listitensprescricao.filter(valor => valor.iditem == item.iditem).map(valor => (
                   <div className="row" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-
-                    <input
+                    <input id="inputQtde"
                       className="input"
                       // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
                       defaultValue={valor.qtde}
@@ -722,26 +654,9 @@ function Prescricao({ newprescricao }) {
                       }}
                       onKeyUp={(e) => updateItemQtde(e.target.value, valor)}
                       type="number"
-                      id="inputItemQtde"
                       maxLength={3}>
                     </input>
-                    <button
-                      className="hover-button"
-                      // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
-                      onClick={() => clickItemVia(valor)}
-                      style={{
-                        display: 'flex',
-                        width: 120,
-                        minWidth: 120,
-                        maxWidth: 120,
-                        padding: 5,
-                        margin: 2.5,
-                        flexDirection: 'column',
-                      }}
-                    >
-                      <div>{valor.via}</div>
-                    </button>
-                    <button
+                    <button id="aprazamentos"
                       className="hover-button"
                       // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
                       // onClick={() => clickItemHorario(valor)}
@@ -756,8 +671,8 @@ function Prescricao({ newprescricao }) {
                     >
                       <div>{moment(valor.horario).format('DD/MM/YY - HH:MM')}</div>
                     </button>
-
-                    <button className="animated-red-button"
+                    <button id="deletar item"
+                      className="animated-red-button"
                       onClick={() => deleteItem(valor)}
                       // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
                       style={{
@@ -774,7 +689,8 @@ function Prescricao({ newprescricao }) {
                         }}
                       ></img>
                     </button>
-                    <button className="animated-red-button"
+                    <button id="excluir item"
+                      className="animated-red-button"
                       onClick={() => suspendItem(valor)}
                       disabled={valor.status === 1 ? true : false}
                       title={valor.status === 1 ? "" : "SUSPENDER ITEM"}
@@ -797,7 +713,10 @@ function Prescricao({ newprescricao }) {
                 ))}
               </div>
             </div>
-            <div style={{ display: expanditem === 1 && item.id === iditem ? 'flex' : 'none', flexDirection: 'row', justifyContent: 'center' }}>
+
+            <div id={"observações e componentes" + item.iditem}
+              className="retractitensprescricao"
+              style={{ flexDirection: 'row', justifyContent: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <div className="title2" style={{ fontSize: 14 }}>OBSERVAÇÕES</div>
                 <textarea
@@ -805,7 +724,7 @@ function Prescricao({ newprescricao }) {
                   className="textarea"
                   disabled={item.status === 1 || statusprescricao === 1 ? true : false}
                   defaultValue={item.observacao}
-                  onKeyUp={(e) => updateObservacoes(e.target.value, item)}
+                  onKeyUp={(e) => updateMassiveItensPrescricao(qtde, via, aprazamento, e.target.value)}
                   style={{
                     margin: 5, padding: 5,
                     width: 250,
@@ -820,7 +739,7 @@ function Prescricao({ newprescricao }) {
                 <div className="title2" style={{ fontSize: 14 }}>COMPONENTES</div>
                 <div
                   className="scroll"
-                  disabled={item.status === 1 || statusprescricao === 1 ? true : false}
+                  // disabled={item.status === 1 || statusprescricao === 1 ? true : false}
                   id="LISTA DE COMPONENTES"
                   style={{
                     margin: 5, padding: 5,
@@ -829,7 +748,7 @@ function Prescricao({ newprescricao }) {
                     boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.1)',
                   }}
                 >
-                  {listviewcomponentes.filter((value) => value.iditem === iditem).map((item) => (
+                  {listcomponentes.filter((value) => value.iditemprescricao == id).map((item) => (
                     <div
                       key={item.id}
                       id="componente do item da prescrição"
@@ -846,13 +765,13 @@ function Prescricao({ newprescricao }) {
                           onBlur={(e) => (e.target.placeholder = 'QTDE')}
                           onChange={(e) => updateComponenteQtde(e.target.value, item)}
                           style={{
-                            display: item.grupo === 'CUIDADOS GERAIS' || item.grupo === 'OXIGENOTERAPIA' ? 'none' : 'flex',
+                            display: 'flex',
                             width: 50,
                             margin: 2.5,
                             flexDirection: 'column',
                             boxShadow: '0px 1px 5px 1px rgba(0, 0, 0, 0.3)',
                           }}
-                          defaultValue={item.quantidade}
+                          defaultValue={item.qtde}
                           type="number"
                           id="inputComponenteQtde"
                           title="QUANTIDADE (COMPONENTE)."
@@ -1107,14 +1026,11 @@ function Prescricao({ newprescricao }) {
     setjustificativa(item.justificativa);
     settipoitem(item.tipoitem);
     setaprazamento(item.aprazamento);
-    if (expanditem === 0) {
-      setexpanditem(1);
-      // setarrayitemprescricao(listitensprescricao.filter(x => x.id === item.id));
-      keepScroll();
-    } else {
-      loadItensPrescricoes(filteritemprescricao);
-      keepScroll();
-    }
+    // expande a view contendo os registros de itens (aprazamentos).
+    setTimeout(() => {
+      document.getElementById("itens prescritos" + item.iditem).classList.toggle("expanditensprescricao");
+      document.getElementById("observações e componentes" + item.iditem).classList.toggle("expanditensprescricao");
+    }, 500);
   }
   // deletando item da prescrição.
   const deleteItem = (item) => {
@@ -1211,14 +1127,14 @@ function Prescricao({ newprescricao }) {
         x = response.data;
         var lastitemprescricaoid = x.rows.slice(-1).map(item => item.id);
         // registrando componentes para o item recém-criado:
-        pushComponente(item, lastitemprescricaoid);
+        pushComponente(lastitemprescricaoid);
       });
     }).catch(err => console.log(err));
   }
 
   // inserindo componentes no item prescrito.
-  const pushComponente = (item, id) => {
-    optionscomponentes.filter(value => value.tag_componente = item.tag_componente).map(item => {
+  const pushComponente = (id) => {
+    optionscomponentes.filter(value => value.tag_componente = tag_componente).map(item => {
       var obj = {
         idpct: idpaciente,
         idatendimento: idatendimento,
@@ -1557,45 +1473,55 @@ function Prescricao({ newprescricao }) {
   }
 
   // atualizando um conjunto de itens comuns de prescrição.
-  const updateMassiveItensPrescricao = (item, qtde, via, aprazamento) => {
+  const updateMassiveItensPrescricao = (qtde, via, aprazamento, observacao) => {
     // deletando os registros de itens de prescrição.
-    listitensprescricao.filter(valor => valor.iditem == item.iditem).map((valor) => {
+    listitensprescricao.filter(valor => valor.iditem == iditem).map((valor) => {
       axios.get(htmldeleteitemprescricao + valor.id);
     });
     // inserindo os registros de itens de prescrição com os novos parâmetros.
-    if (item.aprazamento == '24/24') {
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(1, 'day').add(10, 'hours')); // padrão 10h do dia seguinte à prescrição.
-    } else if (item.aprazamento == '12/12') {
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(20, 'hours')); // 20h da noite.
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(1, 'day').add(8, 'hours')); // 8h da manhã do dia seguinte.
-    } else if (item.aprazamento == '6/6') {
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(18, 'hours')); // 18h da noite.
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(24, 'hours')); // meia-noite.
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(30, 'hours')); // 6h da manhã do dia seguinte.
-      pushMassiveItem(item, qtde, via, aprazamento, moment().startOf('day').add(36, 'hours')); // 12h do dia seguinte.
+    if (aprazamento == '24/24') {
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(1, 'day').add(10, 'hours'), observacao); // padrão 10h do dia seguinte à prescrição.
+    } else if (aprazamento == '12/12') {
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(20, 'hours'), observacao); // 20h da noite.
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(1, 'day').add(8, 'hours'), observacao); // 8h da manhã do dia seguinte.
+    } else if (aprazamento == '6/6') {
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(18, 'hours'), observacao); // 18h da noite.
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(24, 'hours'), observacao); // meia-noite.
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(30, 'hours'), observacao); // 6h da manhã do dia seguinte.
+      pushMassiveItem(qtde, via, aprazamento, moment().startOf('day').add(36, 'hours'), observacao); // 12h do dia seguinte.
     }
   }
 
-  const pushMassiveItem = (item, qtde, via, aprazamento, horario) => {
+  const pushMassiveItem = (qtde, via, aprazamento, horario) => {
     var obj = {
       idpct: idpaciente,
       idatendimento: idatendimento,
       idprescricao: idprescricao,
-      iditem: item.cd_produto,
-      nome_item: item.ds_produto,
-      keyword_item: item.ds_produto_resumido,
+      iditem: iditem,
+      nome_item: nome_item,
+      keyword_item: keyword_item,
       qtde: qtde,
       via: via,
       horario: horario,
-      observacao: item.observacao,
+      observacao: observacao,
       status: 0,
       justificativa: '-x-',
       datainicio: moment(),
       datatermino: moment().add(1, 'day'),
-      tipoitem: parseInt(item.tipo),
+      tipoitem: tipoitem,
       aprazamento: aprazamento,
+      tag_componente: tag_componente
     };
-    axios.post(htmlinsertitemprescricao, obj)
+    axios.post(htmlinsertitemprescricao, obj).then(() => {
+      // recuperar id do item recém-criado:
+      axios.get(htmlitensprescricao + idprescricao).then((response) => {
+        var x = [0, 1];
+        x = response.data;
+        var lastitemprescricaoid = x.rows.slice(-1).map(item => item.id);
+        // registrando componentes para o item recém-criado:
+        pushComponente(lastitemprescricaoid);
+      });
+    });
   }
 
   // atualizando a quantidade de um item da prescrição.
@@ -1622,7 +1548,7 @@ function Prescricao({ newprescricao }) {
       axios.post(html + '/updateitemprescricao/' + item.id, obj).then(() => {
         // carregando a lista de itens prescritos.
         loadItensPrescricoes('');
-        keepScroll('LISTA DE ITENS PRESCRITOS');
+        // keepScroll('LISTA DE ITENS PRESCRITOS');
         axios.get(html + "/allitensprescricao").then((response) => {
           var x = [0, 1];
           x = response.data;
@@ -1666,6 +1592,7 @@ function Prescricao({ newprescricao }) {
     settipoitem(item.tipoitem);
     setaprazamento(item.aprazamento);
   }
+  // atualizar aprazamento de item de prescrição (não massivo) >> não utilizado.
   const updateItemVia = (via) => {
     var obj = {
       idpct: idpaciente,
@@ -1688,7 +1615,7 @@ function Prescricao({ newprescricao }) {
     axios.post(htmlupdateitemprescricao + id, obj).then(() => {
       setshowitemviaselector(0);
       loadItensPrescricoes();
-      keepScroll();
+      // keepScroll();
     });
   }
 
@@ -1708,6 +1635,7 @@ function Prescricao({ newprescricao }) {
     settipoitem(item.tipoitem);
     setaprazamento(item.aprazamento);
   }
+  // atualizar aprazamento de item de prescrição (não massivo).
   const updateItemAprazamento = (horario) => {
     var obj = {
       idpct: idpaciente,
@@ -1730,26 +1658,8 @@ function Prescricao({ newprescricao }) {
     axios.post(htmlupdateitemprescricao + id, obj).then(() => {
       setshowitemviaselector(0);
       loadItensPrescricoes();
-      keepScroll();
+      // keepScroll();
     });
-  }
-
-  // inserindo horários de checagem dos itens de prescrição.
-  const insertCheckPrescricao = (idpaciente, idatendimento, idprescricao, iditem, farmaco, grupo, qtde, via, prazo, horario) => {
-    var obj = {
-      idpaciente: idpaciente,
-      idatendimento: idatendimento,
-      idprescricao: idprescricao,
-      iditem: iditem,
-      farmaco: farmaco,
-      grupo: grupo,
-      qtde: qtde,
-      via: via,
-      prazo: prazo,
-      horario: horario,
-      checado: 0,
-    };
-    axios.post(html + '/insertchecagemprescricao', obj);
   }
 
   // renderização do seletor de opções para via de adminitração de um item.
@@ -1777,7 +1687,7 @@ function Prescricao({ newprescricao }) {
                   onClick={
                     showitemviaselector == 1 ?
                       (e) => { updateItemVia(item); e.stopPropagation() } :
-                      (e) => { updateMassiveItensPrescricao(item,); e.stopPropagation() }
+                      (e) => { updateMassiveItensPrescricao(qtde, item, aprazamento, observacao); e.stopPropagation() }
                   }
                   id="item da lista"
                   className="blue-button"
@@ -1822,7 +1732,7 @@ function Prescricao({ newprescricao }) {
               {arrayitemhorario.map((item) => (
                 <div
                   key={item.id}
-                  // onClick={(e) => { updateItemHorario(item); e.stopPropagation() }}
+                  onClick={() => updateMassiveItensPrescricao(qtde, via, item, observacao)}
                   id="item da lista"
                   className="blue-button"
                   style={{ width: 200 }}
@@ -1839,28 +1749,6 @@ function Prescricao({ newprescricao }) {
     }
   }
 
-  // atualizando as observações relativas ao item da prescrição.
-  const updateObservacoes = (value, item) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      var obj = {
-        id: item.id,
-        idatendimento: item.idatendimento,
-        idprescricao: item.idprescricao,
-        codigo: item.codigo,
-        grupo: item.grupo,
-        farmaco: item.farmaco,
-        qtde: item.qtde,
-        via: item.via,
-        horario: item.horario,
-        observacao: value.toUpperCase(),
-      };
-      axios.post(html + '/updateitemprescricao/' + item.id, obj);
-      setTimeout(() => {
-        loadItensPrescricoesById(idprescricao, item.id);
-      }, 1000);
-    }, 1000);
-  }
   // atualizando a justificativa relativa ao item da prescrição (aplicável aos antibióticos).
   const updateJustificativa = (value, item) => {
     clearTimeout(timeout);

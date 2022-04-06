@@ -1277,6 +1277,18 @@ input::-webkit-inner-spin-button {
   transition: 200ms 200ms ease-in-out;
 }
 
+.retractitensprescricao {
+  display: none;
+  opacity: 0;
+  transition: 200ms 200ms ease-in-out;
+}
+
+.expanditensprescricao {
+  display: flex;
+  opacity: 1;
+  transition: 200ms 200ms ease-in-out;
+}
+
 .row:not(:hover) .animated-blue-button {
   display: flex;
   flex-direction: column;
